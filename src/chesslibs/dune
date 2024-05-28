@@ -1,0 +1,5 @@
+(library
+ (name chesslibs)
+ (libraries assets))
+
+;(libraries unix))

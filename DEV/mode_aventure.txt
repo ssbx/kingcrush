@@ -1,0 +1,45 @@
+tutoriel
+========
+
+Progresser aux echecs doit être le but ici
+
+aventure
+========
+
+carte
+-----
+
+Le progres est représenté par des noeuds representant des étapes. Chaque étape
+correspond à un thème de problème. Le joueur a parfois deux chemins pour
+progresser, ou à l'inverse, doit acomplir plusieurs étapes pour débloquer la
+suivante. Visuellement, comme ça:
+
+     ---B----            F
+A ---        ----D---E---G  --I-- ...
+     ---C----            H
+
+Les puzzles dans chaque étape, sont de difficulté croissante, mais encadrés
+(par exemple 1200-1400). Les thèmes sont donnés la plupars du temps, sauf étapes
+spéciales. Voir si il s'agit de puzzle streak, ou puzzle storm (voir lichess).
+
+voir mode_aventure.odg
+
+
+badges
+------
+
+Un classique, trois badges par étapes si l'on veut finir à 100% le jeux.
+
+
+inspiration
+===========
+
+Voir ./design.
+Voir aussi
+
+jeux
+====
+
+- simple puzzle (puzzle streak)
+- puzzle vs (voir ./design/mode_versus.png)
+- vs game (fin de parties, faire nul ou gagner la fin de partie)

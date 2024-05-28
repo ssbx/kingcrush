@@ -1,0 +1,97 @@
+; puzzles.csv is allready a target in the main makefile. This rule is here
+; for make-release
+
+(install
+ (section
+  (site
+   (chesspuzzles data)))
+ (files puzzles.csv))
+
+(rule
+ (mode fallback)
+ (alias install)
+ (target puzzles.csv)
+ (deps puzzles.csv.gz)
+ (action
+  (system "gzip -dk puzzles.csv.gz")))
+
+;
+; pieces pieces
+;
+
+(install
+ (section
+  (site
+   (chesspuzzles pieces)))
+ (files
+  (include default_theme.sexp)
+  (include pixel_theme.sexp)))
+
+(rule
+ (deps
+  (source_tree pieces/default))
+ (action
+  (with-stdout-to
+   default_theme.sexp
+   (system
+    "\n        echo '(';\n          for im in pieces/default/*.png; do\n            echo '(' $im as default/$(basename $im) ')';\n          done;\n        echo ')'"))))
+
+(rule
+ (deps
+  (source_tree pieces/pixel))
+ (action
+  (with-stdout-to
+   pixel_theme.sexp
+   (system
+    "\n        echo '(';\n          for im in pieces/pixel/*.png; do\n            echo '(' $im as pixel/$(basename $im) ')';\n          done;\n        echo ')'"))))
+
+; sounds
+
+(install
+ (section
+  (site
+   (chesspuzzles sounds)))
+ (files
+  (include sounds.sexp)))
+
+(rule
+ (deps
+  (source_tree sounds))
+ (action
+  (with-stdout-to
+   sounds.sexp
+   (system "echo '(' sounds/*.wav ')'"))))
+
+; fonts
+
+(install
+ (section
+  (site
+   (chesspuzzles fonts)))
+ (files
+  (include fonts.sexp)))
+
+(rule
+ (deps
+  (source_tree fonts))
+ (action
+  (with-stdout-to
+   fonts.sexp
+   (system "echo '(' fonts/*.ttf ')'"))))
+
+; various images
+
+(install
+ (section
+  (site
+   (chesspuzzles images)))
+ (files
+  (include images.sexp)))
+
+(rule
+ (deps
+  (source_tree images))
+ (action
+  (with-stdout-to
+   images.sexp
+   (system "echo '(' images/*.png ')'"))))

@@ -1,0 +1,35 @@
+(executable
+ (public_name chesspuzzles)
+ (modes
+  (native exe))
+ (modules main)
+ (name main)
+ (libraries tsdl tsdl-mixer chesslibs utils game))
+
+(library
+ (name fonts)
+ (modules fonts)
+ (libraries tsdl-ttf assets))
+
+(library
+ (name audio)
+ (modules audio)
+ (libraries tsdl-mixer utils assets))
+
+(library
+ (name assets)
+ (modules assets)
+ (libraries dune-site))
+
+(generate_sites_module
+ (module assets)
+ (sites chesspuzzles))
+
+(library
+ (modules utils)
+ (name utils)
+ (libraries tsdl))
+
+(library
+ (modules timer)
+ (name timer))

@@ -1,0 +1,11 @@
+- intro1 (auto suivant)
+- intro2 (auto suivant)
+- Main (music démare dans le noir, puis fade in) (auto suivant)
+- Menu (apparition animée menu) (user action, choix niveau parcours 600-1000,1000-1200...)
+- Map (user action start game)
+- Position (music stop) (user game action)
+- Bravo/Perdu (auto suivant)
+- Success accomplis "étoiles" (musique) (auto suivant)
+- Recap détaillé (wait user action)
+- Map (user action start game)
+

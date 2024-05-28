@@ -1,0 +1,4 @@
+/_build
+*.swp
+/assets/puzzles.csv
+/chesspuzzles.desktop

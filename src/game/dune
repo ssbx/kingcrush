@@ -1,0 +1,14 @@
+(library
+ (name game)
+ (libraries
+  anims
+  chesslibs
+  assets
+  audio
+  fonts
+  utils
+  timer
+  tsdl
+  tsdl-image
+  tsdl-mixer
+  tsdl-ttf))

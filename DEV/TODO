@@ -1,0 +1,94 @@
+## TODO
+
+### modes
+
+- système de points lors de combos (passage de palliers)
+- mini parties de 5-10 puzzles, avec possibilité de gagner 3 étoiles si des
+objectifs tiers sont remplis (vitesse, nombre de points,...?), puis progression
+vers les puzzles suivants
+- proto mode aventure (voir DEV/mode_aventure.md)
+
+### licences
+
+- sounds/musique/pieces
+
+### bugs
+
+- quand plusieurs coups gagnants, seul un fonctionne (multiples mats en un coup)
+- promotion piece: la piece promue est toujours noire
+- selectionner une piece en même temps que le focus est acquis par la fenêtre
+ne fonctionne pas
+- drag drop: quand le drop est en dehors du board, la piece n'est pas relachée
+
+### amélioration
+
+#### ui
+
+- rendre visible le dernier coup joué (voir comment chesscom ou lichess font)
+- rendre le bazard jouable avec mouse select case-source select case-dest
+- animer le mouvement du joueur aussi, avec des variations (quand dernier coup
+mate, mouvement démare lent finit for et déflagration)
+- animer les cases de possibles d'une pièce (enflamées)
+- animer le réseau de couverture de pièces pour un mat, pièces une par une
+couvre les cases, pour finir avec celle qui produit le mat et explosion du roi
+
+#### audio
+
+- trouver son flipper qui claque (psylvariar), voir psygame pour chaque "check"
+et pour "checkmate"
+- (mode points, puzzle rush) une game de note au fur et à mesure que le chain
+grossis
+
+#### visuel
+
+- lors du passage à un autre puzzle, défilement de plateau vers le bas (on
+grimpe, et/ou animation des pièces qui se positionnent sur leurs cases)
+- lors d'un passage de niveau "chain", une barre démare (easInCubic) et se
+termine par une secouse de l écran
+- des particules par-ci par la
+
+### refacto
+
+- needs_redraw doit être un compteur
+- revoir fonctionnement position.ml et faire un truc clean avec une queue
+d'evenements.
+- changer l'axe board de y à x pour etre cohérent avec opengl:
+- utiliser une lib ou un module pour le log (voir dolog, ou ce qu'utilise
+janestreet)
+- utiliser une un fichier sexp de conf
+
+### recherche
+
+- les chess ui / jeux dispo sous linux
+- les chess ui / jeux dispo sur steam
+- les chess ui chess.com (voir ce qu'ils font pour les kids)
+- voir anims sur jeux "casuals" (fishdom,...)
+
+et faire de celui-ci le plus fun/interactif (animations, secousses, sons)
+
+#### DANS LE FUTUR
+
+- score a droite, avec minuteur, et vies si l'on enchaine des combos
+- piece qui doit bouger qui vibre en fin de timer pour aider
+- sons victoire/perdu/problème reussit/bon coup/mauvais coup/
+- bouton quiter/interrompre/recommencer
+- affichage victoire! / perdu!
+- problèmes par thèmes
+- splash screen
+- sdl3
+- android
+
+#### UCI SERAIT COOL
+
+Pour travailler des fin de parties random, un petit moteur de jeux, sans
+ouvertures, suffit.
+
+- interface uci
+- voir embedables engines:
+    - stockfish (https://github.com/peterosterlund2/droidfish),
+    - fruit,
+    - glaurung,
+    - toga2,
+    - gaviotatb,
+    - crafty
+
