@@ -1,5 +1,5 @@
 (executable
- (public_name chesspuzzles)
+ (public_name kingcrush)
  (modes
   (native exe))
  (modules main)
@@ -23,7 +23,7 @@
 
 (generate_sites_module
  (module assets)
- (sites chesspuzzles))
+ (sites kingcrush))
 
 (library
  (modules utils)

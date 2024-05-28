@@ -2,7 +2,7 @@ open Tsdl
 open Tsdl_mixer
 open Utils
 
-let usage_msg = "chesspuzzles [--disable-anims] [--disable-audio] [--verbose]"
+let usage_msg = "kingcrush [--disable-anims] [--disable-audio] [--verbose]"
 let with_anims = ref true
 let with_audio = ref true
 let generate_themes = ref false
@@ -56,7 +56,7 @@ let run () =
 
   let w_flags = Sdl.Window.(opengl + resizable) in
   let win =
-    sdl_get_ok (Sdl.create_window ~w:640 ~h:480 "Chesspuzzles" w_flags)
+    sdl_get_ok (Sdl.create_window ~w:640 ~h:480 "kingcrush" w_flags)
   in
   let r_flags = Sdl.Renderer.(presentvsync + accelerated + targettexture) in
   let renderer = sdl_get_ok (Sdl.create_renderer ~flags:r_flags win) in
@@ -94,7 +94,7 @@ let run () =
   Sdl.destroy_window win;
   Sdl.quit ();
   print_endline
-    (sdl_get_ok (Sdl.get_pref_path ~org:"company" ~app:"chesspuzzle"));
+    (sdl_get_ok (Sdl.get_pref_path ~org:"ssbx" ~app:"kingcrush"));
   exit 0
 
 let gen_themes () =

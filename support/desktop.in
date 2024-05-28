@@ -2,7 +2,7 @@
 Comment=
 Exec=@APPBIN@
 Icon=@APPICON@
-Name=chesspuzzles
+Name=kingcrush
 NoDisplay=false
 Path[$e]=
 StartupNotify=true

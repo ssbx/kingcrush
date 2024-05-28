@@ -4,7 +4,7 @@
 (install
  (section
   (site
-   (chesspuzzles data)))
+   (kingcrush data)))
  (files puzzles.csv))
 
 (rule
@@ -22,7 +22,7 @@
 (install
  (section
   (site
-   (chesspuzzles pieces)))
+   (kingcrush pieces)))
  (files
   (include default_theme.sexp)
   (include pixel_theme.sexp)))
@@ -50,7 +50,7 @@
 (install
  (section
   (site
-   (chesspuzzles sounds)))
+   (kingcrush sounds)))
  (files
   (include sounds.sexp)))
 
@@ -67,7 +67,7 @@
 (install
  (section
   (site
-   (chesspuzzles fonts)))
+   (kingcrush fonts)))
  (files
   (include fonts.sexp)))
 
@@ -84,7 +84,7 @@
 (install
  (section
   (site
-   (chesspuzzles images)))
+   (kingcrush images)))
  (files
   (include images.sexp)))
 
