@@ -1,13 +1,13 @@
 open Tsdl
 open Utils
 
-let display_started : bool ref = ref false
-
 let rdr : Sdl.renderer option ref = ref None
 let bg_tex : Sdl.texture option ref = ref None
 let rect : Sdl.rect = Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0
 let get_rdr () = match !rdr with Some v -> v | None -> assert false
 let get_bg_tex () = match !bg_tex with Some v -> v | None -> assert false
+
+let enabled : bool ref = ref false
 
 let orig_x = ref 0
 let orig_y = ref 0
@@ -65,22 +65,19 @@ let init ~renderer =
   rdr := Some renderer
 
 
-let anim_out () =
+let start_anim_out f =
   State.wait_for_events := false;
   let anim = Anims.create
     ~pt_start:(!orig_x)
     ~pt_end:(-1000)
     ~span:400
     ~at_update:(fun v -> Sdl.Rect.set_x rect v)
-    ~at_end:(fun () ->
-      Level_details.start_anim_in ();
-      display_started := false)
+    ~at_end:(fun () -> enabled := false; f ())
     Anims.Easing.Quadratic_in in
-  (*Timer.at ((Utils.sdl_get_ticks ()) + 1000) (fun () ->*)
-  Anims.start anim (Utils.sdl_get_ticks ())
+  Anims.start anim !State.ticks
 
-let start_anim_in () =
-  display_started := true;
+let start_anim_in f =
+  enabled := true;
   State.wait_for_events := false;
   Sdl.Rect.set_y rect !orig_y;
   Sdl.Rect.set_x rect !orig_x;
@@ -89,14 +86,13 @@ let start_anim_in () =
     ~pt_end:(!orig_y)
     ~span:400
     ~at_update:(fun v -> Sdl.Rect.set_y rect v)
-    ~at_end:(fun () -> Timer.at (!State.ticks + 1000) anim_out )
+    ~at_end:f
     Anims.Easing.Quadratic_in in
   Anims.start anim !State.ticks
 
-let reset () = display_started := false
 
 let draw ~renderer =
-  if !display_started then (
+  if !enabled then (
     sdl_try (Sdl.render_copy ~dst:rect renderer (get_bg_tex ()))
   )
 

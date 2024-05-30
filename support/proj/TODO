@@ -12,6 +12,11 @@ vers les puzzles suivants
 
 - sounds/musique/pieces
 
+### gui
+
+- dear imgui (req opengl, pas de port ocaml)
+- bogue (ocaml voir code)
+
 ### bugs
 
 - quand plusieurs coups gagnants, seul un fonctionne (multiples mats en un coup)

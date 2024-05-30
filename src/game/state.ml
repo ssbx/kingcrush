@@ -1,18 +1,15 @@
 open Tsdl
 
-let map_scene : bool ref = ref false
 
 let ticks : int ref = ref 0
 let delta : int ref = ref 0
-let game_over : bool ref = ref false
-let game_over_ready : bool ref = ref false
-let wait_for_events : bool ref = ref true
+let wait_for_events : bool ref = ref false
 let quit_requested : bool ref = ref false
 let pause_redraw : bool ref = ref false
 let needs_redraw : bool ref = ref true
 let with_audio : bool ref = ref true
 let with_anims : bool ref = ref true
-let game_len : int ref = ref 1
+let game_len : int ref = ref 10
 
 module Screen = struct
   let logical_w : int = 1600
@@ -21,7 +18,6 @@ module Screen = struct
   let board_size : int = 177 * 8
   let board_size_f : float = 177. *. 8.
   let logical_board_width : int = Float.to_int (Float.of_int logical_w *. 0.6)
-
   let logical_square_width : int =
     Float.to_int (Float.of_int logical_w *. 0.6 /. 8.)
 

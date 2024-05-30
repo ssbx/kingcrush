@@ -7,6 +7,7 @@ let rect : Sdl.rect = Sdl.Rect.create ~x:0 ~y:0
   ~w:State.Screen.logical_w ~h:State.Screen.logical_w
 
 let alpha : int ref = ref 0
+let enabled : bool ref = ref false
 
 let init ~renderer =
   let texture = sdl_get_ok (Sdl.create_texture renderer
@@ -25,8 +26,20 @@ let release () =
   Sdl.destroy_texture (get_tex ());
   tex := None
 
+let fade_in f =
+  let anim = Anims.create
+    ~pt_start:255
+    ~pt_end:0
+    ~span:3000
+    ~at_update:(fun v -> alpha := v)
+    ~at_end:(fun () -> enabled := false; f ())
+    Anims.Easing.Quadratic_in in
+  Anims.start anim!State.ticks
+
+
 let fade_out f =
- let anim = Anims.create
+  enabled := true;
+  let anim = Anims.create
     ~pt_start:(0)
     ~pt_end:(255)
     ~span:400
@@ -37,6 +50,8 @@ let fade_out f =
 
 
 let draw ~renderer =
-  let t = get_tex () in
-  sdl_try (Sdl.set_texture_alpha_mod t !alpha);
-  sdl_try (Sdl.render_copy ~dst:rect renderer t)
+  if !enabled then (
+    let t = get_tex () in
+    sdl_try (Sdl.set_texture_alpha_mod t !alpha);
+    sdl_try (Sdl.render_copy ~dst:rect renderer t)
+  )

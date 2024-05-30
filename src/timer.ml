@@ -1,3 +1,4 @@
+open Utils
 
 type job_t = {
   at : int;
@@ -6,9 +7,11 @@ type job_t = {
 
 let jobs : job_t list ref = ref []
 
-let at ms f =
+let fire_at ms f =
   jobs := {at = ms; fn = f} :: !jobs
 
+let fire_in ms f =
+  fire_at ((sdl_get_ticks ()) + ms) f
 
 let rec update_all ticks = function
   | [] -> ()
@@ -18,7 +21,6 @@ let rec update_all ticks = function
         jobs := List.filter (fun v -> v != j) !jobs
       );
       update_all ticks tail
-
 
 let length () = List.length !jobs
 

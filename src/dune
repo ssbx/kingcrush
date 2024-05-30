@@ -32,4 +32,5 @@
 
 (library
  (modules timer)
- (name timer))
+ (name timer)
+ (libraries tsdl utils))

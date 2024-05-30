@@ -11,7 +11,6 @@ build: assets/puzzles.csv
 	dune build
 
 clean:
-	rm -f kingcrush.desktop
 	dune clean
 
 format:

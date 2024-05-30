@@ -1,8 +1,7 @@
 module Easing = Easing
 
 type anim = {
-  anim_fun : float -> float;
-  mutable pt_curr  : int;
+  easing   : float -> float;
   pt_start : int;
   pt_end   : int;
   vector   : float;
@@ -13,8 +12,7 @@ type anim = {
 }
 
 let anim_empty : anim = {
-  anim_fun = (fun _ -> 0.);
-  pt_curr = 0;
+  easing = (fun _ -> 0.);
   pt_start = 0;
   pt_end = 0;
   vector = 0.;
@@ -35,8 +33,7 @@ let create
   ?(at_update = (fun _ -> ()))
   ?(at_end    = (fun () -> ())) curve =
   {
-    anim_fun = Easing.get_anim curve;
-    pt_curr = pt_start;
+    easing = Easing.get_anim curve;
     pt_start = pt_start;
     pt_end = pt_end;
     vector = Float.of_int (pt_end - pt_start);
@@ -52,22 +49,21 @@ let start anim ticks =
   queue := anim :: !queue
 
 (*let animate anim int_ticks =*)
-let rec update_all ticks = function
+let rec process ticks = function
   | [] -> ()
-  | anim :: tail ->
-    let prog = (ticks -. anim.ticks_start) /. anim.ticks_span in
+  | a :: tail ->
+    let prog = (ticks -. a.ticks_start) /. a.ticks_span in
     if prog > 1.0 then (
-      queue := List.filter (fun a -> a != anim) !queue;
-      anim.pt_curr <- anim.pt_end;
-      anim.at_update anim.pt_end;
-      anim.at_end ()
+      queue := List.filter (fun a -> a != a) !queue;
+      a.at_update a.pt_end;
+      a.at_end ()
     ) else (
-      let dist = anim.anim_fun prog in
-      let pt_curr = anim.pt_start + (Float.to_int (dist *. anim.vector)) in
-      anim.pt_curr <- pt_curr;
-      anim.at_update pt_curr
+      let dist = a.easing prog in
+      let curr = a.pt_start + (Float.to_int (dist *. a.vector)) in
+      a.at_update curr
     );
-    update_all ticks tail
+    process ticks tail
 
 let update int_ticks =
-    update_all (Float.of_int int_ticks) !queue
+    process (Float.of_int int_ticks) !queue
+

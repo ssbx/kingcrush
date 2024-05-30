@@ -84,7 +84,6 @@ let board_iter_xy func b =
 (* renderer things ========================================================= *)
 (* ========================================================================= *)
 let update_board_texture board_pos =
-  State.needs_redraw := true;
   let rdr = get_renderer ()
   and tex = get_pieces_text ()
   and pw = Pieces.piece_width in
@@ -142,9 +141,7 @@ let draw ~renderer =
       and y = view_state.cursor_y - half_ps in
       Sdl.Rect.set_x view_state.drag_rect x;
       Sdl.Rect.set_y view_state.drag_rect y;
-      sdl_try (Sdl.render_copy ~dst:view_state.drag_rect renderer p));
-  if view_state.anim_running = None && view_state.drag_active = false then
-    State.needs_redraw := false
+      sdl_try (Sdl.render_copy ~dst:view_state.drag_rect renderer p))
 
 (* ========================================================================= *)
 (* position utils ========================================================== *)
@@ -197,8 +194,7 @@ let update_anims () =
   | None -> (
       match view_state.anims_queue with
       | [] ->
-          update_position ();
-          State.wait_for_events := true
+          update_position ()
       | anim :: tail ->
           let new_anim =
             { anim with animation = Easing.start anim.animation }
@@ -212,8 +208,6 @@ let fupdate x y = view_state.anim_x <- x; view_state.anim_y <- y
 let fended () = view_state.anim_running <- None; update_anims ()
 
 let queue_anim anim =
-  State.wait_for_events := false;
-  State.needs_redraw := true;
   view_state.anims_queue <- List.append view_state.anims_queue [ anim ];
   update_anims ()
 
@@ -295,7 +289,6 @@ let anim_backward from_pos_id to_pos_id =
 (* ========================================================================= *)
 
 let drag_init piece rank file =
-  State.needs_redraw := true;
   let pos = Model.current_position () in
   let board = Chess.copy_board pos.board in
   Hints.show pos rank file;
@@ -337,7 +330,7 @@ let handle_button1_down x y =
   match coords_to_square x y with
   | None -> ()
   | Some (rank, file) ->
-      if !State.game_over = false && Model.player_turn () then
+      if Model.player_turn () then
         let piece = view_state.position.board.(file).(rank) in
         if Controller.can_pick_piece rank file then
           if view_state.anim_running = None then drag_init piece rank file
@@ -373,8 +366,8 @@ let handle_button1_up x y =
 
 let handle_sdl_event ~event =
   match Sdl.Event.enum (Sdl.Event.get event Sdl.Event.typ) with
-  | `Mouse_motion -> if !State.game_over = false then handle_mouse_motion event
-  | `Mouse_wheel -> if !State.game_over = false then handle_mouse_wheel event
+  | `Mouse_motion -> handle_mouse_motion event
+  | `Mouse_wheel -> handle_mouse_wheel event
   | `Mouse_button_up ->
       if Sdl.Event.(get event mouse_button_button) = 1 then
         let x = Sdl.Event.(get event mouse_button_x)

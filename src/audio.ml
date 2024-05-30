@@ -48,12 +48,15 @@ let play s =
   | Ok _ -> ()
   | Error (`Msg m) -> Printf.eprintf "playing error %s\n%!" m
 
-let music_play = function
-  | Groove -> sdl_try (Mixer.play_music (some_or_fail !groove_music) 10)
-  | Calm -> sdl_try (Mixer.play_music (some_or_fail !calm_music) 10)
+let music_play m =
+  match m with
+  | Groove ->
+      sdl_try (Mixer.play_music (some_or_fail !groove_music) 0)
+  | Calm ->
+      sdl_try (Mixer.play_music (some_or_fail !calm_music) 0)
 
 let music_stop () =
-  sdl_ignore (Mixer.fade_out_music 300)
+  sdl_ignore (Mixer.fade_out_music Mixer.default_frequency)
 
 let init () =
   groove_music := Some (sdl_get_ok (Mixer.load_mus (get_path "MusicGroove.wav")));
@@ -81,7 +84,6 @@ let release () =
   Mixer.free_chunk (get_sound LevelComplete);
   Mixer.free_chunk (get_sound GameOver);
   Mixer.free_chunk (get_sound PuzzleRushEnd);
-  Mixer.free_chunk (get_sound Move);
   Mixer.free_music (some_or_fail !groove_music);
   Mixer.free_music (some_or_fail !calm_music)
 

@@ -1,13 +1,15 @@
-let pi = 3.14159
-let half_pi = 1.5707
+let pi = Float.pi
+let half_pi = pi /. 2.
 let linear f = f
 let quadratic_in f = f *. f
 let quadratic_out f = -.(f *. (f -. 2.))
 
 let quadratic_inout f =
-  match f < 0.5 with
-  | true -> 2. *. f *. f
-  | false -> (-2. *. f *. f) +. (4. *. f) -. 1.
+  if f < 0.5 then (
+    2. *. f *. f
+  ) else (
+    (-2. *. f *. f) +. (4. *. f) -. 1.
+  )
 
 let cubic_in f = f *. f *. f
 
@@ -16,11 +18,12 @@ let cubic_out f =
   (t *. t *. t) +. 1.
 
 let cubic_inout f =
-  match f < 0.5 with
-  | true -> 4. *. f *. f *. f
-  | false ->
-      let t = (2. *. f) -. 2. in
-      (0.5 *. t *. t *. t) +. 1.
+  if f < 0.5 then (
+    4. *. f *. f *. f
+  ) else (
+    let t = (2. *. f) -. 2. in
+    (0.5 *. t *. t *. t) +. 1.
+  )
 
 let quartic_in f = f *. f *. f *. f
 
@@ -29,11 +32,12 @@ let quartic_out f =
   (t *. t *. t *. (1. -. f)) +. 1.
 
 let quartic_inout f =
-  match f < 0.5 with
-  | true -> 8. *. f *. f *. f *. f
-  | false ->
-      let t = f -. 1. in
-      (-8. *. t *. t *. t *. t) +. 1.
+  if f < 0.5 then (
+    8. *. f *. f *. f *. f
+  ) else (
+    let t = f -. 1. in
+    (-8. *. t *. t *. t *. t) +. 1.
+  )
 
 let quintic_in f = f *. f *. f *. f *. f
 
@@ -42,11 +46,12 @@ let quintic_out f =
   (t *. t *. t *. t *. t) +. 1.
 
 let quintic_inout f =
-  match f < 0.5 with
-  | true -> 16. *. f *. f *. f *. f *. f
-  | false ->
-      let t = (2. *. f) -. 2. in
-      (0.5 *. t *. t *. t *. t *. t) +. 1.
+  if f < 0.5 then (
+    16. *. f *. f *. f *. f *. f
+  ) else (
+    let t = (2. *. f) -. 2. in
+    (0.5 *. t *. t *. t *. t *. t) +. 1.
+  )
 
 let sin_in f = sin ((f -. 1.) *. half_pi) +. 1.
 let sin_out f = sin (f *. half_pi)
@@ -55,21 +60,36 @@ let circular_in f = 1. -. sqrt (1. -. (f *. f))
 let circular_out f = sqrt ((2. -. f) *. f)
 
 let circular_inout f =
-  match f < 0.5 with
-  | true -> 0.5 *. (1. -. sqrt (1. -. (4. *. (f *. f))))
-  | false -> 0.5 *. (sqrt (-.((2. *. f) -. 3.) *. ((2. *. f) -. 1.)) +. 1.)
+  if f < 0.5 then (
+    0.5 *. (1. -. sqrt (1. -. (4. *. (f *. f))))
+  ) else (
+    0.5 *. (sqrt (-.((2. *. f) -. 3.) *. ((2. *. f) -. 1.)) +. 1.)
+  )
 
 let exponential_in f =
-  match f = 0.0 with true -> f | false -> Float.pow 2. (10. *. (f -. 1.))
+  if f = 0.0 then (
+    f
+  ) else (
+    Float.pow 2. (10. *. (f -. 1.))
+  )
 
 let exponential_out f =
-  match f = 1.0 with true -> f | false -> 1. -. Float.pow 2. (-10. *. f)
+  if f = 1.0 then (
+    f
+  ) else (
+    1. -. Float.pow 2. (-10. *. f)
+  )
 
 let exponential_inout f =
-  match f = 0.0 || f = 1.0 with
-  | true -> f
-  | false when f < 0.5 -> 0.5 *. Float.pow 2. ((20. *. f) -. 10.)
-  | _ -> (-0.5 *. Float.pow 2. ((-20. *. f) +. 10.)) +. 1.
+  if f = 0.0 || f = 1.0 then (
+    f
+  ) else (
+    if f < 0.5 then (
+      0.5 *. Float.pow 2. ((20. *. f) -. 10.)
+    ) else (
+      (-0.5 *. Float.pow 2. ((-20. *. f) +. 10.)) +. 1.
+    )
+  )
 
 let elastic_in f = sin (13. *. half_pi *. f) *. Float.pow 2. (10. *. (f -. 1.))
 
@@ -77,16 +97,16 @@ let elastic_out f =
   (sin (-13. *. half_pi *. (f +. 1.)) *. Float.pow 2. (-10. *. f)) +. 1.
 
 let elastic_inout f =
-  match f < 0.5 with
-  | true ->
+  if f < 0.5 then (
       0.5
       *. sin (13. *. half_pi *. (2. *. f))
       *. Float.pow 2. (10. *. ((2. *. f) -. 1.))
-  | false ->
+  ) else (
       0.5
       *. (sin (-13. *. half_pi *. ((2. *. f) -. 1. +. 1.))
           *. Float.pow 2. (-10. *. ((2. *. f) -. 1.))
          +. 2.)
+  )
 
 let back_in f = (f *. f *. f) -. (f *. sin (f *. pi))
 
@@ -95,29 +115,33 @@ let back_out f =
   1. -. ((t *. t *. t) -. (t *. sin (t *. pi)))
 
 let back_inout f =
-  match f < 0.5 with
-  | true ->
-      let t = 2. *. f in
-      0.5 *. ((t *. t *. t) -. (t *. sin (t *. pi)))
-  | false ->
-      let t = 1. -. ((2. *. f) -. 1.) in
-      (0.5 *. (1. -. ((t *. t *. t) -. (t *. sin (t *. pi))))) +. 0.5
+  if f < 0.5 then (
+    let t = 2. *. f in
+    0.5 *. ((t *. t *. t) -. (t *. sin (t *. pi)))
+  ) else (
+    let t = 1. -. ((2. *. f) -. 1.) in
+    (0.5 *. (1. -. ((t *. t *. t) -. (t *. sin (t *. pi))))) +. 0.5
+  )
 
 let bounce_out f =
-  match f with
-  | f when f < 4. /. 11. -> 121. *. f *. f /. 16.
-  | f when f < 8. /. 11. ->
-      (363. /. 40. *. f *. f) -. (99. /. 10. *. f) +. (17. /. 5.)
-  | f when f < 9. /. 10. ->
-      (4356. /. 361. *. f *. f) -. (35442. /. 1805. *. f) +. (16061. /. 1805.)
-  | f -> (54. /. 5. *. f *. f) -. (513. /. 25. *. f) +. (268. /. 25.)
+  if f < 4. /. 11. then (
+    121. *. f *. f /. 16.
+  ) else if f < 8. /. 11. then (
+    (363. /. 40. *. f *. f) -. (99. /. 10. *. f) +. (17. /. 5.)
+  ) else if f < 9. /. 10. then (
+    (4356. /. 361. *. f *. f) -. (35442. /. 1805. *. f) +. (16061. /. 1805.)
+  ) else (
+    (54. /. 5. *. f *. f) -. (513. /. 25. *. f) +. (268. /. 25.)
+  )
 
 let bounce_in f = 1. -. bounce_out (1. -. f)
 
 let bounce_inout f =
-  match f < 0.5 with
-  | true -> 0.5 *. bounce_in (f *. 2.)
-  | false -> (0.5 *. bounce_out ((f *. 2.) -. 1.)) +. 0.5
+  if f < 0.5 then (
+    0.5 *. bounce_in (f *. 2.)
+  ) else (
+    (0.5 *. bounce_out ((f *. 2.) -. 1.)) +. 0.5
+  )
 
 let rec easing_test func step f =
   match f with
@@ -232,8 +256,7 @@ type easing_func_t =
   | Bounce_in
   | Bounce_inout
 
-let get_anim anim_type =
-  match anim_type with
+let get_anim = function
   | Linear -> linear
   | Quadratic_in -> quadratic_in
   | Quadratic_out -> quadratic_out
@@ -299,53 +322,11 @@ let create ~anim_type ~start_point ~end_point ~duration_ms ~fun_start
     ended_fun = (fun () -> ());
   }
 
-type auto_anim_t = {
-  anim_fun : float -> float;
-  pt_start : int;
-  pt_end : int;
-  span : Int32.t;
-  target : int ref;
-}
-
-let create2 ~anim_type ~pt_start ~pt_end ~ticks ~target =
-  {
-    anim_fun = get_anim anim_type;
-    pt_start = pt_start;
-    pt_end = pt_end;
-    span = ticks;
-    target = target;
-  }
-
-
 let start anim =
   let a = { anim with start_tick = Int32.to_int (Tsdl.Sdl.get_ticks ()) } in
   a.start_fun a.start_point.x a.start_point.y;
   anims := a :: !anims;
   a
-
-let animate2 () =
-  let now = Int32.to_int (Tsdl.Sdl.get_ticks ()) in
-  List.iter (fun a ->
-    let elapsed = Float.of_int (now - a.start_tick) in
-    let progress = elapsed -. (Float.of_int a.duration_ticks) in
-    if progress > 1.0 then (
-      a.update_fun
-        (a.start_point.x + a.vector.x)
-        (a.start_point.y + a.vector.y);
-      a.ended_fun ();
-      a.ended <- true
-    ) else (
-      let prog = a.func progress in
-      let prog_x = a.start_point.x +
-        (Float.to_int ((Float.of_int a.vector.x) *. prog))
-      and prog_y = a.start_point.y +
-        (Float.to_int ((Float.of_int a.vector.y) *. prog)) in
-      a.update_fun prog_x prog_y
-    )
-  ) !anims;
-  anims := List.filter (fun a -> a.ended <> true) !anims;
-  List.length !anims
-
 
 
 let animate anim now =
