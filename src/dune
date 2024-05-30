@@ -14,7 +14,7 @@
 (library
  (name audio)
  (modules audio)
- (libraries tsdl-mixer utils assets))
+ (libraries tsdl-mixer utils assets timer))
 
 (library
  (name assets)

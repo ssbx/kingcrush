@@ -7,7 +7,6 @@ let with_anims = ref true
 let with_audio = ref true
 let generate_themes = ref false
 let verbose = ref false
-let audio_chunk_size = 2048
 
 let speclist =
   [
@@ -44,12 +43,20 @@ let rec loop ~renderer ~vsync ~event =
   if !Game.State.quit_requested = true then print_endline "bye!"
   else loop ~renderer ~vsync ~event
 
-let run () =
+(* ====================================================================================*)
+(* MAIN ===============================================================================*)
+(* ====================================================================================*)
+let () =
+
+  Arg.parse speclist (fun _ -> ()) usage_msg;
+
   sdl_try (Sdl.init Sdl.Init.(video + events + audio));
-  if !with_audio then
+  if !with_audio then (
+    let audio_chunk_size = 2048 in
     sdl_try
       (Mixer.open_audio Mixer.default_frequency Mixer.default_format
-         Mixer.default_channels audio_chunk_size);
+         Mixer.default_channels audio_chunk_size)
+  );
 
   sdl_ignore (Sdl.set_hint Sdl.Hint.render_scale_quality "2");
   sdl_ignore (Sdl.set_hint Sdl.Hint.render_vsync "1");
@@ -97,15 +104,3 @@ let run () =
     (sdl_get_ok (Sdl.get_pref_path ~org:"ssbx" ~app:"kingcrush"));
   exit 0
 
-let gen_themes () =
-  let ch = Stdlib.open_out "./themes.txt" in
-  let themes = Chesslibs.Puzzles.list_themes () in
-  List.iter
-    (fun kw ->
-      Stdlib.output_string ch kw;
-      Stdlib.output_char ch '\n')
-    (List.sort (fun a b -> String.compare a b) themes)
-
-let () =
-  Arg.parse speclist (fun _ -> ()) usage_msg;
-  if !generate_themes then gen_themes () else run ()

@@ -44,11 +44,13 @@ let get_sound t =
   | None -> assert false
 
 let play s =
+  Printf.printf "default freq mix : %i\n%!" Mixer.default_frequency;
   match Mixer.play_channel (-1) (get_sound s) 0 with
   | Ok _ -> ()
   | Error (`Msg m) -> Printf.eprintf "playing error %s\n%!" m
 
 let music_play m =
+  sdl_try (Mixer.halt_music ());
   match m with
   | Groove ->
       sdl_try (Mixer.play_music (some_or_fail !groove_music) 0)
@@ -56,7 +58,7 @@ let music_play m =
       sdl_try (Mixer.play_music (some_or_fail !calm_music) 0)
 
 let music_stop () =
-  sdl_ignore (Mixer.fade_out_music Mixer.default_frequency)
+  sdl_ignore (Mixer.fade_out_music 500)
 
 let init () =
   groove_music := Some (sdl_get_ok (Mixer.load_mus (get_path "MusicGroove.wav")));
