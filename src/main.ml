@@ -14,7 +14,7 @@ let speclist =
       Arg.Set generate_themes,
       "Generate themes.txt file and quit" );
     ("--disable-anims", Arg.Clear with_anims, "Disable animations");
-    ("--disable-audio", Arg.Clear with_audio, "Disable audio");
+    ("--disable-audio", Arg.Clear Audio.enabled, "Disable audio");
     ("--verbose", Arg.Set verbose, "For debugging purpose only");
   ]
 
@@ -49,7 +49,6 @@ let rec loop ~renderer ~vsync ~event =
 let () =
 
   Arg.parse speclist (fun _ -> ()) usage_msg;
-
   sdl_try (Sdl.init Sdl.Init.(video + events + audio));
   if !with_audio then (
     let audio_chunk_size = 2048 in

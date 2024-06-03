@@ -1,0 +1,4 @@
+(library
+ (name chesslibs))
+
+;(libraries unix))

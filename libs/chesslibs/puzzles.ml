@@ -23,9 +23,8 @@ let current_theme : theme_t ref = ref AnyTheme
 (* init csv file =========================================================== *)
 (* ========================================================================= *)
 
-let csv_file = Filename.concat (List.nth Assets.Sites.data 0) "puzzles.csv"
-let csv_chan = Stdlib.open_in csv_file
-let csv_size = Stdlib.in_channel_length csv_chan
+let csv_chan : Stdlib.in_channel ref = ref Stdlib.stdin
+let csv_size : int ref = ref 0
 let random_step = 25000
 
 (* ========================================================================= *)
@@ -35,38 +34,41 @@ let random_step = 25000
 let rec go_nl ch = if Stdlib.input_char ch <> '\n' then go_nl ch
 
 let rec seek_rank ~rank ~pos ~window =
-  go_nl csv_chan;
-  let line = Stdlib.input_line csv_chan in
+  go_nl !csv_chan;
+  let line = Stdlib.input_line !csv_chan in
   let splited = String.split_on_char ',' line in
   let rank_str = List.nth splited 3 in
   let rank_i = Stdlib.int_of_string rank_str in
   let nwin = window / 2 in
   if rank_i < rank then (
     let npos = pos + nwin in
-    Stdlib.seek_in csv_chan npos;
+    Stdlib.seek_in !csv_chan npos;
     if nwin > 0 then seek_rank ~rank ~pos:npos ~window:nwin)
   else if rank_i > rank then (
     let npos = pos - nwin in
-    Stdlib.seek_in csv_chan npos;
+    Stdlib.seek_in !csv_chan npos;
     if nwin > 0 then seek_rank ~rank ~pos:npos ~window:nwin)
   else ()
 
-let init () = Random.self_init ()
+let init fname =
+  Random.self_init ();
+  csv_chan := Stdlib.open_in fname;
+  csv_size := Stdlib.in_channel_length !csv_chan
 
 let reset ~theme ~start_rank =
   current_theme := theme;
   if start_rank > 0 then (
-    Stdlib.seek_in csv_chan (csv_size / 2);
-    seek_rank ~rank:start_rank ~pos:(csv_size / 2) ~window:(csv_size / 2))
-  else Stdlib.seek_in csv_chan 0
+    Stdlib.seek_in !csv_chan (!csv_size / 2);
+    seek_rank ~rank:start_rank ~pos:(!csv_size / 2) ~window:(!csv_size / 2))
+  else Stdlib.seek_in !csv_chan 0
 
 let filter ~theme = current_theme := theme
-let release () = Stdlib.close_in csv_chan
+let release () = Stdlib.close_in !csv_chan
 
 let list_themes () =
-  Stdlib.seek_in csv_chan 0;
+  Stdlib.seek_in !csv_chan 0;
   let rec search_th l =
-    match Stdlib.input_line csv_chan with
+    match Stdlib.input_line !csv_chan with
     | exception End_of_file -> l
     | line ->
         let splited = String.split_on_char ',' line in
@@ -80,7 +82,7 @@ let list_themes () =
         in
         search_th (l @ add_theses)
   in
-  Stdlib.seek_in csv_chan 0;
+  Stdlib.seek_in !csv_chan 0;
   search_th []
 
 (* ========================================================================= *)
@@ -105,7 +107,7 @@ let rec next_nth_line chan i =
 
 let next_puzzle () =
   try
-    let line = next_nth_line csv_chan (Random.int random_step) in
+    let line = next_nth_line !csv_chan (Random.int random_step) in
     Printf.printf "loading: %s%!\n" line;
     match String.split_on_char ',' line with
     | id :: fen :: mvs :: rating :: _ ->

@@ -71,10 +71,10 @@ let handle_game_event = function
     State.wait_for_events := false;
     State.needs_redraw := true;
     to_level_over ();
-    Sounds.play Audio.GameOver
+    Audio.play Audio.GameOver
   | Model.LevelComplete ->
     to_level_over ();
-    Sounds.play Audio.LevelComplete
+    Audio.play Audio.LevelComplete
   | e ->
     Position.handle_game_event e;
     Score.handle_game_event e
@@ -115,7 +115,7 @@ let init ~renderer ~with_audio ~with_anims =
   State.delta := 0;
   State.with_audio := with_audio;
   State.with_anims := with_anims;
-  Sounds.init ();
+  Audio.init ();
   Fonts.init ();
   Model.init ();
   Pieces.init ~renderer;
@@ -143,6 +143,6 @@ let release () =
   Background.release ();
   Pieces.release ();
   (*Fonts.release ();*)
-  Sounds.release ();
+  Audio.release ();
   Model.release ()
 

@@ -9,7 +9,7 @@ let new_game ?(timeout = true) n =
   (*Level_details.anim_out ();*)
   Audio.music_stop ();
   let start_fun = (fun () ->
-    Sounds.play Audio.LevelStart;
+    Audio.play Audio.LevelStart;
     Model.start n
   ) in
   if timeout then

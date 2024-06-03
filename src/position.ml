@@ -151,8 +151,8 @@ let play_audio () =
   let pos = Model.position_at (curr_id - 1) in
   let mv = match pos.mv_next with Some v -> v | None -> assert false in
   if Chess.is_a_piece pos.board.(mv.to_x).(mv.to_y) then
-    Sounds.play Audio.Capture
-  else Sounds.play Audio.Move
+    Audio.play Audio.Capture
+  else Audio.play Audio.Move
 
 let cleanup_view_state () =
   view_state.drag_active <- false;
@@ -387,7 +387,7 @@ let handle_game_event = function
   | Model.NewPuzzle -> update_position ()
   | Model.PuzzleSolved ->
       update_position ();
-      Sounds.play Audio.PuzzleRushGood
+      Audio.play Audio.PuzzleRushGood
   | Model.OponentMove (from_pos, to_pos) ->
       if !State.with_anims then anim_forward from_pos to_pos
       else (

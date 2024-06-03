@@ -1,36 +1,9 @@
 (executable
- (public_name kingcrush)
- (modes
-  (native exe))
- (modules main)
- (name main)
- (libraries tsdl tsdl-mixer chesslibs utils game))
-
-(library
- (name fonts)
- (modules fonts)
- (libraries tsdl-ttf assets))
-
-(library
- (name audio)
- (modules audio)
- (libraries tsdl-mixer utils assets timer))
-
-(library
- (name assets)
- (modules assets)
- (libraries dune-site))
+  (public_name chesspuzzles)
+  (modes (native exe))
+  (name main)
+  (libraries tsdl tsdl-image tsdl-ttf tsdl-mixer chesslibs dune-site))
 
 (generate_sites_module
  (module assets)
  (sites kingcrush))
-
-(library
- (modules utils)
- (name utils)
- (libraries tsdl))
-
-(library
- (modules timer)
- (name timer)
- (libraries tsdl utils))

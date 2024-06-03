@@ -7,6 +7,8 @@ let get_path f = Filename.concat audio_dir f
 let groove_music : Mixer.music option ref = ref None
 let calm_music : Mixer.music option ref = ref None
 
+let enabled : bool ref = ref true
+
 type music_t = Groove | Calm
 
 type sound_t =
@@ -44,50 +46,56 @@ let get_sound t =
   | None -> assert false
 
 let play s =
-  Printf.printf "default freq mix : %i\n%!" Mixer.default_frequency;
-  match Mixer.play_channel (-1) (get_sound s) 0 with
-  | Ok _ -> ()
-  | Error (`Msg m) -> Printf.eprintf "playing error %s\n%!" m
+  if !enabled then (
+    Printf.printf "default freq mix : %i\n%!" Mixer.default_frequency;
+    match Mixer.play_channel (-1) (get_sound s) 0 with
+    | Ok _ -> ()
+    | Error (`Msg m) -> Printf.eprintf "playing error %s\n%!" m
+  )
 
 let music_play m =
-  sdl_try (Mixer.halt_music ());
-  match m with
-  | Groove ->
-      sdl_try (Mixer.play_music (some_or_fail !groove_music) 0)
-  | Calm ->
-      sdl_try (Mixer.play_music (some_or_fail !calm_music) 0)
+  if !enabled then (
+    sdl_try (Mixer.halt_music ());
+    match m with
+    | Groove ->
+        sdl_try (Mixer.play_music (some_or_fail !groove_music) 0)
+    | Calm ->
+        sdl_try (Mixer.play_music (some_or_fail !calm_music) 0)
+  )
 
 let music_stop () =
-  sdl_ignore (Mixer.fade_out_music 500)
+  if !enabled then sdl_ignore (Mixer.fade_out_music 500)
 
 let init () =
-  groove_music := Some (sdl_get_ok (Mixer.load_mus (get_path "MusicGroove.wav")));
-  calm_music := Some (sdl_get_ok (Mixer.load_mus (get_path "MusicCalm2.wav")));
-  sounds :=
-    Some
-      {
-        capture = sdl_get_ok (Mixer.load_wav (get_path "Capture.wav"));
-        move = sdl_get_ok (Mixer.load_wav (get_path "Move.wav"));
-        puzzle_rush_good =
-          sdl_get_ok (Mixer.load_wav (get_path "PuzzleRushGood.wav"));
-        puzzle_rush_end =
-          sdl_get_ok (Mixer.load_wav (get_path "PuzzleRushEnd.wav"));
-        game_over = sdl_get_ok (Mixer.load_wav (get_path "GameOver.wav"));
-        level_start = sdl_get_ok (Mixer.load_wav (get_path "LevelStart.wav"));
-        level_complete =
-          sdl_get_ok (Mixer.load_wav (get_path "LevelComplete.wav"));
-      }
+  if !enabled then (
+    groove_music := Some (sdl_get_ok (Mixer.load_mus (get_path "MusicGroove.wav")));
+    calm_music := Some (sdl_get_ok (Mixer.load_mus (get_path "MusicCalm2.wav")));
+    sounds :=
+      Some
+        {
+          capture = sdl_get_ok (Mixer.load_wav (get_path "Capture.wav"));
+          move = sdl_get_ok (Mixer.load_wav (get_path "Move.wav"));
+          puzzle_rush_good =
+            sdl_get_ok (Mixer.load_wav (get_path "PuzzleRushGood.wav"));
+          puzzle_rush_end =
+            sdl_get_ok (Mixer.load_wav (get_path "PuzzleRushEnd.wav"));
+          game_over = sdl_get_ok (Mixer.load_wav (get_path "GameOver.wav"));
+          level_start = sdl_get_ok (Mixer.load_wav (get_path "LevelStart.wav"));
+          level_complete =
+            sdl_get_ok (Mixer.load_wav (get_path "LevelComplete.wav"));
+        }
+  )
 
 let release () =
-  Mixer.free_chunk (get_sound Move);
-  Mixer.free_chunk (get_sound Capture);
-  Mixer.free_chunk (get_sound PuzzleRushGood);
-  Mixer.free_chunk (get_sound LevelStart);
-  Mixer.free_chunk (get_sound LevelComplete);
-  Mixer.free_chunk (get_sound GameOver);
-  Mixer.free_chunk (get_sound PuzzleRushEnd);
-  Mixer.free_music (some_or_fail !groove_music);
-  Mixer.free_music (some_or_fail !calm_music)
-
-
+  if !enabled then (
+    Mixer.free_chunk (get_sound Move);
+    Mixer.free_chunk (get_sound Capture);
+    Mixer.free_chunk (get_sound PuzzleRushGood);
+    Mixer.free_chunk (get_sound LevelStart);
+    Mixer.free_chunk (get_sound LevelComplete);
+    Mixer.free_chunk (get_sound GameOver);
+    Mixer.free_chunk (get_sound PuzzleRushEnd);
+    Mixer.free_music (some_or_fail !groove_music);
+    Mixer.free_music (some_or_fail !calm_music)
+  )
 
