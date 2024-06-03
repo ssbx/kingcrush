@@ -1,7 +1,8 @@
 open Tsdl
-open Anims
 open Chesslibs
-open Utils
+open Gamekit.Utils
+open Gamekit.Anims
+open Ressources
 
 let anim_time = 100
 let anim_type = Easing.Quintic_out

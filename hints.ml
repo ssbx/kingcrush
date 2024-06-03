@@ -1,6 +1,7 @@
 open Tsdl
 open Tsdl_image
-open Utils
+open Ressources
+open Gamekit.Utils
 open Chesslibs.Chess
 
 let img_texture : Sdl.texture option ref = ref None

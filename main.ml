@@ -1,6 +1,7 @@
 open Tsdl
 open Tsdl_mixer
-open Utils
+open Gamekit.Utils
+open Ressources
 
 let usage_msg = "kingcrush [--disable-anims] [--disable-audio] [--verbose]"
 let with_anims = ref true

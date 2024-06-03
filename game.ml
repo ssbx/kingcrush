@@ -1,5 +1,7 @@
 module State = State
-open Utils
+open Gamekit
+open Gamekit.Utils
+open Ressources
 
 (* ================================================================== *)
 (* transition states between phases ================================= *)

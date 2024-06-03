@@ -1,5 +1,6 @@
 open Tsdl
-open Utils
+open Gamekit.Utils
+open Ressources
 
 (*
 let black_square_color = (114, 74, 140, 255)

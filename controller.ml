@@ -1,4 +1,6 @@
 open Chesslibs
+open Gamekit
+open Ressources
 
 let move_forward () = Model.move_fwd ()
 let move_backward () = Model.move_bwd ()
