@@ -1,7 +1,7 @@
 open Tsdl_mixer
 open Utils
 
-let audio_dir : string = List.nth Assets.Sites.sounds 0
+let audio_dir : string = List.nth Data.Sites.sounds 0
 let get_path f = Filename.concat audio_dir f
 
 let groove_music : Mixer.music option ref = ref None

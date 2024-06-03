@@ -7,7 +7,7 @@ run: build
 	#dune exec -- kingcrush --disable-anims --disable-audio
 	#dune exec -- kingcrush --generate-themes
 
-build: assets/puzzles.csv
+build: data/puzzles.csv
 	dune build
 
 clean:
@@ -34,6 +34,6 @@ rel-check:
 	dune-release check
 
 # real targets
-assets/puzzles.csv: assets/puzzles.csv.gz
-	cd assets && gzip -dk puzzles.csv.gz
+data/puzzles.csv: data/puzzles.csv.gz
+	cd data && gzip -dk puzzles.csv.gz
 

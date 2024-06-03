@@ -3,7 +3,7 @@ open Tsdl_image
 open Utils
 
 let piece_width = 177
-let images_dir = Filename.concat (List.nth Assets.Sites.pieces 0) "default"
+let images_dir = Filename.concat (List.nth Data.Sites.pieces 0) "default"
 let get_path v = Filename.concat images_dir v
 
 type p_type = {

@@ -5,5 +5,5 @@
   (libraries tsdl tsdl-image tsdl-ttf tsdl-mixer chesslibs dune-site))
 
 (generate_sites_module
- (module assets)
+ (module data)
  (sites kingcrush))

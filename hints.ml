@@ -16,7 +16,7 @@ let get_rdr () = match !rdr with Some v -> v | None -> assert false
 let psize = ref 0
 
 let init ~renderer =
-  let img = Filename.concat (List.nth Assets.Sites.images 0) "hint.png" in
+  let img = Filename.concat (List.nth Data.Sites.images 0) "hint.png" in
   rdr := Some renderer;
   img_texture := Some (sdl_get_ok (Image.load_texture renderer img));
   psize := Pieces.piece_width;
