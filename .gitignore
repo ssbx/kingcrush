@@ -1,5 +1,6 @@
+*.swp
 /_build
 /_opam
-*.swp
+/.opam_env
 /data/puzzles.csv
 /kingcrush.desktop
