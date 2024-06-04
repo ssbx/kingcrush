@@ -3,10 +3,17 @@
 
 (name kingcrush)
 
-(generate_opam_files false)
+(maintainers "seb&seb")
+(authors "seb&seb")
+(homepage "nohome")
+(bug_reports "nobugs")
+
+(generate_opam_files true)
 
 (package
   (name kingcrush)
+  (synopsis "Some")
+  (description "some")
   (sites
     (share pieces)
     (share sounds)
@@ -15,8 +22,8 @@
     (share images))
   (depends
     (ocaml (>= 4.08))
-    (tsdl  (>= 1.0.0))
-    (tsdl-image (>= 0.6))
-    (tsdl-mixer (>= 0.6))
-    (tsdl-ttf   (>= 0.6))
-    (dune-site (>= 3.15.2))))
+    (tsdl  (= 0.9.9))
+    (tsdl-image (= 0.3.2))
+    (tsdl-mixer (= 0.3.2))
+    (tsdl-ttf   (= 0.3.2))
+    (dune-site (= 3.5.0))))
