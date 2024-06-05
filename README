@@ -1,7 +1,43 @@
+code organisation
+=================
+
 brd_*.ml: board drawing and behaviour code
 gm_(mode)_*.ml: game modes code
 osd_*.ml: on screen display draw and functions
 scr_*.ml: various drawing code
+
+taches gamedev
+==============
+
+(depuis: https://www.youtube.com/watch?v=sGo-gDAN8S8 )
+
+programming
+-----------
+- system design
+- system programming
+- level design/mapping
+- content programming
+- bugfix
+- optimisation
+- porting
+
+arts
+----
+- technical artist
+- content design
+- 2d/3d artist
+- writting
+- audio
+
+market
+------
+- recherche marketing
+- contenu marketing
+- community/social media
+- playtesting
+- screenshos/trailers
+- business admin/accounting taxes
+- platform store admin
 
 ## TODO
 
