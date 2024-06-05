@@ -5,10 +5,10 @@ open Ressources
 let move_forward () = Model.move_fwd ()
 let move_backward () = Model.move_bwd ()
 let can_pick_piece rank file = Model.can_pick_piece rank file
-let quit () = State.quit_requested := true
+let quit () = Game_state.quit_requested := true
 
 let new_game ?(timeout = true) n =
-  (*Level_details.anim_out ();*)
+  (*Osd_level_details.anim_out ();*)
   Audio.music_stop ();
   let start_fun = (fun () ->
     Audio.play Audio.LevelStart;

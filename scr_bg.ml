@@ -13,14 +13,14 @@ let init ~renderer =
   let tex = sdl_get_ok (Image.load_texture renderer filename) in
   let _, _, (w, h) = sdl_get_ok (Sdl.query_texture tex) in
 
-  let ratio = Float.of_int State.Screen.logical_h /. Float.of_int h in
-  let logic_h = State.Screen.logical_h
+  let ratio = Float.of_int Game_state.Screen.logical_h /. Float.of_int h in
+  let logic_h = Game_state.Screen.logical_h
   and logic_w = Float.to_int (ratio *. Float.of_int w) in
   Sdl.Rect.set_h bg_rect logic_h;
   Sdl.Rect.set_w bg_rect logic_w;
   Sdl.Rect.set_y bg_rect 0;
   (* centered horizontal *)
-  let logic_x_center = State.Screen.logical_w / 2
+  let logic_x_center = Game_state.Screen.logical_w / 2
   and logic_bg_center = logic_w / 2 in
   Sdl.Rect.set_x bg_rect (logic_x_center - logic_bg_center);
   bg_tex := Some tex

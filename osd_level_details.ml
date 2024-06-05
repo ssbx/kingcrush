@@ -3,16 +3,17 @@ open Gamekit
 open Gamekit.Utils
 open Ressources
 
+
 let rdr : Sdl.renderer option ref = ref None
 let bg_tex : Sdl.texture option ref = ref None
 let rect : Sdl.rect = Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0
 let get_rdr () = match !rdr with Some v -> v | None -> assert false
 let get_bg_tex () = match !bg_tex with Some v -> v | None -> assert false
 
+let enabled : bool ref = ref false
+
 let orig_x = ref 0
 let orig_y = ref 0
-
-let enabled : bool ref = ref false
 
 let gen_text ~renderer ~text =
   let surf = Fonts.get_surface text in
@@ -22,9 +23,9 @@ let gen_text ~renderer ~text =
   (tex, w, h)
 
 let init ~renderer =
-  let otex, over_w, over_h = gen_text ~renderer ~text:"LEVEL COMPLETE BRAVO!!!" in
+  let otex, over_w, over_h = gen_text ~renderer ~text:"SCORE BOARD" in
 
-  let rtex, retry_w, retry_h = gen_text ~renderer ~text:"..." in
+  let rtex, retry_w, retry_h = gen_text ~renderer ~text:"Click to continue ..." in
 
   Sdl.Rect.set_w rect (Stdlib.max retry_w over_w + (10 * 2));
   Sdl.Rect.set_h rect (retry_h + over_h + (10 * 2));
@@ -55,8 +56,8 @@ let init ~renderer =
   Sdl.Rect.set_w rect (bg_w * 2);
   Sdl.Rect.set_h rect (bg_h * 2);
 
-  let w = State.Screen.logical_w
-  and h = State.Screen.logical_h
+  let w = Game_state.Screen.logical_w
+  and h = Game_state.Screen.logical_h
   and over_w = Sdl.Rect.w rect
   and over_h = Sdl.Rect.h rect in
   orig_x := ((w / 2) - (over_w / 2));
@@ -68,7 +69,7 @@ let init ~renderer =
 
 
 let start_anim_out f =
-  State.wait_for_events := false;
+  Game_state.wait_for_events := false;
   let anim = Anims.create
     ~pt_start:(!orig_x)
     ~pt_end:(-1000)
@@ -76,13 +77,13 @@ let start_anim_out f =
     ~at_update:(fun v -> Sdl.Rect.set_x rect v)
     ~at_end:(fun () -> enabled := false; f ())
     Anims.Easing.Quadratic_in in
-  Anims.start anim (Utils.sdl_get_ticks ())
+  Anims.start anim !Game_state.ticks
 
 let start_anim_in f =
-  enabled := true;
-  State.wait_for_events := false;
+  Game_state.wait_for_events := false;
   Sdl.Rect.set_y rect !orig_y;
   Sdl.Rect.set_x rect !orig_x;
+  enabled := true;
   let anim = Anims.create
     ~pt_start:(-1000)
     ~pt_end:(!orig_y)
@@ -90,8 +91,7 @@ let start_anim_in f =
     ~at_update:(fun v -> Sdl.Rect.set_y rect v)
     ~at_end:f
     Anims.Easing.Quadratic_in in
-  Anims.start anim (Utils.sdl_get_ticks ())
-
+  Anims.start anim !Game_state.ticks
 
 let draw ~renderer =
   if !enabled then (

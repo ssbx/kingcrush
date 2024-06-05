@@ -27,7 +27,7 @@ let emit_events ~event =
     if Sdl.poll_event (Some event) = true then consume_events () else ()
   in
 
-  if !Game.State.wait_for_events = true then (
+  if !Game_state.wait_for_events = true then (
     sdl_try (Sdl.wait_event (Some event));
     consume_events ())
   else if Sdl.poll_event (Some event) = true then consume_events ()
@@ -38,10 +38,10 @@ let rec loop ~renderer ~vsync ~event =
   sdl_ignore (Sdl.set_render_draw_color renderer 0 0 0 255);
   sdl_ignore (Sdl.render_clear renderer);
   Game.update ~ticks:(Int32.to_int (Sdl.get_ticks ()));
-  if !Game.State.needs_redraw then (
+  if !Game_state.needs_redraw then (
     Game.draw ~renderer;
     Sdl.render_present renderer);
-  if !Game.State.quit_requested = true then print_endline "bye!"
+  if !Game_state.quit_requested = true then print_endline "bye!"
   else loop ~renderer ~vsync ~event
 
 (* ====================================================================================*)
@@ -89,8 +89,8 @@ let () =
   let vsync = Sdl.Renderer.test info.ri_flags Sdl.Renderer.presentvsync in
   sdl_try (Sdl.render_set_scale renderer 4. 3.);
   sdl_try
-    (Sdl.render_set_logical_size renderer Game.State.Screen.logical_w
-       Game.State.Screen.logical_h);
+    (Sdl.render_set_logical_size renderer Game_state.Screen.logical_w
+       Game_state.Screen.logical_h);
 
   Game.init ~renderer ~with_anims:!with_anims ~with_audio:!with_audio;
   loop ~renderer ~vsync ~event:(Sdl.Event.create ());

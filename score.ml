@@ -70,14 +70,14 @@ let release () =
   score_tex := None
 
 let draw ~renderer =
-  sdl_try (Sdl.render_copy ~dst:State.Screen.score_rect renderer (get_tex ()));
+  sdl_try (Sdl.render_copy ~dst:Game_state.Screen.score_rect renderer (get_tex ()));
 
-  Sdl.Rect.set_x score_rect (Sdl.Rect.x State.Screen.score_rect + 10);
-  Sdl.Rect.set_y score_rect (Sdl.Rect.y State.Screen.score_rect + 10);
+  Sdl.Rect.set_x score_rect (Sdl.Rect.x Game_state.Screen.score_rect + 10);
+  Sdl.Rect.set_y score_rect (Sdl.Rect.y Game_state.Screen.score_rect + 10);
   sdl_try (Sdl.render_copy ~dst:score_rect renderer (get_score_tex ()));
-  Sdl.Rect.set_x rating_rect (Sdl.Rect.x State.Screen.score_rect + 10);
+  Sdl.Rect.set_x rating_rect (Sdl.Rect.x Game_state.Screen.score_rect + 10);
   Sdl.Rect.set_y rating_rect
-    (Sdl.Rect.y State.Screen.score_rect + 10 + Sdl.Rect.h score_rect);
+    (Sdl.Rect.y Game_state.Screen.score_rect + 10 + Sdl.Rect.h score_rect);
   sdl_try (Sdl.render_copy ~dst:rating_rect renderer (get_rating_tex ()))
 
 let handle_game_event = function

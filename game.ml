@@ -1,4 +1,3 @@
-module State = State
 open Gamekit
 open Gamekit.Utils
 open Ressources
@@ -8,9 +7,9 @@ open Ressources
 (* ================================================================== *)
 type view_state_t =
     Playing    (* inputs enabled, position receive all events -> to_level_over *)
-  | LevelOver  (* inputs disabled, anim in/out Level_over -> to_level_info *)
-  | LevelInfo  (* inputs disabled, anim in/out Level_info -> to_level_details *)
-  | LevelDetails (* inputs disabled, anim in Level_details -> to_details_wait *)
+  | LevelOver  (* inputs disabled, anim in/out Osd_level_over -> to_level_info *)
+  | LevelInfo  (* inputs disabled, anim in/out Osd_level_info -> to_level_details *)
+  | LevelDetails (* inputs disabled, anim in Osd_level_details -> to_details_wait *)
   | LevelDetailsWait (* wait click to move forward -> to_map *)
   | Map (* inputs disabled, anim in/out map -> to_map_wait *)
   | MapWait (*inputs enabled, wait_click to move forward -> to_play *)
@@ -19,33 +18,33 @@ let view_state : view_state_t ref = ref Playing
 
 let to_map_wait () =
   Audio.music_play Audio.Calm;
-  Timer.fire_in 1000 (fun () -> Fade.fade_in (fun () -> ()));
+  Timer.fire_in 1000 (fun () -> Scr_fade.fade_in (fun () -> ()));
   view_state := MapWait
 
 let to_map () =
   Audio.music_stop ();
-  Level_details.start_anim_out (fun () -> ());
-  Fade.fade_out (fun () -> to_map_wait ());
+  Osd_level_details.start_anim_out (fun () -> ());
+  Scr_fade.fade_out (fun () -> to_map_wait ());
   view_state := Map
 
 let to_level_details_wait () =
   view_state := LevelDetailsWait
 
 let to_level_details () =
-  Level_details.start_anim_in (fun () -> to_level_details_wait ());
+  Osd_level_details.start_anim_in (fun () -> to_level_details_wait ());
   view_state := LevelDetails
 
 let to_level_info () =
-  Level_info.start_anim_in (fun () ->
+  Osd_level_info.start_anim_in (fun () ->
     Timer.fire_in 3000 (fun () ->
-      Level_info.start_anim_out to_level_details));
+      Osd_level_info.start_anim_out to_level_details));
   view_state := LevelInfo
 
 let to_level_over () =
-  Level_over.start_anim_in (fun () ->
+  Osd_level_over.start_anim_in (fun () ->
     Timer.fire_in 2000 (fun () ->
       Audio.music_play Audio.Groove;
-      Level_over.start_anim_out to_level_info));
+      Osd_level_over.start_anim_out to_level_info));
   view_state := LevelOver
 
 let to_play () =
@@ -54,7 +53,7 @@ let to_play () =
 
 let handle_sdl_event2 ~event = function
   | Playing ->
-      Position.handle_sdl_event ~event
+      Brd_position.handle_sdl_event ~event
   | LevelOver -> ()
   | LevelInfo -> ()
   | LevelDetails -> ()
@@ -70,15 +69,15 @@ let handle_sdl_event2 ~event = function
 
 let handle_game_event = function
   | Model.GameOver ->
-    State.wait_for_events := false;
-    State.needs_redraw := true;
+    Game_state.wait_for_events := false;
+    Game_state.needs_redraw := true;
     to_level_over ();
     Audio.play Audio.GameOver
   | Model.LevelComplete ->
     to_level_over ();
     Audio.play Audio.LevelComplete
   | e ->
-    Position.handle_game_event e;
+    Brd_position.handle_game_event e;
     Score.handle_game_event e
 
 (* ================================================================== *)
@@ -91,58 +90,58 @@ let handle_sdl_event ~event =
   | `Quit ->
     Controller.quit ()
   | `Window_event ->
-    State.needs_redraw := true
+    Game_state.needs_redraw := true
   | _ ->
     handle_sdl_event2 ~event !view_state
 
 let update ~ticks =
-  State.needs_redraw := true;
-  State.delta := ticks - !State.ticks;
-  State.ticks := ticks;
-  Timer.update !State.ticks;
-  Anims.update !State.ticks;
-  Position.update ()
+  Game_state.needs_redraw := true;
+  Game_state.delta := ticks - !Game_state.ticks;
+  Game_state.ticks := ticks;
+  Timer.update !Game_state.ticks;
+  Anims.update !Game_state.ticks;
+  Brd_position.update ()
 
 let draw ~renderer =
-  Board.draw ~renderer;
-  Hints.draw ~renderer;
-  Position.draw ~renderer;
-  Level_over.draw ~renderer;
-  Level_info.draw ~renderer;
-  Level_details.draw ~renderer;
-  Fade.draw ~renderer
+  Brd_squares.draw ~renderer;
+  Brd_hints.draw ~renderer;
+  Brd_position.draw ~renderer;
+  Osd_level_over.draw ~renderer;
+  Osd_level_info.draw ~renderer;
+  Osd_level_details.draw ~renderer;
+  Scr_fade.draw ~renderer
 
 let init ~renderer ~with_audio ~with_anims =
-  State.ticks := 0;
-  State.delta := 0;
-  State.with_audio := with_audio;
-  State.with_anims := with_anims;
+  Game_state.ticks := 0;
+  Game_state.delta := 0;
+  Game_state.with_audio := with_audio;
+  Game_state.with_anims := with_anims;
   Audio.init ();
   Fonts.init ();
   Model.init ();
   Pieces.init ~renderer;
-  Background.init ~renderer;
+  Scr_bg.init ~renderer;
   Score.init ~renderer;
-  Board.init ~renderer;
-  Hints.init ~renderer;
-  Fade.init ~renderer;
-  Level_over.init ~renderer;
-  Level_info.init ~renderer;
-  Level_details.init ~renderer;
-  Position.init ~renderer;
+  Brd_squares.init ~renderer;
+  Brd_hints.init ~renderer;
+  Scr_fade.init ~renderer;
+  Osd_level_over.init ~renderer;
+  Osd_level_info.init ~renderer;
+  Osd_level_details.init ~renderer;
+  Brd_position.init ~renderer;
   Model.listen handle_game_event;
   Controller.new_game 1 ~timeout:false
 
 let release () =
-  Position.release ();
-  Level_details.release ();
-  Level_info.release ();
-  Level_over.release ();
-  Fade.release ();
-  Hints.release ();
-  Board.release ();
+  Brd_position.release ();
+  Osd_level_details.release ();
+  Osd_level_info.release ();
+  Osd_level_over.release ();
+  Scr_fade.release ();
+  Brd_hints.release ();
+  Brd_squares.release ();
   Score.release ();
-  Background.release ();
+  Scr_bg.release ();
   Pieces.release ();
   (*Fonts.release ();*)
   Audio.release ();

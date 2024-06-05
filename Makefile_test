@@ -1,0 +1,8 @@
+OPAM_SWITCH_PREFIX='/home/seb/src/kingcrush/_opam'; export OPAM_SWITCH_PREFIX;
+CAML_LD_LIBRARY_PATH='/home/seb/src/kingcrush/_opam/lib/stublibs:/home/seb/src/kingcrush/_opam/lib/ocaml/stublibs:/home/seb/src/kingcrush/_opam/lib/ocaml'; export CAML_LD_LIBRARY_PATH;
+OCAML_TOPLEVEL_PATH='/home/seb/src/kingcrush/_opam/lib/toplevel'; export OCAML_TOPLEVEL_PATH;
+MANPATH=':/home/seb/src/kingcrush/_opam/man'; export MANPATH;
+PATH='/home/seb/src/kingcrush/_opam/bin:/home/seb/.local/bin:/home/seb/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games'; export PATH;
+
+test:
+	which dune
