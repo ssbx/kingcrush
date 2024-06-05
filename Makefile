@@ -4,7 +4,7 @@ LOCAL_ENV=./.opam_env
 .PHONY: run build clean format install uninstall rel-check desktop_entry
 
 run: build
-	. $(LOCAL_ENV) && dune exec -- kingcrush
+	. $(LOCAL_ENV) && dune exec kingcrush
 	#dune exec -- kingcrush --disable-anims --disable-audio
 	#dune exec -- kingcrush --generate-themes
 

@@ -6,7 +6,8 @@ open Ressources
 (* transition states between phases ================================= *)
 (* ================================================================== *)
 type view_state_t =
-    Playing    (* inputs enabled, position receive all events -> to_level_over *)
+    SoonPlay   (* inputs disabled soon playing *)
+  | Playing    (* inputs enabled, position receive all events -> to_level_over *)
   | LevelOver  (* inputs disabled, anim in/out Osd_level_over -> to_level_info *)
   | LevelInfo  (* inputs disabled, anim in/out Osd_level_info -> to_level_details *)
   | LevelDetails (* inputs disabled, anim in Osd_level_details -> to_details_wait *)
@@ -48,20 +49,28 @@ let to_level_over () =
   view_state := LevelOver
 
 let to_play () =
+  Audio.play Audio.LevelStart;
   Controller.new_game 1;
   view_state := Playing
 
+let to_soon_play () =
+  Audio.music_stop ();
+  Timer.fire_in 1000 (fun () -> to_play ());
+  view_state := SoonPlay
+
+
 let handle_sdl_event2 ~event = function
-  | Playing ->
-      Brd_position.handle_sdl_event ~event
   | LevelOver -> ()
   | LevelInfo -> ()
   | LevelDetails -> ()
+  | Map -> ()
+  | SoonPlay -> ()
   | LevelDetailsWait ->
       if sdl_get_evt_typ event = `Mouse_button_down then to_map ()
-  | Map -> ()
+  | Playing ->
+      Brd_position.handle_sdl_event ~event
   | MapWait ->
-      if sdl_get_evt_typ event = `Mouse_button_down then to_play ()
+      if sdl_get_evt_typ event = `Mouse_button_down then to_soon_play ()
 
 (* ================================================================== *)
 (* model events ===================================================== *)
@@ -102,14 +111,23 @@ let update ~ticks =
   Anims.update !Game_state.ticks;
   Brd_position.update ()
 
+let draw2 ~renderer = function
+  | Playing | LevelOver | LevelInfo | LevelDetails
+  | LevelDetailsWait | Map ->
+    Scr_bg.draw ~renderer;
+    Brd_squares.draw ~renderer;
+    Brd_hints.draw ~renderer;
+    Brd_position.draw ~renderer;
+    Osd_level_over.draw ~renderer;
+    Osd_level_info.draw ~renderer;
+    Osd_level_details.draw ~renderer;
+    Scr_fade.draw ~renderer
+  | MapWait | SoonPlay ->
+    Scr_bg.draw ~renderer;
+    Scr_fade.draw ~renderer
+
 let draw ~renderer =
-  Brd_squares.draw ~renderer;
-  Brd_hints.draw ~renderer;
-  Brd_position.draw ~renderer;
-  Osd_level_over.draw ~renderer;
-  Osd_level_info.draw ~renderer;
-  Osd_level_details.draw ~renderer;
-  Scr_fade.draw ~renderer
+  draw2 ~renderer !view_state
 
 let init ~renderer ~with_audio ~with_anims =
   Game_state.ticks := 0;
@@ -130,7 +148,7 @@ let init ~renderer ~with_audio ~with_anims =
   Osd_level_details.init ~renderer;
   Brd_position.init ~renderer;
   Model.listen handle_game_event;
-  Controller.new_game 1 ~timeout:false
+  to_play ()
 
 let release () =
   Brd_position.release ();
