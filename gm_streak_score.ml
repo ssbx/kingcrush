@@ -81,8 +81,8 @@ let draw ~renderer =
   sdl_try (Sdl.render_copy ~dst:rating_rect renderer (get_rating_tex ()))
 
 let handle_game_event = function
-  | Model.NewPuzzle ->
-      let rating = Printf.sprintf "rating: %s" (Model.get_rating ())
-      and score = Printf.sprintf "streak: %i" (Model.get_streak ()) in
+  | Gm_streak_model.NewPuzzle ->
+      let rating = Printf.sprintf "rating: %s" (Gm_streak_model.get_rating ())
+      and score = Printf.sprintf "streak: %i" (Gm_streak_model.get_streak ()) in
       generate_msg ~renderer:(get_rdr ()) ~score ~rating
   | _ -> ()

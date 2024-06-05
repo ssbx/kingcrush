@@ -50,7 +50,7 @@ let to_level_over () =
 
 let to_play () =
   Audio.play Audio.LevelStart;
-  Controller.new_game 1;
+  Gm_streak_controller.new_game 1;
   view_state := Playing
 
 let to_soon_play () =
@@ -77,17 +77,17 @@ let handle_sdl_event2 ~event = function
 (* ================================================================== *)
 
 let handle_game_event = function
-  | Model.GameOver ->
+  | Gm_streak_model.GameOver ->
     Game_state.wait_for_events := false;
     Game_state.needs_redraw := true;
     to_level_over ();
     Audio.play Audio.GameOver
-  | Model.LevelComplete ->
+  | Gm_streak_model.LevelComplete ->
     to_level_over ();
     Audio.play Audio.LevelComplete
   | e ->
     Brd_position.handle_game_event e;
-    Score.handle_game_event e
+    Gm_streak_score.handle_game_event e
 
 (* ================================================================== *)
 (* main.ml calls ==================================================== *)
@@ -95,9 +95,9 @@ let handle_game_event = function
 let handle_sdl_event ~event =
   match sdl_get_evt_typ event with
   | `Key_down -> if (sdl_get_evt_scancode event) = `Escape then
-    Controller.quit ()
+    Gm_streak_controller.quit ()
   | `Quit ->
-    Controller.quit ()
+    Gm_streak_controller.quit ()
   | `Window_event ->
     Game_state.needs_redraw := true
   | _ ->
@@ -136,10 +136,10 @@ let init ~renderer ~with_audio ~with_anims =
   Game_state.with_anims := with_anims;
   Audio.init ();
   Fonts.init ();
-  Model.init ();
+  Gm_streak_model.init ();
   Pieces.init ~renderer;
   Scr_bg.init ~renderer;
-  Score.init ~renderer;
+  Gm_streak_score.init ~renderer;
   Brd_squares.init ~renderer;
   Brd_hints.init ~renderer;
   Scr_fade.init ~renderer;
@@ -147,7 +147,7 @@ let init ~renderer ~with_audio ~with_anims =
   Osd_level_info.init ~renderer;
   Osd_level_details.init ~renderer;
   Brd_position.init ~renderer;
-  Model.listen handle_game_event;
+  Gm_streak_model.listen handle_game_event;
   to_play ()
 
 let release () =
@@ -158,10 +158,10 @@ let release () =
   Scr_fade.release ();
   Brd_hints.release ();
   Brd_squares.release ();
-  Score.release ();
+  Gm_streak_score.release ();
   Scr_bg.release ();
   Pieces.release ();
   (*Fonts.release ();*)
   Audio.release ();
-  Model.release ()
+  Gm_streak_model.release ()
 

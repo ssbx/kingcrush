@@ -148,8 +148,8 @@ let draw ~renderer =
 (* position utils ========================================================== *)
 (* ========================================================================= *)
 let play_audio () =
-  let curr_id = Model.current_position_id () in
-  let pos = Model.position_at (curr_id - 1) in
+  let curr_id = Gm_streak_model.current_position_id () in
+  let pos = Gm_streak_model.position_at (curr_id - 1) in
   let mv = match pos.mv_next with Some v -> v | None -> assert false in
   if Chess.is_a_piece pos.board.(mv.to_x).(mv.to_y) then
     Audio.play Audio.Capture
@@ -161,7 +161,7 @@ let cleanup_view_state () =
 
 let update_position () =
   cleanup_view_state ();
-  view_state.position <- Model.current_position ();
+  view_state.position <- Gm_streak_model.current_position ();
   update_board_texture view_state.position.board
 
 let coords_to_square x y =
@@ -215,8 +215,8 @@ let queue_anim anim =
 let anim_forward from_pos_id to_pos_id =
   cleanup_view_state ();
   (* get positions from game *)
-  let from_pos = Model.position_at from_pos_id
-  and to_pos = Model.position_at to_pos_id in
+  let from_pos = Gm_streak_model.position_at from_pos_id
+  and to_pos = Gm_streak_model.position_at to_pos_id in
 
   let mv =
     match from_pos.mv_next with Some m -> m | None -> failwith "no mv next"
@@ -251,8 +251,8 @@ let anim_forward from_pos_id to_pos_id =
 let anim_backward from_pos_id to_pos_id =
   cleanup_view_state ();
 
-  let _from_pos = Model.position_at from_pos_id
-  and to_bk_pos = Model.position_at to_pos_id in
+  let _from_pos = Gm_streak_model.position_at from_pos_id
+  and to_bk_pos = Gm_streak_model.position_at to_pos_id in
 
   let mv =
     match to_bk_pos.mv_next with
@@ -290,7 +290,7 @@ let anim_backward from_pos_id to_pos_id =
 (* ========================================================================= *)
 
 let drag_init piece rank file =
-  let pos = Model.current_position () in
+  let pos = Gm_streak_model.current_position () in
   let board = Chess.copy_board pos.board in
   Brd_hints.show pos rank file;
   board.(file).(rank) <- '.';
@@ -313,7 +313,7 @@ let rec update_pick () =
         view_state.drag_piece <- None;
         view_state.drag_queue <- t;
         Brd_hints.clear ();
-        Controller.player_move view_state.drag_from_rank
+        Gm_streak_controller.player_move view_state.drag_from_rank
           view_state.drag_from_file to_r to_f);
       update_pick ()
   | BUpCancel :: t ->
@@ -321,7 +321,7 @@ let rec update_pick () =
       view_state.drag_piece <- None;
       view_state.drag_queue <- t;
       Brd_hints.clear ();
-      update_board_texture (Model.current_position ()).board;
+      update_board_texture (Gm_streak_model.current_position ()).board;
       update_pick ()
 
 let queue_drag_event evt =
@@ -331,9 +331,9 @@ let handle_button1_down x y =
   match coords_to_square x y with
   | None -> ()
   | Some (rank, file) ->
-      if Model.player_turn () then
+      if Gm_streak_model.player_turn () then
         let piece = view_state.position.board.(file).(rank) in
-        if Controller.can_pick_piece rank file then
+        if Gm_streak_controller.can_pick_piece rank file then
           if view_state.anim_running = None then drag_init piece rank file
           else queue_drag_event (BDown (piece, rank, file))
 
@@ -344,8 +344,8 @@ let handle_mouse_motion event =
 let handle_mouse_wheel event =
   if view_state.anim_running = None then
     match Sdl.Event.(get event mouse_wheel_y) with
-    | 1 -> Controller.move_backward ()
-    | -1 -> Controller.move_forward ()
+    | 1 -> Gm_streak_controller.move_backward ()
+    | -1 -> Gm_streak_controller.move_forward ()
     | _ -> ()
 
 let handle_button1_up x y =
@@ -354,14 +354,14 @@ let handle_button1_up x y =
   | None ->
       view_state.drag_active <- false;
       view_state.drag_piece <- None;
-      update_board_texture (Model.current_position ()).board;
+      update_board_texture (Gm_streak_model.current_position ()).board;
       update_pick ()
   | Some (to_rank, to_file) ->
       if view_state.drag_active then
         if view_state.anim_running = None then (
           view_state.drag_active <- false;
           view_state.drag_piece <- None;
-          Controller.player_move view_state.drag_from_rank
+          Gm_streak_controller.player_move view_state.drag_from_rank
             view_state.drag_from_file to_rank to_file)
         else queue_drag_event (BUp (to_rank, to_file))
 
@@ -385,25 +385,25 @@ let handle_sdl_event ~event =
 (* model events ============================================================ *)
 (* ========================================================================= *)
 let handle_game_event = function
-  | Model.NewPuzzle -> update_position ()
-  | Model.PuzzleSolved ->
+  | Gm_streak_model.NewPuzzle -> update_position ()
+  | Gm_streak_model.PuzzleSolved ->
       update_position ();
       Audio.play Audio.PuzzleRushGood
-  | Model.OponentMove (from_pos, to_pos) ->
+  | Gm_streak_model.OponentMove (from_pos, to_pos) ->
       if !Game_state.with_anims then anim_forward from_pos to_pos
       else (
         play_audio ();
         update_position ())
-  | Model.PlayerMove (_, _) ->
+  | Gm_streak_model.PlayerMove (_, _) ->
       play_audio ();
       update_position ()
-  | Model.Update -> update_position ()
-  | Model.MoveForward (from_pos, to_pos) ->
+  | Gm_streak_model.Update -> update_position ()
+  | Gm_streak_model.MoveForward (from_pos, to_pos) ->
       if !Game_state.with_anims then anim_forward from_pos to_pos
       else (
         play_audio ();
         update_position ())
-  | Model.MoveBackward (from_pos, to_pos) ->
+  | Gm_streak_model.MoveBackward (from_pos, to_pos) ->
       if !Game_state.with_anims then anim_backward from_pos to_pos
       else update_position ()
   | _ -> ()
