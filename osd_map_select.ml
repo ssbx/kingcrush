@@ -1,6 +1,5 @@
 open Tsdl
 open Gamekit
-open Gamekit.Utils
 open Ressources
 
 let rdr : Sdl.renderer option ref = ref None
@@ -76,7 +75,7 @@ let start_anim_out f =
     ~at_update:(fun v -> Sdl.Rect.set_x rect v)
     ~at_end:(fun () -> enabled := false; f ())
     Anims.Easing.Quadratic_in in
-  Anims.start anim (Utils.sdl_get_ticks ())
+  Anims.start anim (sdl_get_ticks ())
 
 let start_anim_in f =
   enabled := true;
@@ -90,7 +89,7 @@ let start_anim_in f =
     ~at_update:(fun v -> Sdl.Rect.set_y rect v)
     ~at_end:f
     Anims.Easing.Quadratic_in in
-  Anims.start anim (Utils.sdl_get_ticks ())
+  Anims.start anim (sdl_get_ticks ())
 
 
 let draw ~renderer =

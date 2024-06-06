@@ -1,6 +1,5 @@
 open Tsdl
 open Gamekit
-open Gamekit.Utils
 open Ressources
 
 let rdr : Sdl.renderer option ref = ref None

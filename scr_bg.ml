@@ -1,6 +1,6 @@
 open Tsdl
 open Tsdl_image
-open Gamekit.Utils
+open Gamekit
 
 let bg_tex : Sdl.texture option ref = ref None
 let get_tex () = match !bg_tex with Some v -> v | None -> assert false

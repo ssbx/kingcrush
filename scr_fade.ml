@@ -1,6 +1,5 @@
 open Tsdl
 open Gamekit
-open Gamekit.Utils
 
 let tex : Sdl.texture option ref = ref None
 let get_tex () = match !tex with Some v -> v | None -> assert false

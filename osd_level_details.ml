@@ -1,6 +1,5 @@
 open Tsdl
 open Gamekit
-open Gamekit.Utils
 open Ressources
 
 

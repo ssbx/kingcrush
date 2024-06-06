@@ -2,7 +2,7 @@ open Tsdl
 open Tsdl_image
 open Tsdl_mixer
 open Tsdl_ttf
-open Gamekit.Utils
+open Gamekit
 
 module Pieces = struct
   let piece_width = 177

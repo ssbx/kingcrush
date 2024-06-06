@@ -1,6 +1,6 @@
 open Tsdl
 open Chesslibs
-open Gamekit.Utils
+open Gamekit
 open Gamekit.Anims
 open Ressources
 

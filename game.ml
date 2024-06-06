@@ -1,5 +1,4 @@
 open Gamekit
-open Gamekit.Utils
 open Ressources
 
 (* ================================================================== *)

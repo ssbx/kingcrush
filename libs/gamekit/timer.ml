@@ -1,9 +1,11 @@
-open Utils
+open Tsdl
 
 type job_t = {
   at : int;
   fn  : unit -> unit;
 }
+
+let get_ticks () = Int32.to_int (Sdl.get_ticks())
 
 let jobs : job_t list ref = ref []
 
@@ -11,7 +13,7 @@ let fire_at ms f =
   jobs := {at = ms; fn = f} :: !jobs
 
 let fire_in ms f =
-  fire_at ((sdl_get_ticks ()) + ms) f
+  fire_at ((get_ticks ()) + ms) f
 
 let rec update_all ticks = function
   | [] -> ()
