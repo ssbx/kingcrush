@@ -5,7 +5,7 @@ open Gamekit.Utils
 let tex : Sdl.texture option ref = ref None
 let get_tex () = match !tex with Some v -> v | None -> assert false
 let rect : Sdl.rect = Sdl.Rect.create ~x:0 ~y:0
-  ~w:Game_state.Screen.logical_w ~h:Game_state.Screen.logical_w
+  ~w:Game_info.Screen.logical_w ~h:Game_info.Screen.logical_w
 
 let alpha : int ref = ref 0
 let enabled : bool ref = ref false
@@ -13,7 +13,7 @@ let enabled : bool ref = ref false
 let init ~renderer =
   let texture = sdl_get_ok (Sdl.create_texture renderer
     Sdl.Pixel.format_rgba8888
-    ~w:Game_state.Screen.logical_w ~h:Game_state.Screen.logical_h
+    ~w:Game_info.Screen.logical_w ~h:Game_info.Screen.logical_h
          Sdl.Texture.access_target) in
 
   sdl_try (Sdl.set_texture_blend_mode texture Sdl.Blend.mode_blend);
@@ -35,7 +35,7 @@ let fade_in f =
     ~at_update:(fun v -> alpha := v)
     ~at_end:(fun () -> enabled := false; f ())
     Anims.Easing.Quadratic_in in
-  Anims.start anim!Game_state.ticks
+  Anims.start anim!Game_info.ticks
 
 
 let fade_out f =
@@ -47,7 +47,7 @@ let fade_out f =
     ~at_update:(fun v -> alpha := v)
     ~at_end:(fun () -> f ())
     Anims.Easing.Quadratic_in in
-  Anims.start anim!Game_state.ticks
+  Anims.start anim!Game_info.ticks
 
 
 let draw ~renderer =

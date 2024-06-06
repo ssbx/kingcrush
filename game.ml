@@ -5,6 +5,10 @@ open Ressources
 (* ================================================================== *)
 (* transition states between phases ================================= *)
 (* ================================================================== *)
+(* TODO dans les fonctions to_??? créer une fonction "draw" et l'
+   assigner pour appel depuis la boucle. Ça permet d'avoir un état
+   "innactive" au lieu des *_in *_out.
+   OU, l'état est de forme "Etat of (Sdl.Renderer -> unit)" *)
 type view_state_t =
     SoonPlay   (* inputs disabled soon playing *)
   | PlayInitAnimIn
@@ -24,6 +28,20 @@ type view_state_t =
   | MapSelectAnimIn
   | MapSelectOkAnimOut
   | MapSelect
+
+type state_t = {
+  view_state : view_state_t;
+  sdl_draw : Tsdl.Sdl.renderer -> unit;
+  sdl_event : Tsdl.Sdl.event -> unit;
+}
+
+let state_empty = {
+  view_state = PlayStart;
+  sdl_draw = (fun _ -> ());
+  sdl_event = (fun _ -> ());
+}
+
+let state_machine : state_t ref = ref state_empty
 
 let view_state : view_state_t ref = ref Playing
 
@@ -146,8 +164,8 @@ let handle_sdl_event2 ~event = function
 
 let handle_game_event = function
   | Gm_streak_model.GameOver ->
-    Game_state.wait_for_events := false;
-    Game_state.needs_redraw := true;
+    Game_info.wait_for_events := false;
+    Game_info.needs_redraw := true;
     to_level_over ();
     Audio.play Audio.GameOver
   | Gm_streak_model.LevelComplete ->
@@ -167,16 +185,16 @@ let handle_sdl_event ~event =
   | `Quit ->
     Gm_streak_controller.quit ()
   | `Window_event ->
-    Game_state.needs_redraw := true
+    Game_info.needs_redraw := true
   | _ ->
     handle_sdl_event2 ~event !view_state
 
 let update ~ticks =
-  Game_state.needs_redraw := true;
-  Game_state.delta := ticks - !Game_state.ticks;
-  Game_state.ticks := ticks;
-  Timer.update !Game_state.ticks;
-  Anims.update !Game_state.ticks;
+  Game_info.needs_redraw := true;
+  Game_info.delta := ticks - !Game_info.ticks;
+  Game_info.ticks := ticks;
+  Timer.update !Game_info.ticks;
+  Anims.update !Game_info.ticks;
   Brd_position.update ()
 
 let draw2 ~renderer = function
@@ -220,10 +238,10 @@ let draw ~renderer =
   draw2 ~renderer !view_state
 
 let init ~renderer ~with_audio ~with_anims =
-  Game_state.ticks := 0;
-  Game_state.delta := 0;
-  Game_state.with_audio := with_audio;
-  Game_state.with_anims := with_anims;
+  Game_info.ticks := 0;
+  Game_info.delta := 0;
+  Game_info.with_audio := with_audio;
+  Game_info.with_anims := with_anims;
   Audio.init ();
   Fonts.init ();
   Gm_streak_model.init ();

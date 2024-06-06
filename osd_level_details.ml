@@ -56,8 +56,8 @@ let init ~renderer =
   Sdl.Rect.set_w rect (bg_w * 2);
   Sdl.Rect.set_h rect (bg_h * 2);
 
-  let w = Game_state.Screen.logical_w
-  and h = Game_state.Screen.logical_h
+  let w = Game_info.Screen.logical_w
+  and h = Game_info.Screen.logical_h
   and over_w = Sdl.Rect.w rect
   and over_h = Sdl.Rect.h rect in
   orig_x := ((w / 2) - (over_w / 2));
@@ -69,7 +69,7 @@ let init ~renderer =
 
 
 let start_anim_out f =
-  Game_state.wait_for_events := false;
+  Game_info.wait_for_events := false;
   let anim = Anims.create
     ~pt_start:(!orig_x)
     ~pt_end:(-1000)
@@ -77,10 +77,10 @@ let start_anim_out f =
     ~at_update:(fun v -> Sdl.Rect.set_x rect v)
     ~at_end:(fun () -> enabled := false; f ())
     Anims.Easing.Quadratic_in in
-  Anims.start anim !Game_state.ticks
+  Anims.start anim !Game_info.ticks
 
 let start_anim_in f =
-  Game_state.wait_for_events := false;
+  Game_info.wait_for_events := false;
   Sdl.Rect.set_y rect !orig_y;
   Sdl.Rect.set_x rect !orig_x;
   enabled := true;
@@ -91,7 +91,7 @@ let start_anim_in f =
     ~at_update:(fun v -> Sdl.Rect.set_y rect v)
     ~at_end:f
     Anims.Easing.Quadratic_in in
-  Anims.start anim !Game_state.ticks
+  Anims.start anim !Game_info.ticks
 
 let draw ~renderer =
   if !enabled then (
