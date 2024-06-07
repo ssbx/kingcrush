@@ -408,11 +408,11 @@ module Anims = struct
     at_end    = (fun () -> ());
   }
 
-  let queue : anim list ref = ref []
-  let pending : anim list ref = ref []
-  let have_pending : bool ref = ref false
+  let anims_queue : anim list ref = ref []
+  let anims_wait_queue : anim list ref = ref []
+  let anims_waiting : bool ref = ref false
 
-  let length () = (List.length !queue) + (List.length !pending)
+  let length () = (List.length !anims_queue) + (List.length !anims_wait_queue)
 
   let create
     ~pt_start
@@ -434,33 +434,37 @@ module Anims = struct
   let start anim =
     anim.ticks_start <- Float.of_int (sdl_get_ticks ());
     anim.at_update anim.pt_start;
-    pending := anim :: !pending;
-    have_pending := true
+    anims_wait_queue := anim :: !anims_wait_queue;
+    anims_waiting := true
 
   (*let animate anim int_ticks =*)
-  let rec update_all ticks = function
-    | [] -> ()
+  let rec update_all ticks del = function
+    | [] -> del
     | a :: tail ->
       let prog = (ticks -. a.ticks_start) /. a.ticks_span in
-      Printf.printf "span:%f tstart:%f t:%f prog %f%!\n" a.ticks_span a.ticks_start ticks prog;
       if prog > 1.0 then (
         a.at_update a.pt_end;
         a.at_end ();
-        queue := List.filter (fun a -> a != a) !queue
+        update_all ticks (a :: del) tail
       ) else (
         let dist = a.easing prog in
         let curr = a.pt_start + (Float.to_int (dist *. a.vector)) in
-        a.at_update curr
-      );
-      update_all ticks tail
+        a.at_update curr;
+        update_all ticks del tail
+      )
 
   let update int_ticks =
-    if !have_pending then (
-      queue := !queue @ !pending;
-      pending := [];
-      have_pending := false
+    if !anims_waiting then (
+      anims_queue := !anims_queue @ !anims_wait_queue;
+      anims_wait_queue := [];
+      anims_waiting := false
     );
-    update_all (Float.of_int int_ticks) !queue
+    if (List.length !anims_queue) > 0 then (
+      let del = update_all (Float.of_int int_ticks) [] !anims_queue in
+      anims_queue := List.filter (fun a ->
+        (List.exists (fun d -> a == d) del) = false
+      ) !anims_queue
+    )
 
 end
 
@@ -479,27 +483,42 @@ module Timer = struct
 
   let get_ticks () = Int32.to_int (Sdl.get_ticks())
 
-  let jobs : job_t list ref = ref []
+  let jobs_queue : job_t list ref = ref []
+  let jobs_wait_queue : job_t list ref = ref []
+  let jobs_waiting : bool ref = ref false
 
   let fire_at ms f =
-    jobs := {at = ms; fn = f} :: !jobs
+    jobs_wait_queue := {at = ms; fn = f} :: !jobs_wait_queue;
+    jobs_waiting := true
 
   let fire_in ms f =
     fire_at ((get_ticks ()) + ms) f
 
-  let rec update_all ticks = function
-    | [] -> ()
+  let rec update_all ticks del = function
+    | [] -> del
     | j :: tail ->
         if ticks > j.at then (
           j.fn ();
-          jobs := List.filter (fun v -> v != j) !jobs
-        );
-        update_all ticks tail
+          update_all ticks (j :: del) tail
+        ) else (
+          update_all ticks del tail
+        )
 
-  let length () = List.length !jobs
+  let length () = (List.length !jobs_queue) + (List.length !jobs_wait_queue)
 
   let update ticks =
-    update_all ticks !jobs
+    if !jobs_waiting then (
+      jobs_queue := !jobs_queue @ !jobs_wait_queue;
+      jobs_wait_queue := [];
+      jobs_waiting := false
+    );
+    if (List.length !jobs_queue) > 0 then (
+      let del = update_all ticks [] !jobs_queue in
+      jobs_queue := List.filter (fun a ->
+        (List.exists (fun d -> a == d) del) = false
+      ) !jobs_queue
+    )
+
 end
 
 (* ========================================================================= *)
