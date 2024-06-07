@@ -1,6 +1,4 @@
 open Tsdl
-open Tsdl_mixer
-open Gamekit
 open Ressources
 
 let usage_msg = "kingcrush [--disable-anims] [--disable-audio] [--verbose]"
@@ -19,88 +17,64 @@ let speclist =
     ("--verbose", Arg.Set verbose, "For debugging purpose only");
   ]
 
-let ms_wait_60fps = Int32.div 1000l 60l
-
-let emit_events ~event =
-  let rec consume_events () =
-    Game.handle_sdl_event ~event;
-    if Sdl.poll_event (Some event) = true then consume_events () else ()
-  in
-
-  if !Game_info.wait_for_events = true then (
-    sdl_try (Sdl.wait_event (Some event));
-    consume_events ())
-  else if Sdl.poll_event (Some event) = true then consume_events ()
-
-let rec loop ~renderer ~vsync ~event =
-  if vsync <> true then Sdl.delay ms_wait_60fps;
-  emit_events ~event;
-  sdl_ignore (Sdl.set_render_draw_color renderer 0 0 0 255);
-  sdl_ignore (Sdl.render_clear renderer);
-  Game.update ~ticks:(Int32.to_int (Sdl.get_ticks ()));
-  if !Game_info.needs_redraw then (
-    Game.draw ~renderer;
-    Sdl.render_present renderer);
-  if !Game_info.quit_requested = true then print_endline "bye!"
-  else loop ~renderer ~vsync ~event
-
-(* ====================================================================================*)
-(* MAIN ===============================================================================*)
-(* ====================================================================================*)
 let () =
 
   Arg.parse speclist (fun _ -> ()) usage_msg;
-  sdl_try (Sdl.init Sdl.Init.(video + events + audio));
-  if !with_audio then (
-    let audio_chunk_size = 2048 in
-    sdl_try
-      (Mixer.open_audio Mixer.default_frequency Mixer.default_format
-         Mixer.default_channels audio_chunk_size)
-  );
 
-  sdl_ignore (Sdl.set_hint Sdl.Hint.render_scale_quality "2");
-  sdl_ignore (Sdl.set_hint Sdl.Hint.render_vsync "1");
+  let (window, renderer) = Gamekit.init
+    ~w:1200
+    ~h:800
+    ~logical_w:Game_info.Screen.logical_w
+    ~logical_h:Game_info.Screen.logical_h
+    ~name:"kingcrush" in
 
-  let w_flags = Sdl.Window.(opengl + resizable) in
-  let win =
-    sdl_get_ok (Sdl.create_window ~w:640 ~h:480 "kingcrush" w_flags)
-  in
-  let r_flags = Sdl.Renderer.(presentvsync + accelerated + targettexture) in
-  let renderer = sdl_get_ok (Sdl.create_renderer ~flags:r_flags win) in
-  let info = sdl_get_ok (Sdl.get_renderer_info renderer) in
+  Game_info.with_audio := !with_audio;
+  Game_info.with_anims := !with_anims;
+  Audio.init ();
+  Fonts.init ();
+  Pieces.init ~renderer;
+  Gm_streak_model.listen Game_sm.handle_game_event;
+  Gm_streak_model.init ();
+  Gm_streak_score.init ~renderer;
+  Scr_bg.init ~renderer;
+  Scr_map.init ~renderer;
+  Scr_fade.init ~renderer;
+  Brd_position.init ~renderer;
+  Brd_squares.init ~renderer;
+  Brd_hints.init ~renderer;
+  Osd_level_over.init ~renderer;
+  Osd_level_info.init ~renderer;
+  Osd_level_details.init ~renderer;
+  Osd_level_start.init ~renderer;
+  Osd_map_select.init ~renderer;
+  Game_sm.to_play ();
 
-  if !verbose then (
-    if Sdl.Renderer.test info.ri_flags Sdl.Renderer.accelerated then
-      Printf.printf "RendererInfo accelerated: yes\n"
-    else Printf.printf "RendererInfo accelerated: no\n";
+  Gamekit.loop
+    ~renderer ~vsync:false ~event:(Sdl.Event.create ())
+    ~wait_for_events:Game_info.wait_for_events
+    ~needs_redraw:Game_info.needs_redraw
+    ~quit_requested:Game_info.quit_requested
+    ~handle_event:Game_sm.handle_sdl_event
+    ~handle_update:Game_sm.update
+    ~handle_draw:Game_sm.draw;
 
-    if Sdl.Renderer.test info.ri_flags Sdl.Renderer.software then
-      Printf.printf "RendererInfo software: yes\n"
-    else Printf.printf "RendererInfo software no\n";
+  Brd_position.release ();
+  Osd_level_details.release ();
+  Osd_level_info.release ();
+  Osd_level_over.release ();
+  Osd_level_start.release ();
+  Osd_map_select.release ();
+  Scr_fade.release ();
+  Brd_hints.release ();
+  Brd_squares.release ();
+  Gm_streak_score.release ();
+  Scr_bg.release ();
+  Scr_map.release ();
+  Pieces.release ();
+  (*Fonts.release ();*)
+  Audio.release ();
+  Gm_streak_model.release ();
 
-    if Sdl.Renderer.test info.ri_flags Sdl.Renderer.targettexture then
-      Printf.printf "RendererInfo targettexture: yes\n"
-    else Printf.printf "RendererInfo targettexture: no\n";
-
-    if Sdl.Renderer.test info.ri_flags Sdl.Renderer.presentvsync then
-      Printf.printf "RendererInfo vsync: yes\n"
-    else Printf.printf "RendererInfo vsync: no\n");
-
-  let vsync = Sdl.Renderer.test info.ri_flags Sdl.Renderer.presentvsync in
-  sdl_try (Sdl.render_set_scale renderer 4. 3.);
-  sdl_try
-    (Sdl.render_set_logical_size renderer Game_info.Screen.logical_w
-       Game_info.Screen.logical_h);
-
-  Game.init ~renderer ~with_anims:!with_anims ~with_audio:!with_audio;
-  loop ~renderer ~vsync ~event:(Sdl.Event.create ());
-  Game.release ();
-
-  if !with_audio then Mixer.close_audio ();
-  Sdl.destroy_renderer renderer;
-  Sdl.destroy_window win;
-  Sdl.quit ();
-  print_endline
-    (sdl_get_ok (Sdl.get_pref_path ~org:"ssbx" ~app:"kingcrush"));
+  Gamekit.release (window,renderer);
   exit 0
 

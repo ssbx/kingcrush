@@ -1,3 +1,20 @@
+open Tsdl
+open Tsdl_mixer
+
+let sdl_try = function | Ok _ -> () | Error (`Msg e) -> failwith e
+let sdl_get_ok = function | Ok v -> v | Error (`Msg e) -> failwith e
+let sdl_ignore _ = ()
+let log msg = Printf.printf msg
+
+let sdl_get_ticks () = Int32.to_int (Tsdl.Sdl.get_ticks ())
+let sdl_get_evt_typ e = Sdl.Event.enum Sdl.Event.(get e typ)
+let sdl_get_evt_scancode e = Sdl.Scancode.enum Sdl.Event.(get e keyboard_scancode)
+let some_or_fail = function | Some v -> v | None -> failwith "error some or fail"
+
+let ms_wait_60fps = Int32.div 1000l 60l
+let ticks : int ref = ref 0
+let delta : int ref = ref 0
+
 module Easing = struct
 
   type easing_func_t =
@@ -360,70 +377,189 @@ module Easing = struct
 
 end
 
-type anim = {
-  easing   : float -> float;
-  pt_start : int;
-  pt_end   : int;
-  vector   : float;
-  mutable ticks_start : float;
-  ticks_span  : float;
-  at_update   : int -> unit;
-  at_end      : unit -> unit;
-}
-
-let anim_empty : anim = {
-  easing = (fun _ -> 0.);
-  pt_start = 0;
-  pt_end = 0;
-  vector = 0.;
-  ticks_start = 0.;
-  ticks_span = 0.;
-  at_update = (fun _ -> ());
-  at_end    = (fun () -> ());
-}
-
-let queue : anim list ref = ref []
-
-let length () = List.length !queue
-
-let create
-  ~pt_start
-  ~pt_end
-  ~span
-  ?(at_update = (fun _ -> ()))
-  ?(at_end    = (fun () -> ())) curve =
-  {
-    easing = Easing.get_anim curve;
-    pt_start = pt_start;
-    pt_end = pt_end;
-    vector = Float.of_int (pt_end - pt_start);
-    ticks_start = 0.;
-    ticks_span = (Float.of_int span);
-    at_update = at_update;
-    at_end = at_end;
+(* ========================================================================= *)
+(* ========================================================================= *)
+(* ========================================================================= *)
+(* ANIMS MODULE                                                              *)
+(* ========================================================================= *)
+(* ========================================================================= *)
+(* ========================================================================= *)
+module Anims = struct
+  module Easing = Easing
+  type anim = {
+    easing   : float -> float;
+    pt_start : int;
+    pt_end   : int;
+    vector   : float;
+    mutable ticks_start : float;
+    ticks_span  : float;
+    at_update   : int -> unit;
+    at_end      : unit -> unit;
   }
 
-let start anim ticks =
-  anim.ticks_start <- Float.of_int ticks;
-  anim.at_update anim.pt_start;
-  queue := anim :: !queue
+  let anim_empty : anim = {
+    easing = (fun _ -> 0.);
+    pt_start = 0;
+    pt_end = 0;
+    vector = 0.;
+    ticks_start = 0.;
+    ticks_span = 0.;
+    at_update = (fun _ -> ());
+    at_end    = (fun () -> ());
+  }
 
-(*let animate anim int_ticks =*)
-let rec process ticks = function
-  | [] -> ()
-  | a :: tail ->
-    let prog = (ticks -. a.ticks_start) /. a.ticks_span in
-    if prog > 1.0 then (
-      queue := List.filter (fun a -> a != a) !queue;
-      a.at_update a.pt_end;
-      a.at_end ()
-    ) else (
-      let dist = a.easing prog in
-      let curr = a.pt_start + (Float.to_int (dist *. a.vector)) in
-      a.at_update curr
-    );
-    process ticks tail
+  let queue : anim list ref = ref []
 
-let update int_ticks =
-    process (Float.of_int int_ticks) !queue
+  let length () = List.length !queue
+
+  let create
+    ~pt_start
+    ~pt_end
+    ~span
+    ?(at_update = (fun _ -> ()))
+    ?(at_end    = (fun () -> ())) curve =
+    {
+      easing = Easing.get_anim curve;
+      pt_start = pt_start;
+      pt_end = pt_end;
+      vector = Float.of_int (pt_end - pt_start);
+      ticks_start = 0.;
+      ticks_span = (Float.of_int span);
+      at_update = at_update;
+      at_end = at_end;
+    }
+
+  let start anim =
+    anim.ticks_start <- Float.of_int (sdl_get_ticks ());
+    anim.at_update anim.pt_start;
+    queue := anim :: !queue
+
+  (*let animate anim int_ticks =*)
+  let rec update_all ticks = function
+    | [] -> ()
+    | a :: tail ->
+      let prog = (ticks -. a.ticks_start) /. a.ticks_span in
+      if prog > 1.0 then (
+        queue := List.filter (fun a -> a != a) !queue;
+        a.at_update a.pt_end;
+        a.at_end ()
+      ) else (
+        let dist = a.easing prog in
+        let curr = a.pt_start + (Float.to_int (dist *. a.vector)) in
+        a.at_update curr
+      );
+      update_all ticks tail
+
+  let update int_ticks =
+      update_all (Float.of_int int_ticks) !queue
+
+end
+
+(* ========================================================================= *)
+(* ========================================================================= *)
+(* ========================================================================= *)
+(* TIMER MODULE                                                              *)
+(* ========================================================================= *)
+(* ========================================================================= *)
+(* ========================================================================= *)
+
+module Timer = struct
+
+  type job_t = {
+    at : int;
+    fn  : unit -> unit;
+  }
+
+  let get_ticks () = Int32.to_int (Sdl.get_ticks())
+
+  let jobs : job_t list ref = ref []
+
+  let fire_at ms f =
+    jobs := {at = ms; fn = f} :: !jobs
+
+  let fire_in ms f =
+    fire_at ((get_ticks ()) + ms) f
+
+  let rec update_all ticks = function
+    | [] -> ()
+    | j :: tail ->
+        if ticks > j.at then (
+          j.fn ();
+          jobs := List.filter (fun v -> v != j) !jobs
+        );
+        update_all ticks tail
+
+  let length () = List.length !jobs
+
+  let update ticks =
+    update_all ticks !jobs
+end
+
+
+let emit_events ~event ~handle_event ~wait =
+  let rec consume_events () =
+    handle_event ~event;
+    if Sdl.poll_event (Some event) = true then consume_events () else ()
+  in
+  if wait then (
+    sdl_try (Sdl.wait_event (Some event));
+    consume_events ()
+  ) else if Sdl.poll_event (Some event) = true then (
+    consume_events ()
+  )
+
+let rec loop ~renderer ~vsync ~event ~wait_for_events ~needs_redraw ~quit_requested
+    ~handle_update ~handle_event ~handle_draw =
+  if vsync <> true then Sdl.delay ms_wait_60fps;
+  if (Timer.length ()) > 0 || (Anims.length ()) > 0 then (
+    emit_events ~event ~handle_event ~wait:false
+  ) else (
+    emit_events ~event ~handle_event ~wait:!wait_for_events
+  );
+  let new_ticks = sdl_get_ticks () in
+  delta := new_ticks - !ticks;
+  ticks := new_ticks;
+  Timer.update !ticks;
+  Anims.update !ticks;
+  handle_update ~ticks:!ticks;
+
+  if !needs_redraw then (
+    sdl_ignore (Sdl.set_render_draw_color renderer 0 0 0 255);
+    sdl_ignore (Sdl.render_clear renderer);
+    handle_draw ~renderer;
+    Sdl.render_present renderer
+  );
+  if !quit_requested = true then print_endline "bye!"
+  else loop ~renderer ~vsync ~event ~wait_for_events ~needs_redraw ~quit_requested
+    ~handle_update ~handle_event ~handle_draw
+
+
+
+let init ~w ~h ~logical_w ~logical_h ~name =
+  sdl_try (Sdl.init Sdl.Init.(video + events + audio));
+  let audio_chunk_size = 2048 in
+  sdl_try (Mixer.open_audio Mixer.default_frequency Mixer.default_format
+           Mixer.default_channels audio_chunk_size);
+
+  sdl_ignore (Sdl.set_hint Sdl.Hint.render_scale_quality "2");
+  sdl_ignore (Sdl.set_hint Sdl.Hint.render_vsync "1");
+
+  let w_flags = Sdl.Window.(opengl + resizable) in
+  let win = sdl_get_ok (Sdl.create_window ~w ~h name w_flags) in
+  let r_flags = Sdl.Renderer.(presentvsync + accelerated + targettexture) in
+  let renderer = sdl_get_ok (Sdl.create_renderer ~flags:r_flags win) in
+
+  sdl_try (Sdl.render_set_scale renderer 4. 3.);
+  sdl_try (Sdl.render_set_logical_size renderer logical_w logical_h);
+  ticks := sdl_get_ticks ();
+  delta := 0;
+  (win, renderer)
+
+let release (w,r) =
+  Mixer.close_audio ();
+  Sdl.destroy_renderer r;
+  Sdl.destroy_window w;
+  Sdl.quit ()
+
+
 

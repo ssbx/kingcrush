@@ -412,7 +412,7 @@ let update () =
   match view_state.anim_running with
   | None -> ()
   | Some anim -> (
-      match Easing.animate anim.animation !Game_info.ticks with
+      match Easing.animate anim.animation !Gamekit.ticks with
       | Easing.AnimEnded (_x, _y) ->
           view_state.anim_running <- None;
           update_board_texture anim.to_position.board;

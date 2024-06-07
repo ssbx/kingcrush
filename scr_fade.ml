@@ -34,7 +34,7 @@ let fade_in f =
     ~at_update:(fun v -> alpha := v)
     ~at_end:(fun () -> enabled := false; f ())
     Anims.Easing.Quadratic_in in
-  Anims.start anim!Game_info.ticks
+  Anims.start anim
 
 
 let fade_out f =
@@ -46,7 +46,7 @@ let fade_out f =
     ~at_update:(fun v -> alpha := v)
     ~at_end:(fun () -> f ())
     Anims.Easing.Quadratic_in in
-  Anims.start anim!Game_info.ticks
+  Anims.start anim
 
 
 let draw ~renderer =

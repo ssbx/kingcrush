@@ -188,12 +188,8 @@ let handle_sdl_event ~event =
   | _ ->
     handle_sdl_event2 ~event !view_state
 
-let update ~ticks =
+let update ~ticks:_ =
   Game_info.needs_redraw := true;
-  Game_info.delta := ticks - !Game_info.ticks;
-  Game_info.ticks := ticks;
-  Timer.update !Game_info.ticks;
-  Anims.update !Game_info.ticks;
   Brd_position.update ()
 
 let draw2 ~renderer = function
@@ -235,46 +231,4 @@ let draw2 ~renderer = function
 
 let draw ~renderer =
   draw2 ~renderer !view_state
-
-let init ~renderer ~with_audio ~with_anims =
-  Game_info.ticks := 0;
-  Game_info.delta := 0;
-  Game_info.with_audio := with_audio;
-  Game_info.with_anims := with_anims;
-  Audio.init ();
-  Fonts.init ();
-  Gm_streak_model.init ();
-  Pieces.init ~renderer;
-  Scr_bg.init ~renderer;
-  Scr_map.init ~renderer;
-  Gm_streak_score.init ~renderer;
-  Brd_squares.init ~renderer;
-  Brd_hints.init ~renderer;
-  Scr_fade.init ~renderer;
-  Osd_level_over.init ~renderer;
-  Osd_level_info.init ~renderer;
-  Osd_level_details.init ~renderer;
-  Osd_level_start.init ~renderer;
-  Osd_map_select.init ~renderer;
-  Brd_position.init ~renderer;
-  Gm_streak_model.listen handle_game_event;
-  to_play ()
-
-let release () =
-  Brd_position.release ();
-  Osd_level_details.release ();
-  Osd_level_info.release ();
-  Osd_level_over.release ();
-  Osd_level_start.release ();
-  Osd_map_select.release ();
-  Scr_fade.release ();
-  Brd_hints.release ();
-  Brd_squares.release ();
-  Gm_streak_score.release ();
-  Scr_bg.release ();
-  Scr_map.release ();
-  Pieces.release ();
-  (*Fonts.release ();*)
-  Audio.release ();
-  Gm_streak_model.release ()
 

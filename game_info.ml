@@ -1,8 +1,6 @@
 open Tsdl
 
 
-let ticks : int ref = ref 0
-let delta : int ref = ref 0
 let wait_for_events : bool ref = ref false
 let quit_requested : bool ref = ref false
 let pause_redraw : bool ref = ref false
