@@ -11,8 +11,6 @@ let get_bg_tex () = match !bg_tex with Some v -> v | None -> assert false
 let orig_x = ref 0
 let orig_y = ref 0
 
-let enabled : bool ref = ref false
-
 let gen_text ~renderer ~text =
   let surf = Fonts.get_surface text in
   let w, h = Sdl.get_surface_size surf in
@@ -73,12 +71,11 @@ let start_anim_out f =
     ~pt_end:(-1000)
     ~span:400
     ~at_update:(fun v -> Sdl.Rect.set_x rect v)
-    ~at_end:(fun () -> enabled := false; f ())
+    ~at_end:(fun () -> f ())
     Anims.Easing.Quadratic_in in
   Anims.start anim
 
 let start_anim_in f =
-  enabled := true;
   Game_info.wait_for_events := false;
   Sdl.Rect.set_y rect !orig_y;
   Sdl.Rect.set_x rect !orig_x;
@@ -93,9 +90,7 @@ let start_anim_in f =
 
 
 let draw ~renderer =
-  if !enabled then (
-    sdl_try (Sdl.render_copy ~dst:rect renderer (get_bg_tex ()))
-  )
+  sdl_try (Sdl.render_copy ~dst:rect renderer (get_bg_tex ()))
 
 let release () =
   if !bg_tex <> None then (

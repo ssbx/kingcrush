@@ -409,8 +409,10 @@ module Anims = struct
   }
 
   let queue : anim list ref = ref []
+  let pending : anim list ref = ref []
+  let have_pending : bool ref = ref false
 
-  let length () = List.length !queue
+  let length () = (List.length !queue) + (List.length !pending)
 
   let create
     ~pt_start
@@ -432,17 +434,19 @@ module Anims = struct
   let start anim =
     anim.ticks_start <- Float.of_int (sdl_get_ticks ());
     anim.at_update anim.pt_start;
-    queue := anim :: !queue
+    pending := anim :: !pending;
+    have_pending := true
 
   (*let animate anim int_ticks =*)
   let rec update_all ticks = function
     | [] -> ()
     | a :: tail ->
       let prog = (ticks -. a.ticks_start) /. a.ticks_span in
+      Printf.printf "span:%f tstart:%f t:%f prog %f%!\n" a.ticks_span a.ticks_start ticks prog;
       if prog > 1.0 then (
-        queue := List.filter (fun a -> a != a) !queue;
         a.at_update a.pt_end;
-        a.at_end ()
+        a.at_end ();
+        queue := List.filter (fun a -> a != a) !queue
       ) else (
         let dist = a.easing prog in
         let curr = a.pt_start + (Float.to_int (dist *. a.vector)) in
@@ -451,15 +455,18 @@ module Anims = struct
       update_all ticks tail
 
   let update int_ticks =
-      update_all (Float.of_int int_ticks) !queue
+    if !have_pending then (
+      queue := !queue @ !pending;
+      pending := [];
+      have_pending := false
+    );
+    update_all (Float.of_int int_ticks) !queue
 
 end
 
 (* ========================================================================= *)
 (* ========================================================================= *)
-(* ========================================================================= *)
 (* TIMER MODULE                                                              *)
-(* ========================================================================= *)
 (* ========================================================================= *)
 (* ========================================================================= *)
 
@@ -495,6 +502,11 @@ module Timer = struct
     update_all ticks !jobs
 end
 
+(* ========================================================================= *)
+(* ========================================================================= *)
+(* MAIN LOOP                                                                 *)
+(* ========================================================================= *)
+(* ========================================================================= *)
 
 let emit_events ~event ~handle_event ~wait =
   let rec consume_events () =
@@ -511,16 +523,17 @@ let emit_events ~event ~handle_event ~wait =
 let rec loop ~renderer ~vsync ~event ~wait_for_events ~needs_redraw ~quit_requested
     ~handle_update ~handle_event ~handle_draw =
   if vsync <> true then Sdl.delay ms_wait_60fps;
-  if (Timer.length ()) > 0 || (Anims.length ()) > 0 then (
-    emit_events ~event ~handle_event ~wait:false
-  ) else (
-    emit_events ~event ~handle_event ~wait:!wait_for_events
-  );
   let new_ticks = sdl_get_ticks () in
   delta := new_ticks - !ticks;
   ticks := new_ticks;
+  let wait =
+    (Timer.length ()) = 0 &&
+    (Anims.length ()) = 0 &&
+    !needs_redraw = false &&
+    !wait_for_events = true in
   Timer.update !ticks;
   Anims.update !ticks;
+  emit_events ~event ~handle_event ~wait;
   handle_update ~ticks:!ticks;
 
   if !needs_redraw then (
@@ -529,10 +542,11 @@ let rec loop ~renderer ~vsync ~event ~wait_for_events ~needs_redraw ~quit_reques
     handle_draw ~renderer;
     Sdl.render_present renderer
   );
-  if !quit_requested = true then print_endline "bye!"
-  else loop ~renderer ~vsync ~event ~wait_for_events ~needs_redraw ~quit_requested
+  if !quit_requested = true then
+    print_endline "bye!"
+  else
+    loop ~renderer ~vsync ~event ~wait_for_events ~needs_redraw ~quit_requested
     ~handle_update ~handle_event ~handle_draw
-
 
 
 let init ~w ~h ~logical_w ~logical_h ~name =
@@ -560,6 +574,3 @@ let release (w,r) =
   Sdl.destroy_renderer r;
   Sdl.destroy_window w;
   Sdl.quit ()
-
-
-
