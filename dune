@@ -2,7 +2,7 @@
   (public_name kingcrush)
   (modes (native exe))
   (name main)
-  (libraries tsdl tsdl-image tsdl-ttf tsdl-mixer chesslibs dune-site))
+  (libraries tsdl tsdl-image tsdl-ttf tsdl-mixer chesslibs gamekit dune-site))
 
 (generate_sites_module
  (module data)

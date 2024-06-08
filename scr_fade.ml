@@ -31,7 +31,7 @@ let fade_in f =
     ~pt_start:(255)
     ~pt_end:(0)
     ~span:400
-    ~at_update:(fun v -> Printf.printf "alphaset in %i%!\n" v; alpha := v)
+    ~at_update:(fun v -> alpha := v)
     ~at_end:(fun () -> f ())
     Anims.Easing.Quadratic_in in
   Printf.printf "sssssssssssssssstart!!!!%!\n";
@@ -43,7 +43,7 @@ let fade_out f =
     ~pt_start:(0)
     ~pt_end:(255)
     ~span:400
-    ~at_update:(fun v -> Printf.printf "alphaset out %i%!\n" v; alpha := v)
+    ~at_update:(fun v -> alpha := v)
     ~at_end:(fun () -> f ())
     Anims.Easing.Quadratic_in in
   Anims.start anim
