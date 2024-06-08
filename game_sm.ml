@@ -25,11 +25,12 @@ let to_play () =
       Brd_hints.draw ~renderer:rdr;
       Brd_position.draw ~renderer:rdr)
 
-let to_map () =
+let to_menu () =
   curr_state.fun_update <- (fun _ -> ());
   curr_state.fun_event <- (fun _ -> ());
   curr_state.fun_draw <- (fun renderer ->
     Scr_map.draw ~renderer;
+    Gm_streak_menu.draw ~renderer;
     Scr_fade.draw ~renderer);
   Audio.music_play Audio.Calm;
   Scr_fade.fade_in (fun () ->
@@ -56,7 +57,7 @@ let to_level_details () =
       if sdl_get_evt_typ e = `Mouse_button_down then (
         curr_state.fun_event <- (fun _ -> ());
         Osd_level_details.start_anim_out (fun () -> () );
-        Scr_fade.fade_out (fun () ->  Audio.music_stop (); to_map ());
+        Scr_fade.fade_out (fun () ->  Audio.music_stop (); to_menu ());
       )
     )
   )

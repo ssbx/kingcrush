@@ -34,7 +34,10 @@
   (with-stdout-to
    default_theme.sexp
    (system
-    "\n        echo '(';\n          for im in pieces/default/*.png; do\n            echo '(' $im as default/$(basename $im) ')';\n          done;\n        echo ')'"))))
+    "echo '('; \
+    for im in pieces/default/*.png; do \
+      echo '(' $im as default/$(basename $im) ')'; \
+    done; echo ')'"))))
 
 (rule
  (deps
@@ -43,7 +46,10 @@
   (with-stdout-to
    pixel_theme.sexp
    (system
-    "\n        echo '(';\n          for im in pieces/pixel/*.png; do\n            echo '(' $im as pixel/$(basename $im) ')';\n          done;\n        echo ')'"))))
+    "echo '('; \
+    for im in pieces/pixel/*.png; do \
+      echo '(' $im as pixel/$(basename $im) ')'; \
+    done; echo ')'"))))
 
 ; sounds
 

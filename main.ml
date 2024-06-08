@@ -36,6 +36,7 @@ let () =
   Gm_streak_model.listen Game_sm.handle_game_event;
   Gm_streak_model.init ();
   Gm_streak_score.init ~renderer;
+  Gm_streak_menu.init ~renderer;
   Scr_bg.init ~renderer;
   Scr_map.init ~renderer;
   Scr_fade.init ~renderer;
@@ -47,7 +48,7 @@ let () =
   Osd_level_details.init ~renderer;
   Osd_level_start.init ~renderer;
   Osd_map_select.init ~renderer;
-  Game_sm.to_play ();
+  Game_sm.to_menu ();
 
   Gamekit.loop
     ~renderer ~vsync:false ~event:(Sdl.Event.create ())
@@ -67,13 +68,14 @@ let () =
   Scr_fade.release ();
   Brd_hints.release ();
   Brd_squares.release ();
+  Gm_streak_model.release ();
   Gm_streak_score.release ();
+  Gm_streak_menu.release ();
   Scr_bg.release ();
   Scr_map.release ();
   Pieces.release ();
   (*Fonts.release ();*)
   Audio.release ();
-  Gm_streak_model.release ();
 
   Gamekit.release (window,renderer);
   exit 0

@@ -8,7 +8,7 @@ let bg_rect : Sdl.rect = Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0
 
 let init ~renderer =
   let filename =
-    Filename.concat (List.nth Data.Sites.images 0) "map.png"
+    Filename.concat (List.nth Data.Sites.images 0) "sky.png"
   in
   let tex = sdl_get_ok (Image.load_texture renderer filename) in
   let _, _, (w, h) = sdl_get_ok (Sdl.query_texture tex) in
