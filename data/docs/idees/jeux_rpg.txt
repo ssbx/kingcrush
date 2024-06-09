@@ -1,0 +1,37 @@
+Voir jeux :
+    • Etrian Odyssey (DS)
+    • Wizardry (de type dungeons RPG, DOSBOX)
+    • Orcs and Elfes (DS)
+    • Images de font du SHMUP AirGallet, (est-il possible d'appliquer une transformation à une image pour donner le même effet dessin/peinture?)
+
+Idées Simples
+=============
+
+Une documentation riche et complexe accessible, ou le joueur est invité à aller. Un jeux exigeant en somme.
+Tourner les pages du manuel ou des interfaces d'inventaire avec un bruit de manuscrit froissé.
+Bruitages et ambiance sonores, voir ce qui fait le charme des jeux type Dungons RPG. Par example la réverbération dans certaines sales, le déplacement d'insectes contre certaines murs, les voix des personnages réèls et de type théatral, exagérés.
+Des le début de l'histoire, le joueur choisis son objectif : sauver le monde, se sauver sois même, trahir les siens… L'histoire permettrait de suivre chaque objectif en étant « un bon ». Exemple, une planète dévastée par les armes atomiques, et une humanité à la dérive. Un vaisseau extra terrestre gravite autour de la planète, et c'est au joueur, un simple citoyen, après que de nombreux autres ne soient pas revenus de la mission, qui est envoyé la bas. Il peut choisir ses partenaires (les créer), et choisir son objectif (ce qui influence directement son parcours).
+
+Système d'XP
+============
+
+Battre un nouvel énnemi remporte beaucoup d'XP. Plus l'énemi est rencontré moins il rapporte d'XP, ce qui est cohérent avec la réalité. Ceci empècherai les joueurs à « farmer » l'XP dans certaines parties du jeux, et de préserver la difficulté du jeux tout au long du jeux. Par example, pour un combat :
+a = xp base de l'ennemi,
+b = nombre de rencontre de l'ennemi,
+xp = l'expérience gagnée par le joueur
+xp = a/b
+Ainsi « farmer » devient vite inutile. Pour un énemi ou a = 100, il remporte 100 au premier combat, et seulement 25 au troisième.
+
+Immersion (Jeux de role older new age)
+======================================
+
+Jeux de rôle immersif de la fin des années 90
+
+Phantasy Star Online
+====================
+Une musique électronique envoûtante (reverb fin 90), des graphismes simples et beaux. On peut passer des heures à ne rien faire dans ce jeux, et s'y trouver bien. Ne pas vouloir arrêter.
+
+EGG (Dreamcast)
+===============
+
+Encore un jeux ou la simplicité et la beauté des graphismes, accompagnés par une musique envoûtante, ne lâche pas le joueur.

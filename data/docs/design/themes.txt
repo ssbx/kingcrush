@@ -1,0 +1,7 @@
+Par defaut theme casual, et des extentions permetraient de changer
+le thème (et l'expérience de jeux) complètement (psylvariar, mystérieux...).
+
+- casual (candycrush)
+- classique (à définir, musique classique ou autre, expérience plus calme)
+- spacial (psylvariar)
+- retro: "80s USA california" avec shader "video tape", menus inspirés outrun
