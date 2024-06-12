@@ -3,6 +3,8 @@ open Tsdl_mixer
 
 module Anims = Anims
 module Timer = Timer
+module Spring = Spring
+module Easing = Easing
 
 include Utils
 

@@ -84,6 +84,7 @@ effects barre de temps inspiré psychess
 genre parties simultannées
 - evaluation de positions, déterminer si la position est gagnante, perdante
 ou égale an les "droppant" dans une marmite
+- evaluation rank voir "opam show glicko2"
 
 #### ui
 
@@ -194,10 +195,16 @@ badges
 
 Un classique, trois badges par étapes si l'on veut finir à 100% le jeux.
 
-
 jeux
 ====
 
 - simple puzzle (puzzle streak)
 - puzzle vs (voir ./design/mode_versus.png)
 - vs game (fin de parties, faire nul ou gagner la fin de partie)
+
+ressources opam a voir
+======================
+
+- opam show irrlicht
+- opam show pgsolver (solving parity games: tectonic?)
+- opam show sgf (sauvegarde de parties)
