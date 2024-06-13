@@ -1,5 +1,6 @@
 open Tsdl
 open Ressources
+open Gamekit
 
 let usage_msg = "kingcrush [--disable-anims] [--disable-audio] [--verbose]"
 let with_anims = ref true
@@ -19,6 +20,8 @@ let speclist =
 
 let () =
 
+  let prefs = sdl_get_ok (Sdl.get_pref_path ~org:"seb" ~app:"kingcrush") in
+  Printf.printf "prefs are %s\n" prefs;
   Arg.parse speclist (fun _ -> ()) usage_msg;
 
   let (window, renderer) = Gamekit.init
