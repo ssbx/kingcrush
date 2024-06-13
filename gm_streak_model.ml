@@ -166,8 +166,8 @@ let player_move from_r from_f to_r to_f =
 (* initialisation and close ================================================ *)
 (* ========================================================================= *)
 
-let start n =
-  Puzzles.reset ~theme:Puzzles.AnyTheme ~start_rank:(-1);
+let start ~rank ~theme n =
+  Puzzles.reset ~theme ~start_rank:rank;
   game_state.puzzle <- Puzzles.empty;
   game_state.pos_id_max <- 0;
   game_state.pos_id_reached <- 0;

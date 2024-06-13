@@ -20,7 +20,7 @@ let to_play () =
   curr_state.fun_update <- (fun _ -> Brd_position.update ());
   curr_state.fun_event <- (fun e -> Brd_position.handle_sdl_event ~event:e);
   curr_state.fun_draw <- (fun rdr ->
-      Scr_bg.draw ~renderer:rdr;
+    Scr_bg.draw ~renderer:rdr;
       Brd_squares.draw ~renderer:rdr;
       Brd_hints.draw ~renderer:rdr;
       Brd_position.draw ~renderer:rdr)
@@ -30,17 +30,20 @@ let to_menu () =
   curr_state.fun_event <- (fun _ -> ());
   curr_state.fun_draw <- (fun renderer ->
     Scr_map.draw ~renderer;
-    Gm_streak_menu.draw ~renderer;
+    Gm_streak_menu2.draw ~renderer;
     Scr_fade.draw ~renderer);
   Audio.music_play Audio.Calm;
-  Scr_fade.fade_in (fun () ->
+  Timer.fire_in 1000 (fun () -> Scr_fade.fade_in (fun () ->
     curr_state.fun_event <- (fun e ->
       if sdl_get_evt_typ e = `Mouse_button_down then (
-        curr_state.fun_event <- (fun _ -> ());
-        Scr_fade.fade_out (fun () -> to_play ())
+        if Gm_streak_menu2.handle_sdl_button_down e then
+          curr_state.fun_event <- (fun _ -> ());
+          Scr_fade.fade_out (fun () -> to_play ())
+      ) else (
+        Gm_streak_menu2.handle_sdl_event e
       )
     )
-  )
+  ))
 
 let to_level_details () =
   curr_state.fun_update <- (fun _ -> ());
@@ -57,10 +60,12 @@ let to_level_details () =
       if sdl_get_evt_typ e = `Mouse_button_down then (
         curr_state.fun_event <- (fun _ -> ());
         Osd_level_details.start_anim_out (fun () -> () );
-        Scr_fade.fade_out (fun () ->  Audio.music_stop (); to_menu ());
+        Timer.fire_in 1500 (fun () ->
+          Scr_fade.fade_out (fun () ->  Audio.music_stop (); to_menu ());
+        )
+        )
       )
     )
-  )
 
 let to_level_info () =
   curr_state.fun_update <- (fun _ -> ());
@@ -73,7 +78,7 @@ let to_level_info () =
   Osd_level_info.start_anim_in (fun () ->
     Timer.fire_in 1000 (fun () ->
       Osd_level_info.start_anim_out (fun () -> to_level_details ()))
-  )
+    )
 
 let to_level_over () =
   curr_state.fun_draw <- (fun renderer ->
@@ -93,15 +98,15 @@ let to_level_over () =
 
 let handle_game_event = function
   | Gm_streak_model.GameOver ->
-    Game_info.wait_for_events := false;
+      Game_info.wait_for_events := false;
     Game_info.needs_redraw := true;
     to_level_over ();
     Audio.play Audio.GameOver
   | Gm_streak_model.LevelComplete ->
-    to_level_over ();
+      to_level_over ();
     Audio.play Audio.LevelComplete
   | e ->
-    Brd_position.handle_game_event e;
+      Brd_position.handle_game_event e;
     Gm_streak_score.handle_game_event e
 
 let handle_sdl_event ~event =
@@ -109,11 +114,11 @@ let handle_sdl_event ~event =
   | `Key_down -> if (sdl_get_evt_scancode event) = `Escape then
     Gm_streak_controller.quit ()
   | `Quit ->
-    Gm_streak_controller.quit ()
+      Gm_streak_controller.quit ()
   | `Window_event ->
-    Game_info.needs_redraw := true
+      Game_info.needs_redraw := true
   | _ ->
-    curr_state.fun_event event
+      curr_state.fun_event event
 
 let update ~ticks =
   curr_state.fun_update ticks
@@ -123,13 +128,13 @@ let draw ~renderer =
 
 
     (*
-  let at_anim_ended = (fun () ->
-    Timer.fire_in 2000 (fun () -> Audio.music_play Audio.Groove;
+let at_anim_ended = (fun () ->
+  Timer.fire_in 2000 (fun () -> Audio.music_play Audio.Groove;
       Osd_level_over.start_anim_out to_level_info));
 
 
-let to_level_details () =
-  Osd_level_details.start_anim_in (fun () -> to_level_details_wait ());
+      let to_level_details () =
+        Osd_level_details.start_anim_in (fun () -> to_level_details_wait ());
   view_state := LevelDetails
 
 let to_level_info () =
@@ -142,16 +147,16 @@ let to_level_info () =
       Audio.music_play Audio.Groove;
       Osd_level_over.start_anim_out to_level_info));
 
-*)
-(* ================================================================== *)
-(* model events ===================================================== *)
-(* ================================================================== *)
+      *)
+    (* ================================================================== *)
+    (* model events ===================================================== *)
+    (* ================================================================== *)
 
-  (*
+    (*
 let draw2 ~renderer = function
   | LevelOver | LevelInfo | LevelDetails
   | LevelDetailsWait | Map ->
-    Scr_bg.draw ~renderer;
+      Scr_bg.draw ~renderer;
     Brd_squares.draw ~renderer;
     Brd_hints.draw ~renderer;
     Brd_position.draw ~renderer;
@@ -161,34 +166,34 @@ let draw2 ~renderer = function
     Osd_map_select.draw ~renderer;
     Scr_fade.draw ~renderer
   | Playing ->
-    Scr_bg.draw ~renderer;
+      Scr_bg.draw ~renderer;
     Brd_squares.draw ~renderer;
     Brd_hints.draw ~renderer;
     Brd_position.draw ~renderer
   | PlayStartIn | PlayStart | PlayStartOut ->
-    Scr_bg.draw ~renderer;
+      Scr_bg.draw ~renderer;
     Brd_squares.draw ~renderer;
     Brd_position.draw ~renderer;
     Osd_level_start.draw ~renderer;
     Scr_fade.draw ~renderer
   | PlayInitAnimOut | PlayInit | PlayInitAnimIn ->
-    Scr_bg.draw ~renderer;
+      Scr_bg.draw ~renderer;
     Brd_squares.draw ~renderer;
     Brd_position.draw ~renderer;
     Osd_level_start.draw ~renderer;
     Scr_fade.draw ~renderer
   | MapWait | MapIn | SoonPlay ->
-    Scr_map.draw ~renderer;
+      Scr_map.draw ~renderer;
     Scr_fade.draw ~renderer
   | MapSelectAnimIn | MapSelect | MapSelectOkAnimOut ->
-    Scr_map.draw ~renderer;
+      Scr_map.draw ~renderer;
     Scr_fade.draw ~renderer;
     Osd_map_select.draw ~renderer
 
 let draw ~renderer =
   draw2 ~renderer !view_state
-*)
-  (*
+  *)
+    (*
 let to_soon_play () =
   Audio.music_stop ();
   Timer.fire_in 1000 (fun () -> to_play ());
@@ -264,7 +269,7 @@ let handle_sdl_event2 ~event = function
       if sdl_get_evt_typ event = `Mouse_button_down then to_play ()
 *)
 
-(*
+    (*
 let to_map_wait () =
   view_state := MapWait
 
@@ -298,5 +303,5 @@ let to_level_over () =
       Audio.music_play Audio.Groove;
       Osd_level_over.start_anim_out to_level_info));
   view_state := LevelOver
-*)
+  *)
 

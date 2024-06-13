@@ -1,4 +1,5 @@
 open Tsdl
+open Chesslibs
 
 
 let wait_for_events : bool ref = ref false
@@ -8,6 +9,9 @@ let needs_redraw : bool ref = ref true
 let with_audio : bool ref = ref true
 let with_anims : bool ref = ref true
 let game_len : int ref = ref 10
+
+let streak_theme : Puzzles.theme_t ref = ref Puzzles.AnyTheme
+let streak_rank : int ref = ref 1000
 
 module Screen = struct
   let logical_w : int = 1600

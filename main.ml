@@ -37,6 +37,7 @@ let () =
   Gm_streak_model.init ();
   Gm_streak_score.init ~renderer;
   Gm_streak_menu.init ~renderer;
+  Gm_streak_menu2.init ~renderer;
   Scr_bg.init ~renderer;
   Scr_map.init ~renderer;
   Scr_fade.init ~renderer;
@@ -71,6 +72,7 @@ let () =
   Gm_streak_model.release ();
   Gm_streak_score.release ();
   Gm_streak_menu.release ();
+  Gm_streak_menu2.release ();
   Scr_bg.release ();
   Scr_map.release ();
   Pieces.release ();

@@ -6,7 +6,7 @@ let can_pick_piece rank file = Gm_streak_model.can_pick_piece rank file
 let quit () = Game_info.quit_requested := true
 
 let new_game n =
-  Gm_streak_model.start n
+  Gm_streak_model.start ~rank:!Game_info.streak_rank ~theme:!Game_info.streak_theme n
 
 let player_move from_x from_y to_x to_y =
   if Move.is_valid from_x from_y to_x to_y (Gm_streak_model.current_position ()) then (
