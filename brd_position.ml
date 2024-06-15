@@ -248,11 +248,10 @@ let anim_forward from_pos_id to_pos_id =
   in
   queue_anim anim
 
-let anim_backward from_pos_id to_pos_id =
+let anim_backward _from_pos_id to_pos_id =
   cleanup_view_state ();
 
-  let _from_pos = Gm_streak_model.position_at from_pos_id
-  and to_bk_pos = Gm_streak_model.position_at to_pos_id in
+  let to_bk_pos = Gm_streak_model.position_at to_pos_id in
 
   let mv =
     match to_bk_pos.mv_next with

@@ -1,6 +1,6 @@
 module Easing = Easing
 
-type anim = {
+type anim_t = {
   easing   : float -> float;
   pt_start : int;
   pt_end   : int;
@@ -11,7 +11,7 @@ type anim = {
   at_end      : unit -> unit;
 }
 
-let anim_empty : anim = {
+let anim_empty : anim_t = {
   easing = (fun _ -> 0.);
   pt_start = 0;
   pt_end = 0;
@@ -22,19 +22,20 @@ let anim_empty : anim = {
   at_end    = (fun () -> ());
 }
 
-let anims_queue : anim list ref = ref []
-let anims_wait_queue : anim list ref = ref []
+let anims_queue : anim_t list ref = ref []
+let anims_wait_queue : anim_t list ref = ref []
 let anims_waiting : bool ref = ref false
 
 let length () = (List.length !anims_queue) + (List.length !anims_wait_queue)
+
 
 let create
   ~pt_start
   ~pt_end
   ~span
-  ?(at_update = (fun _ -> ()))
+  ~at_update
   ?(at_end    = (fun () -> ())) curve =
-  {
+  [{
     easing = Easing.get_anim curve;
     pt_start = pt_start;
     pt_end = pt_end;
@@ -43,13 +44,48 @@ let create
     ticks_span = (Float.of_int span);
     at_update = at_update;
     at_end = at_end;
-  }
+  }]
 
-let start anim =
-  anim.ticks_start <- Float.of_int (Utils.sdl_get_ticks ());
-  anim.at_update anim.pt_start;
-  anims_wait_queue := anim :: !anims_wait_queue;
+let create_v2
+  ~pt1_start
+  ~pt1_end
+  ~at1_update
+  ~pt2_start
+  ~pt2_end
+  ~at2_update
+  ~span
+  ?(at_end    = (fun () -> ())) curve =
+  [
+  {
+    easing = Easing.get_anim curve;
+    pt_start = pt1_start;
+    pt_end = pt1_end;
+    vector = Float.of_int (pt1_end - pt1_start);
+    ticks_start = 0.;
+    ticks_span = (Float.of_int span);
+    at_update = at1_update;
+    at_end = (fun () -> ());
+  };
+  {
+    easing = Easing.get_anim curve;
+    pt_start = pt2_start;
+    pt_end = pt2_end;
+    vector = Float.of_int (pt2_end - pt2_start);
+    ticks_start = 0.;
+    ticks_span = (Float.of_int span);
+    at_update = at2_update;
+    at_end = at_end;
+  }]
+
+
+let start anim_handle =
+  List.iter (fun anim ->
+    anim.ticks_start <- Float.of_int (Utils.sdl_get_ticks ());
+    anim.at_update anim.pt_start;
+  ) anim_handle;
+  anims_wait_queue := anim_handle @ !anims_wait_queue;
   anims_waiting := true
+
 
 (*let animate anim int_ticks =*)
 let rec update_all ticks del = function
