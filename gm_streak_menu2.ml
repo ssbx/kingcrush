@@ -1,7 +1,7 @@
 open Tsdl
 open Gamekit
 open Ressources
-open Chesslibs
+open Chess
 
 let gen_text ~renderer ~text =
   let surf = Fonts.get_surface text in

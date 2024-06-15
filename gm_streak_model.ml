@@ -1,4 +1,4 @@
-open Chesslibs
+open Chess
 
 type game_event_t =
   | NewPuzzle
@@ -98,7 +98,7 @@ let can_pick_piece rank file =
   then
     let pos = current_position () in
     let p = pos.board.(file).(rank) in
-    Chess.is_a_piece p && Chess.piece_color p = pos.active_player
+    Chess.Utils.is_a_piece p && Chess.Utils.piece_color p = pos.active_player
   else false
 
 (* ========================================================================= *)

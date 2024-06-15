@@ -1,4 +1,4 @@
-open Chesslibs
+open Chess
 
 let move_forward () = Gm_streak_model.move_fwd ()
 let move_backward () = Gm_streak_model.move_bwd ()

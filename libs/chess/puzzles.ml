@@ -3,16 +3,16 @@ open Fen
 type puzzle_t = {
   lichess_id : string;
   rating : string;
-  player_color : Chess.color_t;
-  positions : Chess.position_t list;
+  player_color : Types.color_t;
+  positions : Types.position_t list;
 }
 
 let empty =
   {
     lichess_id = "none";
     rating = "0";
-    player_color = Chess.White;
-    positions = [ Chess.empty_position ];
+    player_color = Types.White;
+    positions = [ Utils.empty_position ];
   }
 
 type theme_t = AnyTheme | Theme of string
@@ -115,10 +115,10 @@ let next_puzzle () =
         let player_color, positions =
           match fen_pos.to_play with
           | "w" ->
-              ( Chess.Black,
-                Chess.reverse_positions
-                  (Chess.positions_from_mvs fen_pos mvs Chess.White) )
-          | _ -> (Chess.White, Chess.positions_from_mvs fen_pos mvs Chess.Black)
+              ( Types.Black,
+                Utils.reverse_positions
+                  (Utils.positions_from_mvs fen_pos mvs Types.White) )
+          | _ -> (Types.White, Utils.positions_from_mvs fen_pos mvs Types.Black)
         in
         Some { lichess_id = id; rating; player_color; positions }
     | _ -> failwith "not a valid csv file"

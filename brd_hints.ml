@@ -2,7 +2,7 @@ open Tsdl
 open Tsdl_image
 open Ressources
 open Gamekit
-open Chesslibs.Chess
+open Chess
 
 let img_texture : Sdl.texture option ref = ref None
 let img_rect : Sdl.rect = Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0
@@ -52,7 +52,7 @@ let release () =
 
 let show pos from_x from_y =
   let mat =
-    Chesslibs.Move.get_move_matrix pos.board pos.active_player from_x from_y
+    Chess.Move.get_move_matrix pos.board pos.active_player from_x from_y
   in
   let renderer = get_rdr () in
   let img = get_img_tex () in

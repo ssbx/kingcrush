@@ -1,8 +1,8 @@
 open Tsdl
-open Chesslibs
 open Gamekit
 open Gamekit.Anims
 open Ressources
+open Chess
 
 let anim_time = 100
 let anim_type = Easing.Quintic_out
@@ -49,7 +49,7 @@ type view_state_t = {
 
 let view_state =
   {
-    position = Chess.empty_position;
+    position = Chess.Utils.empty_position;
     renderer = None;
     drag_rect = Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0;
     anim_rect = Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0;
@@ -151,7 +151,7 @@ let play_audio () =
   let curr_id = Gm_streak_model.current_position_id () in
   let pos = Gm_streak_model.position_at (curr_id - 1) in
   let mv = match pos.mv_next with Some v -> v | None -> assert false in
-  if Chess.is_a_piece pos.board.(mv.to_x).(mv.to_y) then
+  if Chess.Utils.is_a_piece pos.board.(mv.to_x).(mv.to_y) then
     Audio.play Audio.Capture
   else Audio.play Audio.Move
 
@@ -228,7 +228,7 @@ let anim_forward from_pos_id to_pos_id =
   let start_pt : Easing.point_t = { x = x1; y = y1 }
   and end_pt : Easing.point_t = { x = x2; y = y2 } in
 
-  let new_from_pos = Chess.copy_position from_pos in
+  let new_from_pos = Chess.Utils.copy_position from_pos in
   let piece = new_from_pos.board.(mv.from_x).(mv.from_y) in
   (* we have to remove the piece *)
   new_from_pos.board.(mv.from_x).(mv.from_y) <- '.';
@@ -266,7 +266,7 @@ let anim_backward from_pos_id to_pos_id =
   let end_pt : Easing.point_t = { x = x1; y = y1 }
   and start_pt : Easing.point_t = { x = x2; y = y2 } in
 
-  let new_to_bk_pos = Chess.copy_position to_bk_pos in
+  let new_to_bk_pos = Chess.Utils.copy_position to_bk_pos in
   let piece = new_to_bk_pos.board.(mv.from_x).(mv.from_y) in
   new_to_bk_pos.board.(mv.from_x).(mv.from_y) <- '.';
 
@@ -291,7 +291,7 @@ let anim_backward from_pos_id to_pos_id =
 
 let drag_init piece rank file =
   let pos = Gm_streak_model.current_position () in
-  let board = Chess.copy_board pos.board in
+  let board = Chess.Utils.copy_board pos.board in
   Brd_hints.show pos rank file;
   board.(file).(rank) <- '.';
   view_state.drag_from_rank <- rank;

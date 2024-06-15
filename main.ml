@@ -23,6 +23,9 @@ let () =
   let prefs = sdl_get_ok (Sdl.get_pref_path ~org:"seb" ~app:"kingcrush") in
   Printf.printf "prefs are %s\n" prefs;
   Arg.parse speclist (fun _ -> ()) usage_msg;
+(*  if !with_anims then (
+    Chess.Board.test (); exit 0
+  ); *)
 
   let (window, renderer) = Gamekit.init
     ~w:1200

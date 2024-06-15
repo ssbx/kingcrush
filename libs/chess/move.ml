@@ -1,4 +1,5 @@
-open Chess
+open Types
+open Utils
 
 exception Wrong_move of string
 type check_move_t = {
@@ -183,7 +184,7 @@ let get_valid_moves board col src_x src_y = function
             (fun x b ->
               match b with
               | '.' -> ()
-              | p -> if Chess.piece_color p = col then moves.(y).(x) <- false)
+              | p -> if Utils.piece_color p = col then moves.(y).(x) <- false)
             a)
         board;
       moves
@@ -200,13 +201,13 @@ let get_valid_moves board col src_x src_y = function
       (if src_x > 0 then
          let sl = board.(src_y - 1).(src_x - 1) in
          if sl <> '.' then
-           if Chess.piece_color sl <> col then
+           if Utils.piece_color sl <> col then
              moves.(src_y - 1).(src_x - 1) <- true);
       (* front right *)
       (if src_x < 7 then
          let sr = board.(src_y - 1).(src_x + 1) in
          if sr <> '.' then
-           if Chess.piece_color sr <> col then
+           if Utils.piece_color sr <> col then
              moves.(src_y - 1).(src_x + 1) <- true);
 
       (* en passant todo *)
@@ -218,11 +219,11 @@ let get_move_matrix board col src_x src_y =
 
 let check_dest_color c =
   if c.dst_piece <> '.' then
-    if Chess.piece_color c.src_piece = Chess.piece_color c.dst_piece then
+    if Utils.piece_color c.src_piece = Utils.piece_color c.dst_piece then
       raise (Wrong_move "src and dst colo are the same")
 
 let check_active_player c =
-  if Chess.piece_color c.src_piece <> c.position.active_player then
+  if Utils.piece_color c.src_piece <> c.position.active_player then
     raise (Wrong_move "not an active player color piece")
 
 let check_king_check _ = ()
