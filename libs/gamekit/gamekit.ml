@@ -25,7 +25,7 @@ let emit_events ~event ~handle_event ~wait =
     consume_events ()
   )
 
-let rec loop ~renderer ~vsync ~event ~wait_for_events ~needs_redraw ~quit_requested
+let rec loop ~renderer ~vsync ~event ~wait_for_events ~needs_redraw ~quit_loop
     ~handle_update ~handle_event ~handle_draw =
   if vsync <> true then Sdl.delay ms_wait_60fps;
   let new_ticks = sdl_get_ticks () in
@@ -47,10 +47,10 @@ let rec loop ~renderer ~vsync ~event ~wait_for_events ~needs_redraw ~quit_reques
     handle_draw ~renderer;
     Sdl.render_present renderer
   );
-  if !quit_requested = true then
+  if !quit_loop = true then
     print_endline "bye!"
   else
-    loop ~renderer ~vsync ~event ~wait_for_events ~needs_redraw ~quit_requested
+    loop ~renderer ~vsync ~event ~wait_for_events ~needs_redraw ~quit_loop
     ~handle_update ~handle_event ~handle_draw
 
 

@@ -3,7 +3,7 @@ open Chesslibs
 
 
 let wait_for_events : bool ref = ref false
-let quit_requested : bool ref = ref false
+let quit_loop : bool ref = ref false
 let pause_redraw : bool ref = ref false
 let needs_redraw : bool ref = ref true
 let with_audio : bool ref = ref true

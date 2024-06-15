@@ -1,3 +1,20 @@
+todo
+====
+
+- refacto board, utiliser la nouvelle api Anims avec callbacks
+- effets sur le board:
+ . piece prise (explosions? + son)
+ . check (visuel + son)
+
+- effets sur le level success concecutifs, bonus resolution temps
+
+todo 2
+======
+
+- voir comment fonctionne le mouvement de pièces à l'avance chez chess.com
+- voir comment faire des cours sur des thèmes pour que les joueurs s'améliorent
+- voir comment utiliser le système des cartes (anki) pour entrainer le joueur
+
 code organisation
 =================
 
@@ -40,7 +57,7 @@ market
 - business admin/accounting taxes
 - platform store admin
 
-## TODO
+## TODO (future)
 
 ### modes
 

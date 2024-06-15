@@ -58,7 +58,7 @@ let () =
     ~renderer ~vsync:false ~event:(Sdl.Event.create ())
     ~wait_for_events:Game_info.wait_for_events
     ~needs_redraw:Game_info.needs_redraw
-    ~quit_requested:Game_info.quit_requested
+    ~quit_loop:Game_info.quit_loop
     ~handle_event:Game_sm.handle_sdl_event
     ~handle_update:Game_sm.update
     ~handle_draw:Game_sm.draw;
