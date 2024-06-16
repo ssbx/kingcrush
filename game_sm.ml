@@ -30,7 +30,7 @@ let to_menu () =
   curr_state.fun_event <- (fun _ -> ());
   curr_state.fun_draw <- (fun renderer ->
     Scr_map.draw ~renderer;
-    Gm_streak_menu2.draw ~renderer;
+    Gm_streak_list_menu.draw ~renderer;
     Scr_fade.draw ~renderer);
   Audio.music_fade_out 700;
   Timer.fire_in 500 (fun () ->
@@ -39,11 +39,11 @@ let to_menu () =
       (fun () ->
        curr_state.fun_event <- (fun e ->
          if sdl_get_evt_typ e = `Mouse_button_down then (
-           if (Gm_streak_menu2.handle_sdl_button_down e) = true then (
+           if (Gm_streak_list_menu.handle_sdl_button_down e) = true then (
              curr_state.fun_event <- (fun _ -> ());
              Scr_fade.fade_out (fun () -> to_play ()))
          ) else (
-           Gm_streak_menu2.handle_sdl_event e
+           Gm_streak_list_menu.handle_sdl_event e
          )
        )
       )

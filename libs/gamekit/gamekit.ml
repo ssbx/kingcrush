@@ -72,6 +72,9 @@ let init ~w ~h ~logical_w ~logical_h ~name =
   sdl_try (Sdl.render_set_logical_size renderer logical_w logical_h);
   ticks := sdl_get_ticks ();
   delta := 0;
+  sdl_ignore (Sdl.set_render_draw_color renderer 0 0 0 255);
+  sdl_ignore (Sdl.render_clear renderer);
+  Sdl.render_present renderer;
   (win, renderer)
 
 let release (w,r) =
