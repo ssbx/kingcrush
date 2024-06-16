@@ -1,6 +1,5 @@
 open Tsdl
 open Tsdl_image
-open Ressources
 open Gamekit
 open Chess
 
@@ -20,7 +19,7 @@ let init ~renderer =
   let img = Filename.concat (List.nth Data.Sites.images 0) "hint.png" in
   rdr := Some renderer;
   img_texture := Some (sdl_get_ok (Image.load_texture renderer img));
-  psize := Pieces.piece_width;
+  psize := Figures.piece_width;
 
   let bsize = !psize * 8 in
   texture :=

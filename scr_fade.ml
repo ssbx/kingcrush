@@ -30,7 +30,7 @@ let fade_in f =
   let anim = Anims.create
     ~pt_start:(255)
     ~pt_end:(0)
-    ~span:400
+    ~span:1000
     ~at_update:(fun v -> alpha := v)
     ~at_end:(fun () -> f ())
     Anims.Easing.Quadratic_in in
@@ -42,7 +42,7 @@ let fade_out f =
   let anim = Anims.create
     ~pt_start:(0)
     ~pt_end:(255)
-    ~span:400
+    ~span:1000
     ~at_update:(fun v -> alpha := v)
     ~at_end:(fun () -> f ())
     Anims.Easing.Quadratic_in in

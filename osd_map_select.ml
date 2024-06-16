@@ -1,6 +1,5 @@
 open Tsdl
 open Gamekit
-open Ressources
 
 let rdr : Sdl.renderer option ref = ref None
 let bg_tex : Sdl.texture option ref = ref None

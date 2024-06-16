@@ -1,6 +1,5 @@
 open Tsdl
 open Gamekit
-open Ressources
 
 (*
 let black_square_color = (114, 74, 140, 255)
@@ -14,7 +13,7 @@ let board_tex : Sdl.texture option ref = ref None
 let get_tex () = match !board_tex with Some v -> v | None -> assert false
 
 let init ~renderer =
-  let psize = Pieces.piece_width in
+  let psize = Figures.piece_width in
   let bsize = psize * 8 in
   let texture =
     sdl_get_ok

@@ -1,5 +1,4 @@
 open Gamekit
-open Ressources
 
 type state_t = {
   mutable fun_update : int -> unit;
@@ -33,20 +32,22 @@ let to_menu () =
     Scr_map.draw ~renderer;
     Gm_streak_menu2.draw ~renderer;
     Scr_fade.draw ~renderer);
-  Audio.music_play Audio.Calm;
-  Timer.fire_in 1000 (fun () -> Scr_fade.fade_in
-    (fun () ->
-      curr_state.fun_event <- (fun e ->
-        if sdl_get_evt_typ e = `Mouse_button_down then (
-          if Gm_streak_menu2.handle_sdl_button_down e then
-            curr_state.fun_event <- (fun _ -> ());
-            Scr_fade.fade_out (fun () -> to_play ())
-        ) else (
-          Gm_streak_menu2.handle_sdl_event e
-        )
+  Audio.music_fade_out 700;
+  Timer.fire_in 500 (fun () ->
+    Audio.music_play Audio.MusicCalm;
+    Scr_fade.fade_in
+      (fun () ->
+       curr_state.fun_event <- (fun e ->
+         if sdl_get_evt_typ e = `Mouse_button_down then (
+           if (Gm_streak_menu2.handle_sdl_button_down e) = true then (
+             curr_state.fun_event <- (fun _ -> ());
+             Scr_fade.fade_out (fun () -> to_play ()))
+         ) else (
+           Gm_streak_menu2.handle_sdl_event e
+         )
+       )
       )
     )
-  )
 
 let to_level_details () =
   curr_state.fun_update <- (fun _ -> ());
@@ -63,7 +64,7 @@ let to_level_details () =
       if sdl_get_evt_typ e = `Mouse_button_down then (
         curr_state.fun_event <- (fun _ -> ());
         Osd_level_details.start_anim_out (fun () -> () );
-        Timer.fire_in 1500 (fun () ->
+        Timer.fire_in 500 (fun () ->
           Scr_fade.fade_out (fun () ->  Audio.music_stop (); to_menu ());
         )
         )
@@ -91,7 +92,7 @@ let to_level_over () =
     Osd_level_over.draw ~renderer);
   curr_state.fun_update <- (fun _ -> ());
   curr_state.fun_event <- (fun _ -> ());
-  Timer.fire_in 2300 (fun () -> Audio.music_play Audio.Groove);
+  Timer.fire_in 2300 (fun () -> Audio.music_play Audio.MusicGroove);
   Osd_level_over.start_anim_in (fun () ->
     Timer.fire_in 1000 (fun () ->
       Osd_level_over.start_anim_out
@@ -110,10 +111,12 @@ let handle_game_event = function
       Brd_position.handle_game_event e;
     Gm_streak_score.handle_game_event e
 
+
 let handle_sdl_event ~event =
   match sdl_get_evt_typ event with
-  | `Key_down -> if (sdl_get_evt_scancode event) = `Escape then
-    Gm_streak_controller.quit ()
+  | `Key_down ->
+      if (sdl_get_evt_scancode event) = `Escape then
+        Gm_streak_controller.quit ()
   | `Quit ->
       Gm_streak_controller.quit ()
   | `Window_event ->

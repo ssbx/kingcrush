@@ -1,5 +1,4 @@
 open Tsdl
-open Ressources
 open Gamekit
 
 let usage_msg = "kingcrush [--disable-anims] [--disable-audio] [--verbose]"
@@ -38,7 +37,7 @@ let () =
   Game_info.with_anims := !with_anims;
   Audio.init ();
   Fonts.init ();
-  Pieces.init ~renderer;
+  Figures.init ~renderer;
   Gm_streak_model.listen Game_sm.handle_game_event;
   Gm_streak_model.init ();
   Gm_streak_score.init ~renderer;
@@ -81,7 +80,7 @@ let () =
   Gm_streak_menu2.release ();
   Scr_bg.release ();
   Scr_map.release ();
-  Pieces.release ();
+  Figures.release ();
   (*Fonts.release ();*)
   Audio.release ();
 

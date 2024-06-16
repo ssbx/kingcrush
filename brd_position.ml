@@ -1,7 +1,6 @@
 open Tsdl
 open Gamekit
 open Gamekit.Anims
-open Ressources
 open Chess
 
 let anim_time = 100
@@ -75,13 +74,13 @@ let board_iter_xy func b =
 let update_board_texture board_pos =
   let rdr = get_renderer ()
   and tex = get_pieces_text ()
-  and pw = Pieces.piece_width in
+  and pw = Figures.piece_width in
   sdl_try (Sdl.set_render_target rdr (Some tex));
   sdl_try (Sdl.set_render_draw_color rdr 0 0 0 0);
   sdl_try (Sdl.render_clear rdr);
   board_iter_xy
     (fun x y ch ->
-      match Pieces.piece ch with
+      match Figures.piece ch with
       | Some t ->
           let rect = Sdl.Rect.create ~x:(pw * x) ~y:(pw * y) ~w:pw ~h:pw in
           sdl_try (Sdl.render_copy ~dst:rect rdr t)
@@ -90,7 +89,7 @@ let update_board_texture board_pos =
   sdl_try (Sdl.set_render_target rdr None)
 
 let init_pieces_texture () =
-  let rdr = get_renderer () and bwidth = Pieces.piece_width * 8 in
+  let rdr = get_renderer () and bwidth = Figures.piece_width * 8 in
   let tex =
     sdl_get_ok
       (Sdl.create_texture rdr Sdl.Pixel.format_rgba8888 ~w:bwidth ~h:bwidth
@@ -163,7 +162,7 @@ let create_anim ~x_src ~x_dst ~y_src ~y_dst ~board_start ~board_end ~piece ~fwd 
     ~pt2_start:y_src ~pt2_end:y_dst ~at2_update:(fun v -> view_state.anim_y <- v)
     ~span:anim_time
     ~at_start:(fun () ->
-      view_state.anim_piece <- Pieces.piece piece;
+      view_state.anim_piece <- Figures.piece piece;
       update_board_texture board_start
     )
     ~at_end:(fun () ->
@@ -224,7 +223,7 @@ let drag_init piece rank file =
   view_state.drag_from_rank <- rank;
   view_state.drag_from_file <- file;
   view_state.drag_active <- true;
-  view_state.drag_piece <- Pieces.piece piece;
+  view_state.drag_piece <- Figures.piece piece;
   update_board_texture board
 
 let rec update_pick () =

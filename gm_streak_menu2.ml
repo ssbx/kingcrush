@@ -1,6 +1,5 @@
 open Tsdl
 open Gamekit
-open Ressources
 open Chess
 
 let gen_text ~renderer ~text =

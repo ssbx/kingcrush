@@ -1,6 +1,5 @@
 open Tsdl
 open Tsdl_image
-open Ressources
 open Gamekit
 
 let button_1_rect : Sdl.rect = Sdl.Rect.create ~w:100  ~h:100 ~x:10 ~y:10
