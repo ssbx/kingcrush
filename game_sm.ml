@@ -65,7 +65,7 @@ let to_level_details () =
         curr_state.fun_event <- (fun _ -> ());
         Osd_level_details.start_anim_out (fun () -> () );
         Timer.fire_in 500 (fun () ->
-          Scr_fade.fade_out (fun () ->  Audio.music_stop (); to_menu ());
+          Scr_fade.fade_out (fun () ->  Audio.music_fade_out 1000; to_menu ());
         )
         )
       )
