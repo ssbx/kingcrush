@@ -103,11 +103,6 @@ let init_pieces_texture () =
   sdl_try (Sdl.set_render_target rdr None);
   tex
 
-let new_board_width () =
-  match Sdl.get_renderer_output_size (get_renderer ()) with
-  | Error (`Msg err) -> failwith err
-  | Ok (w, h) -> Stdlib.min w h
-
 (* ========================================================================= *)
 (* position utils ========================================================== *)
 (* ========================================================================= *)
@@ -219,7 +214,8 @@ let anim_move from_pos_id to_pos_id =
 (* ========================================================================= *)
 (* drag drop =============================================================== *)
 (* ========================================================================= *)
-
+(* todo use a drag / click things from gamekit, assez générique qui puisse
+ être utilisé pour plein de basard *)
 let drag_init piece rank file =
   let pos = Gm_streak_model.current_position () in
   let board = Chess.Utils.copy_board pos.board in
@@ -317,9 +313,6 @@ let handle_sdl_event ~event =
         handle_button1_down x y
   | _ -> ()
 
-(* ========================================================================= *)
-(* api callbacks =========================================================== *)
-(* ========================================================================= *)
 let handle_game_event = function
   | Gm_streak_model.NewPuzzle -> update_position ()
   | Gm_streak_model.PuzzleSolved ->
@@ -343,6 +336,10 @@ let handle_game_event = function
       if !Game_info.with_anims then anim_move from_pos to_pos
       else update_position ()
   | _ -> ()
+
+(* ========================================================================= *)
+(* game callbacks ========================================================== *)
+(* ========================================================================= *)
 
 let init ~renderer =
   view_state.renderer <- Some renderer;
