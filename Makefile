@@ -3,11 +3,6 @@ LOCAL_ENV=./.opam_env
 
 .PHONY: run build clean format install uninstall rel-check desktop_entry
 
-t: cl game_sm.mli
-	cat game_sm.mli
-cl:
-	rm -f game_sm.mli
-
 
 run: build
 	. $(LOCAL_ENV) && dune exec kingcrush
