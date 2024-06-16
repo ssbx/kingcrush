@@ -18,10 +18,10 @@ let get_rating_tex () =
   match !rating_tex with Some v -> v | None -> assert false
 
 let generate_msg ~renderer ~score ~rating =
-  if !score_tex <> None then (
+  if Option.is_some !score_tex then (
     Sdl.destroy_texture (get_score_tex ());
     score_tex := None);
-  if !rating_tex <> None then (
+  if Option.is_some !rating_tex then (
     Sdl.destroy_texture (get_rating_tex ());
     score_tex := None);
   let score_texture =
@@ -64,8 +64,8 @@ let init ~renderer =
   rdr := Some renderer
 
 let release () =
-  if !score_tex <> None then Sdl.destroy_texture (get_score_tex ());
-  if !bg_tex <> None then Sdl.destroy_texture (get_tex ());
+  if Option.is_some !score_tex then Sdl.destroy_texture (get_score_tex ());
+  if Option.is_some !bg_tex then Sdl.destroy_texture (get_tex ());
   bg_tex := None;
   score_tex := None
 

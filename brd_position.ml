@@ -149,7 +149,7 @@ let square_to_coords x y =
 (* moves animation ========================================================= *)
 (* ========================================================================= *)
 let update_anims () =
-  if view_state.anim_piece = None then (
+  if Option.is_none view_state.anim_piece then (
     match view_state.anims_queue with
     | [] -> update_position ()
     | anim :: tail ->
@@ -169,7 +169,7 @@ let create_anim ~x_src ~x_dst ~y_src ~y_dst ~board_start ~board_end ~piece ~fwd 
     ~at_end:(fun () ->
       view_state.anim_piece <- None;
       update_board_texture board_end;
-      if fwd then play_audio ();
+      if fwd = true then play_audio ();
       update_anims ()) anim_type in
   view_state.anims_queue <- view_state.anims_queue @ [anim];
   update_anims ()
@@ -185,7 +185,7 @@ let anim_move from_pos_id to_pos_id =
       x_dst, y_dst,
       board_start, board_end,
       piece =
-    if fwd then (
+    if fwd = true then (
       (* forward: startup position = from_pos minus mv.from piece *)
       let mv           = get_mv from_pos.mv_next in
       let piece        = from_pos.board.(mv.from_x).(mv.from_y)
@@ -235,7 +235,7 @@ let rec update_pick () =
       drag_init piece rank file;
       update_pick ()
   | BUp (to_r, to_f) :: t ->
-      if view_state.drag_active then (
+      if view_state.drag_active = true then (
         view_state.drag_active <- false;
         view_state.drag_piece <- None;
         view_state.drag_queue <- t;
@@ -266,7 +266,7 @@ let handle_button1_down x y =
       if Gm_streak_model.player_turn () then
         let piece = view_state.position.board.(file).(rank) in
         if Gm_streak_controller.can_pick_piece rank file then
-          if view_state.anim_piece = None then drag_init piece rank file
+          if Option.is_none view_state.anim_piece then drag_init piece rank file
           else queue_drag_event (BDown (piece, rank, file))
 
 let handle_mouse_motion event =
@@ -274,7 +274,7 @@ let handle_mouse_motion event =
   view_state.cursor_y <- Sdl.Event.(get event mouse_motion_y)
 
 let handle_mouse_wheel event =
-  if view_state.anim_piece = None then
+  if Option.is_none view_state.anim_piece then
     match Sdl.Event.(get event mouse_wheel_y) with
     | 1 -> Gm_streak_controller.move_backward ()
     | -1 -> Gm_streak_controller.move_forward ()
@@ -290,7 +290,7 @@ let handle_button1_up x y =
       update_pick ()
   | Some (to_rank, to_file) ->
       if view_state.drag_active then
-        if view_state.anim_piece = None then (
+        if Option.is_none view_state.anim_piece then (
           view_state.drag_active <- false;
           view_state.drag_piece <- None;
           Gm_streak_controller.player_move view_state.drag_from_rank

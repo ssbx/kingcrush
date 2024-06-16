@@ -93,6 +93,6 @@ let draw ~renderer =
   sdl_try (Sdl.render_copy ~dst:rect renderer (get_bg_tex ()))
 
 let release () =
-  if !bg_tex <> None then (
+  if Option.is_some !bg_tex then (
     Sdl.destroy_texture (get_bg_tex ());
     bg_tex := None)
