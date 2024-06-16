@@ -9,7 +9,10 @@ type anim_t = {
   ticks_span  : float;
   at_update   : int -> unit;
   at_end      : unit -> unit;
+  at_start    : unit -> unit;
 }
+
+type anim_handle_t = anim_t list
 
 let anim_empty : anim_t = {
   easing = (fun _ -> 0.);
@@ -20,6 +23,7 @@ let anim_empty : anim_t = {
   ticks_span = 0.;
   at_update = (fun _ -> ());
   at_end    = (fun () -> ());
+  at_start  = (fun () -> ());
 }
 
 let anims_queue : anim_t list ref = ref []
@@ -34,7 +38,8 @@ let create
   ~pt_end
   ~span
   ~at_update
-  ?(at_end    = (fun () -> ())) curve =
+  ?(at_end    = (fun () -> ()))
+  ?(at_start  = (fun () -> ())) curve =
   [{
     easing = Easing.get_anim curve;
     pt_start = pt_start;
@@ -44,6 +49,7 @@ let create
     ticks_span = (Float.of_int span);
     at_update = at_update;
     at_end = at_end;
+    at_start = at_start;
   }]
 
 let create_v2
@@ -54,6 +60,7 @@ let create_v2
   ~pt2_end
   ~at2_update
   ~span
+  ?(at_start  = (fun () -> ()))
   ?(at_end    = (fun () -> ())) curve =
   [
   {
@@ -65,6 +72,7 @@ let create_v2
     ticks_span = (Float.of_int span);
     at_update = at1_update;
     at_end = (fun () -> ());
+    at_start = at_start;
   };
   {
     easing = Easing.get_anim curve;
@@ -75,12 +83,14 @@ let create_v2
     ticks_span = (Float.of_int span);
     at_update = at2_update;
     at_end = at_end;
+    at_start = (fun () -> ());
   }]
 
 
 let start anim_handle =
   List.iter (fun anim ->
     anim.ticks_start <- Float.of_int (Utils.sdl_get_ticks ());
+    anim.at_start ();
     anim.at_update anim.pt_start;
   ) anim_handle;
   anims_wait_queue := anim_handle @ !anims_wait_queue;

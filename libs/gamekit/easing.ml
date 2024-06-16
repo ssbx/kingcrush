@@ -32,22 +32,6 @@ type easing_func_t =
   | Bounce_in
   | Bounce_inout
 
-type point_t = { x : int; y : int }
-
-type anim_t = {
-  func : float -> float;
-  start_point : point_t;
-  vector : point_t;
-  start_tick : int;
-  duration_ticks : int;
-  mutable ended : bool;
-  start_fun : int -> int -> unit;
-  update_fun : int -> int -> unit;
-  ended_fun : unit -> unit;
-}
-
-type anim_return_t = AnimActive of (int * int) | AnimEnded of (int * int)
-
 let pi = Float.pi
 let half_pi = pi /. 2.
 let linear f = f
@@ -302,58 +286,5 @@ let demo () =
   easing_test bounce_in step 0.;
   print_endline "bounce_inout";
   easing_test bounce_inout step 0.;
-  print_endline ""
-
-
-(* ========================================================================= *)
-(* high level API                                                            *)
-(* ========================================================================= *)
-
-let anims : anim_t list ref = ref []
-let create ~anim_type ~start_point ~end_point ~duration_ms ~fun_start
-      ~fun_update =
-  {
-    func = get_anim anim_type;
-    start_point;
-    vector =
-      { x = end_point.x - start_point.x; y = end_point.y - start_point.y };
-    start_tick = 0;
-    duration_ticks = duration_ms;
-    ended = false;
-    start_fun = fun_start;
-    update_fun = fun_update;
-    ended_fun = (fun () -> ());
-  }
-
-let start anim =
-  let a = { anim with start_tick = Int32.to_int (Tsdl.Sdl.get_ticks ()) } in
-  a.start_fun a.start_point.x a.start_point.y;
-  anims := a :: !anims;
-  a
-
-
-let animate anim now =
-  let elapsed = now - anim.start_tick in
-  let elapsed_f = Float.of_int elapsed
-  and duration_f = Float.of_int anim.duration_ticks in
-  let progress_f = elapsed_f /. duration_f in
-  match progress_f > 1.0 with
-  | true ->
-      let nx = anim.start_point.x + anim.vector.x
-      and ny = anim.start_point.y + anim.vector.y in
-      AnimEnded (nx, ny)
-  | false ->
-      let pos_anim = anim.func progress_f in
-      let prog_x_f = Float.of_int anim.vector.x *. pos_anim
-      and prog_y_f = Float.of_int anim.vector.y *. pos_anim in
-      let nx = anim.start_point.x + Float.to_int prog_x_f
-      and ny = anim.start_point.y + Float.to_int prog_y_f in
-      AnimActive (nx, ny)
-
-let print_anim anim =
-  Printf.printf "\nanim startp x:%i y:%i\n" anim.start_point.x
-    anim.start_point.y;
-  Printf.printf "anim vect x:%i y:%i\n" anim.vector.x anim.vector.y;
-  Printf.printf "anim duration %i ms\n" anim.duration_ticks;
   print_endline ""
 

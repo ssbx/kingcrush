@@ -7,18 +7,6 @@ open Chess
 let anim_time = 100
 let anim_type = Easing.Quintic_out
 
-type anim_direction_t = Forward | Backward
-
-type piece_anim_t = {
-  from_position : Chess.position_t;
-  to_position : Chess.position_t;
-  piece : Chess.piece_t;
-  animation : Easing.anim_t;
-  direction : anim_direction_t;
-  mutable x : int;
-  mutable y : int;
-}
-
 type drag_t =
   | BDown of (Chess.piece_t * int * int)
   | BUp of (int * int)
@@ -31,8 +19,8 @@ type view_state_t = {
   mutable pieces_text : Sdl.texture option;
   (* animation things *)
   mutable position : Chess.position_t;
-  mutable anims_queue : piece_anim_t list;
-  mutable anim_running : piece_anim_t option;
+  mutable anims_queue : Gamekit.Anims.anim_handle_t list;
+  mutable anim_piece : Sdl.texture option;
   mutable anim_x : int;
   mutable anim_y : int;
   anim_rect : Sdl.rect;
@@ -57,7 +45,7 @@ let view_state =
     cursor_x = 0;
     cursor_y = 0;
     anims_queue = [];
-    anim_running = None;
+    anim_piece = None;
     anim_x = 0;
     anim_y = 0;
     drag_queue = [];
@@ -120,30 +108,6 @@ let new_board_width () =
   | Error (`Msg err) -> failwith err
   | Ok (w, h) -> Stdlib.min w h
 
-let draw ~renderer =
-  let ptext = get_pieces_text () in
-  sdl_try (Sdl.render_copy ~dst:Game_info.Screen.board_rect renderer ptext);
-  (match view_state.anim_running with
-  | None -> ()
-  | Some anim -> (
-      match Pieces.piece anim.piece with
-      | None -> failwith "no anim piece"
-      | Some piece ->
-          Sdl.Rect.set_x view_state.anim_rect anim.x;
-          Sdl.Rect.set_y view_state.anim_rect anim.y;
-          sdl_try (Sdl.render_copy ~dst:view_state.anim_rect renderer piece)));
-  (match (view_state.drag_active, view_state.drag_piece) with
-  | false, _ -> ()
-  | true, None -> failwith "drag active but no pieces to draw"
-  | true, Some p ->
-      let ps = Game_info.Screen.logical_square_width in
-      let half_ps = ps / 2 in
-      let x = view_state.cursor_x - half_ps
-      and y = view_state.cursor_y - half_ps in
-      Sdl.Rect.set_x view_state.drag_rect x;
-      Sdl.Rect.set_y view_state.drag_rect y;
-      sdl_try (Sdl.render_copy ~dst:view_state.drag_rect renderer p))
-
 (* ========================================================================= *)
 (* position utils ========================================================== *)
 (* ========================================================================= *)
@@ -185,107 +149,75 @@ let square_to_coords x y =
     let xc = bx + (x * pw) and yc = by + (y * pw) in
     (xc, yc)
 
+
 (* ========================================================================= *)
 (* moves animation ========================================================= *)
 (* ========================================================================= *)
-
 let update_anims () =
-  match view_state.anim_running with
-  | Some _ -> ()
-  | None -> (
-      match view_state.anims_queue with
-      | [] ->
-          update_position ()
-      | anim :: tail ->
-          let new_anim =
-            { anim with animation = Easing.start anim.animation }
-          in
-          view_state.anim_running <- Some new_anim;
-          view_state.anims_queue <- tail;
-          update_board_texture new_anim.from_position.board)
+  if view_state.anim_piece = None then (
+    match view_state.anims_queue with
+    | [] -> update_position ()
+    | anim :: tail ->
+        view_state.anims_queue <- tail;
+        Gamekit.Anims.start anim
+  )
 
-
-let fupdate x y = view_state.anim_x <- x; view_state.anim_y <- y
-let fended () = view_state.anim_running <- None; update_anims ()
-
-let queue_anim anim =
-  view_state.anims_queue <- List.append view_state.anims_queue [ anim ];
+let create_anim ~x_src ~x_dst ~y_src ~y_dst ~board_start ~board_end ~piece ~fwd =
+  let anim = Gamekit.Anims.create_v2
+    ~pt1_start:x_src ~pt1_end:x_dst ~at1_update:(fun v -> view_state.anim_x <- v)
+    ~pt2_start:y_src ~pt2_end:y_dst ~at2_update:(fun v -> view_state.anim_y <- v)
+    ~span:anim_time
+    ~at_start:(fun () ->
+      view_state.anim_piece <- Pieces.piece piece;
+      update_board_texture board_start
+    )
+    ~at_end:(fun () ->
+      view_state.anim_piece <- None;
+      update_board_texture board_end;
+      if fwd then play_audio ();
+      update_anims ()) anim_type in
+  view_state.anims_queue <- view_state.anims_queue @ [anim];
   update_anims ()
 
-let anim_forward from_pos_id to_pos_id =
-  cleanup_view_state ();
-  (* get positions from game *)
-  let from_pos = Gm_streak_model.position_at from_pos_id
-  and to_pos = Gm_streak_model.position_at to_pos_id in
 
-  let mv =
-    match from_pos.mv_next with Some m -> m | None -> failwith "no mv next"
+let anim_move from_pos_id to_pos_id =
+  let get_mv m = match m with | Some v -> v | None -> failwith "nomove here!"
+  and fwd      = from_pos_id < to_pos_id
+  and from_pos = Gm_streak_model.position_at from_pos_id
+  and to_pos   = Gm_streak_model.position_at to_pos_id in
+
+  let x_src, y_src,
+      x_dst, y_dst,
+      board_start, board_end,
+      piece =
+    if fwd then (
+      (* forward: startup position = from_pos minus mv.from piece *)
+      let mv           = get_mv from_pos.mv_next in
+      let piece        = from_pos.board.(mv.from_x).(mv.from_y)
+      and x_src, y_src = square_to_coords mv.from_y mv.from_x
+      and x_dst, y_dst = square_to_coords mv.to_y mv.to_x
+      and board_end    = to_pos.board
+      and board_start  = Chess.Utils.copy_board from_pos.board in
+      board_start.(mv.from_x).(mv.from_y) <- '.';
+      (x_src, y_src, x_dst, y_dst, board_start, board_end, piece)
+    ) else (
+      (* backard: startup position = bkward pos minus mv.from piece *)
+      let mv           = get_mv from_pos.mv_last in
+      let piece        = to_pos.board.(mv.from_x).(mv.from_y) in
+      let x_src, y_src = square_to_coords mv.to_y mv.to_x
+      and x_dst, y_dst = square_to_coords mv.from_y mv.from_x
+      and board_end    = to_pos.board
+      and board_start  = Chess.Utils.copy_board to_pos.board in
+      board_start.(mv.from_x).(mv.from_y) <- '.';
+      (x_src, y_src, x_dst, y_dst, board_start, board_end, piece)
+    )
   in
 
-  (* XXX inverted board and opengl axises XXX *)
-  let x1, y1 = square_to_coords mv.from_y mv.from_x in
-  let x2, y2 = square_to_coords mv.to_y mv.to_x in
-  let start_pt : Easing.point_t = { x = x1; y = y1 }
-  and end_pt : Easing.point_t = { x = x2; y = y2 } in
+  create_anim ~x_src ~x_dst ~y_src ~y_dst ~board_start ~board_end ~piece ~fwd
 
-  let new_from_pos = Chess.Utils.copy_position from_pos in
-  let piece = new_from_pos.board.(mv.from_x).(mv.from_y) in
-  (* we have to remove the piece *)
-  new_from_pos.board.(mv.from_x).(mv.from_y) <- '.';
-
-  let anim =
-    {
-      from_position = new_from_pos;
-      to_position = to_pos;
-      animation =
-        Easing.create ~anim_type ~start_point:start_pt ~end_point:end_pt
-          ~duration_ms:anim_time ~fun_start:fupdate ~fun_update:fupdate;
-      direction = Forward;
-      piece;
-      x = start_pt.x;
-      y = start_pt.y;
-    }
-  in
-  queue_anim anim
-
-let anim_backward _from_pos_id to_pos_id =
-  cleanup_view_state ();
-
-  let to_bk_pos = Gm_streak_model.position_at to_pos_id in
-
-  let mv =
-    match to_bk_pos.mv_next with
-    | None -> failwith "no mv next anim backward"
-    | Some m -> m
-  in
-
-  (* anim back *)
-  let x1, y1 = square_to_coords mv.from_y mv.from_x in
-  let x2, y2 = square_to_coords mv.to_y mv.to_x in
-  let end_pt : Easing.point_t = { x = x1; y = y1 }
-  and start_pt : Easing.point_t = { x = x2; y = y2 } in
-
-  let new_to_bk_pos = Chess.Utils.copy_position to_bk_pos in
-  let piece = new_to_bk_pos.board.(mv.from_x).(mv.from_y) in
-  new_to_bk_pos.board.(mv.from_x).(mv.from_y) <- '.';
-
-  let anim =
-    {
-      from_position = new_to_bk_pos;
-      to_position = to_bk_pos;
-      animation =
-        Easing.create ~anim_type ~start_point:start_pt ~end_point:end_pt
-          ~duration_ms:anim_time ~fun_start:fupdate ~fun_update:fupdate;
-      direction = Backward;
-      piece;
-      x = start_pt.x;
-      y = start_pt.y;
-    }
-  in
-  queue_anim anim
 
 (* ========================================================================= *)
-(* inputs ================================================================== *)
+(* drag drop =============================================================== *)
 (* ========================================================================= *)
 
 let drag_init piece rank file =
@@ -326,6 +258,11 @@ let rec update_pick () =
 let queue_drag_event evt =
   view_state.drag_queue <- List.append view_state.drag_queue [ evt ]
 
+
+(* ========================================================================= *)
+(* input events ============================================================ *)
+(* ========================================================================= *)
+
 let handle_button1_down x y =
   match coords_to_square x y with
   | None -> ()
@@ -333,7 +270,7 @@ let handle_button1_down x y =
       if Gm_streak_model.player_turn () then
         let piece = view_state.position.board.(file).(rank) in
         if Gm_streak_controller.can_pick_piece rank file then
-          if view_state.anim_running = None then drag_init piece rank file
+          if view_state.anim_piece = None then drag_init piece rank file
           else queue_drag_event (BDown (piece, rank, file))
 
 let handle_mouse_motion event =
@@ -341,7 +278,7 @@ let handle_mouse_motion event =
   view_state.cursor_y <- Sdl.Event.(get event mouse_motion_y)
 
 let handle_mouse_wheel event =
-  if view_state.anim_running = None then
+  if view_state.anim_piece = None then
     match Sdl.Event.(get event mouse_wheel_y) with
     | 1 -> Gm_streak_controller.move_backward ()
     | -1 -> Gm_streak_controller.move_forward ()
@@ -357,7 +294,7 @@ let handle_button1_up x y =
       update_pick ()
   | Some (to_rank, to_file) ->
       if view_state.drag_active then
-        if view_state.anim_running = None then (
+        if view_state.anim_piece = None then (
           view_state.drag_active <- false;
           view_state.drag_piece <- None;
           Gm_streak_controller.player_move view_state.drag_from_rank
@@ -381,7 +318,7 @@ let handle_sdl_event ~event =
   | _ -> ()
 
 (* ========================================================================= *)
-(* model events ============================================================ *)
+(* api callbacks =========================================================== *)
 (* ========================================================================= *)
 let handle_game_event = function
   | Gm_streak_model.NewPuzzle -> update_position ()
@@ -389,7 +326,7 @@ let handle_game_event = function
       update_position ();
       Audio.play Audio.PuzzleRushGood
   | Gm_streak_model.OponentMove (from_pos, to_pos) ->
-      if !Game_info.with_anims then anim_forward from_pos to_pos
+      if !Game_info.with_anims then anim_move from_pos to_pos
       else (
         play_audio ();
         update_position ())
@@ -398,34 +335,15 @@ let handle_game_event = function
       update_position ()
   | Gm_streak_model.Update -> update_position ()
   | Gm_streak_model.MoveForward (from_pos, to_pos) ->
-      if !Game_info.with_anims then anim_forward from_pos to_pos
+      if !Game_info.with_anims then anim_move from_pos to_pos
       else (
         play_audio ();
         update_position ())
   | Gm_streak_model.MoveBackward (from_pos, to_pos) ->
-      if !Game_info.with_anims then anim_backward from_pos to_pos
+      if !Game_info.with_anims then anim_move from_pos to_pos
       else update_position ()
   | _ -> ()
 
-let update () =
-  match view_state.anim_running with
-  | None -> ()
-  | Some anim -> (
-      match Easing.animate anim.animation !Gamekit.ticks with
-      | Easing.AnimEnded (_x, _y) ->
-          view_state.anim_running <- None;
-          update_board_texture anim.to_position.board;
-          if anim.direction = Forward then play_audio ();
-          update_anims ();
-          if view_state.anim_running = None then update_pick ()
-      | Easing.AnimActive (x, y) ->
-          anim.x <- x;
-          anim.y <- y)
-
-
-(* ========================================================================= *)
-(* init/release ============================================================ *)
-(* ========================================================================= *)
 let init ~renderer =
   view_state.renderer <- Some renderer;
   view_state.pieces_text <- Some (init_pieces_texture ());
@@ -434,6 +352,29 @@ let init ~renderer =
   Sdl.Rect.set_w view_state.anim_rect Game_info.Screen.logical_square_width;
   Sdl.Rect.set_h view_state.anim_rect Game_info.Screen.logical_square_width;
   update_board_texture view_state.position.board
+
+let draw ~renderer =
+  let ptext = get_pieces_text () in
+  sdl_try (Sdl.render_copy ~dst:Game_info.Screen.board_rect renderer ptext);
+  (match view_state.anim_piece with
+  | None -> ()
+  | Some text -> (
+    Sdl.Rect.set_x view_state.anim_rect view_state.anim_x;
+    Sdl.Rect.set_y view_state.anim_rect view_state.anim_y;
+    sdl_try (Sdl.render_copy ~dst:view_state.anim_rect renderer text)));
+  (match (view_state.drag_active, view_state.drag_piece) with
+  | false, _ -> ()
+  | true, None -> failwith "drag active but no pieces to draw"
+  | true, Some p ->
+      let ps = Game_info.Screen.logical_square_width in
+      let half_ps = ps / 2 in
+      let x = view_state.cursor_x - half_ps
+      and y = view_state.cursor_y - half_ps in
+      Sdl.Rect.set_x view_state.drag_rect x;
+      Sdl.Rect.set_y view_state.drag_rect y;
+      sdl_try (Sdl.render_copy ~dst:view_state.drag_rect renderer p))
+
+let update () = ()
 
 let release () =
   Sdl.destroy_texture (get_pieces_text ());
