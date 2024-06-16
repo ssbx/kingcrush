@@ -1,7 +1,7 @@
 todo
 ====
 
-- refacto board, utiliser la nouvelle api Anims avec callbacks
+- utiliser base pour voir
 - effets sur le board:
  . piece prise (explosions? + son)
  . check (visuel + son)
