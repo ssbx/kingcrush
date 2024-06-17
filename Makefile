@@ -3,11 +3,15 @@ LOCAL_ENV=./.opam_env
 
 .PHONY: run build clean format install uninstall rel-check desktop_entry
 
+default: run
 
 run: build
 	. $(LOCAL_ENV) && dune exec kingcrush
 	#dune exec -- kingcrush --disable-anims --disable-audio
 	#dune exec -- kingcrush --generate-themes
+
+test: build
+	. $(LOCAL_ENV) && dune exec test_things
 
 build: $(LOCAL_ENV) data/puzzles.csv
 	. $(LOCAL_ENV) && dune build

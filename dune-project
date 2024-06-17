@@ -21,6 +21,7 @@
     (share fonts)
     (share images))
   (depends
+    (sexplib (>= v0.16.0))
     (ocaml (>= 4.08))
     (tsdl  (= 0.9.9))
     (tsdl-image (= 0.3.2))
