@@ -106,8 +106,8 @@ let init_pieces_texture () =
 (* position utils ========================================================== *)
 (* ========================================================================= *)
 let play_audio () =
-  let curr_id = Gm_streak_model.current_position_id () in
-  let pos = Gm_streak_model.position_at (curr_id - 1) in
+  let curr_id = Streak_model.current_position_id () in
+  let pos = Streak_model.position_at (curr_id - 1) in
   let mv = match pos.mv_next with Some v -> v | None -> assert false in
   if Chess.Utils.is_a_piece pos.board.(mv.to_x).(mv.to_y) then
     Audio.play Audio.Capture
@@ -119,24 +119,24 @@ let cleanup_view_state () =
 
 let update_position () =
   cleanup_view_state ();
-  view_state.position <- Gm_streak_model.current_position ();
+  view_state.position <- Streak_model.current_position ();
   update_board_texture view_state.position.board
 
 let coords_to_square x y =
-  let bw = Game_info.Screen.logical_board_width in
+  let bw = Info.Screen.logical_board_width in
   let pw = bw / 8
-  and bx = Sdl.Rect.x Game_info.Screen.board_rect
-  and by = Sdl.Rect.y Game_info.Screen.board_rect in
+  and bx = Sdl.Rect.x Info.Screen.board_rect
+  and by = Sdl.Rect.y Info.Screen.board_rect in
   if x < bx || x > bx + bw || y < by || y > by + bw then None
   else
     let x_square = (x - bx) / pw and y_square = (y - by) / pw in
     Some (x_square, y_square)
 
 let square_to_coords x y =
-  let bw = Game_info.Screen.logical_board_width in
+  let bw = Info.Screen.logical_board_width in
   let pw = bw / 8
-  and bx = Sdl.Rect.x Game_info.Screen.board_rect
-  and by = Sdl.Rect.y Game_info.Screen.board_rect in
+  and bx = Sdl.Rect.x Info.Screen.board_rect
+  and by = Sdl.Rect.y Info.Screen.board_rect in
 
   if x > 7 || y > 7 then failwith "should not !!!!"
   else
@@ -177,8 +177,8 @@ let create_anim ~x_src ~x_dst ~y_src ~y_dst ~board_start ~board_end ~piece ~fwd 
 let anim_move from_pos_id to_pos_id =
   let get_mv m = match m with | Some v -> v | None -> failwith "nomove here!"
   and fwd      = from_pos_id < to_pos_id
-  and from_pos = Gm_streak_model.position_at from_pos_id
-  and to_pos   = Gm_streak_model.position_at to_pos_id in
+  and from_pos = Streak_model.position_at from_pos_id
+  and to_pos   = Streak_model.position_at to_pos_id in
 
   let x_src, y_src,
       x_dst, y_dst,
@@ -216,9 +216,9 @@ let anim_move from_pos_id to_pos_id =
 (* todo use a drag / click things from gamekit, assez générique qui puisse
  être utilisé pour plein de basard *)
 let drag_init piece rank file =
-  let pos = Gm_streak_model.current_position () in
+  let pos = Streak_model.current_position () in
   let board = Chess.Utils.copy_board pos.board in
-  Brd_hints.show pos rank file;
+  Board_hints.show pos rank file;
   board.(file).(rank) <- '.';
   view_state.drag_from_rank <- rank;
   view_state.drag_from_file <- file;
@@ -238,16 +238,16 @@ let rec update_pick () =
         view_state.drag_active <- false;
         view_state.drag_piece <- None;
         view_state.drag_queue <- t;
-        Brd_hints.clear ();
-        Gm_streak_controller.player_move view_state.drag_from_rank
+        Board_hints.clear ();
+        Streak_controller.player_move view_state.drag_from_rank
           view_state.drag_from_file to_r to_f);
       update_pick ()
   | BUpCancel :: t ->
       view_state.drag_active <- false;
       view_state.drag_piece <- None;
       view_state.drag_queue <- t;
-      Brd_hints.clear ();
-      update_board_texture (Gm_streak_model.current_position ()).board;
+      Board_hints.clear ();
+      update_board_texture (Streak_model.current_position ()).board;
       update_pick ()
 
 let queue_drag_event evt =
@@ -262,9 +262,9 @@ let handle_button1_down x y =
   match coords_to_square x y with
   | None -> ()
   | Some (rank, file) ->
-      if Gm_streak_model.player_turn () then
+      if Streak_model.player_turn () then
         let piece = view_state.position.board.(file).(rank) in
-        if Gm_streak_controller.can_pick_piece rank file then
+        if Streak_controller.can_pick_piece rank file then
           if Option.is_none view_state.anim_piece then drag_init piece rank file
           else queue_drag_event (BDown (piece, rank, file))
 
@@ -275,24 +275,24 @@ let handle_mouse_motion event =
 let handle_mouse_wheel event =
   if Option.is_none view_state.anim_piece then
     match Sdl.Event.(get event mouse_wheel_y) with
-    | 1 -> Gm_streak_controller.move_backward ()
-    | -1 -> Gm_streak_controller.move_forward ()
+    | 1 -> Streak_controller.move_backward ()
+    | -1 -> Streak_controller.move_forward ()
     | _ -> ()
 
 let handle_button1_up x y =
-  Brd_hints.clear ();
+  Board_hints.clear ();
   match coords_to_square x y with
   | None ->
       view_state.drag_active <- false;
       view_state.drag_piece <- None;
-      update_board_texture (Gm_streak_model.current_position ()).board;
+      update_board_texture (Streak_model.current_position ()).board;
       update_pick ()
   | Some (to_rank, to_file) ->
       if view_state.drag_active then
         if Option.is_none view_state.anim_piece then (
           view_state.drag_active <- false;
           view_state.drag_piece <- None;
-          Gm_streak_controller.player_move view_state.drag_from_rank
+          Streak_controller.player_move view_state.drag_from_rank
             view_state.drag_from_file to_rank to_file)
         else queue_drag_event (BUp (to_rank, to_file))
 
@@ -313,26 +313,26 @@ let handle_sdl_event ~event =
   | _ -> ()
 
 let handle_game_event = function
-  | Gm_streak_model.NewPuzzle -> update_position ()
-  | Gm_streak_model.PuzzleSolved ->
+  | Streak_model.NewPuzzle -> update_position ()
+  | Streak_model.PuzzleSolved ->
       update_position ();
       Audio.play Audio.PuzzleRushGood
-  | Gm_streak_model.OponentMove (from_pos, to_pos) ->
-      if !Game_info.with_anims then anim_move from_pos to_pos
+  | Streak_model.OponentMove (from_pos, to_pos) ->
+      if !Info.with_anims then anim_move from_pos to_pos
       else (
         play_audio ();
         update_position ())
-  | Gm_streak_model.PlayerMove (_, _) ->
+  | Streak_model.PlayerMove (_, _) ->
       play_audio ();
       update_position ()
-  | Gm_streak_model.Update -> update_position ()
-  | Gm_streak_model.MoveForward (from_pos, to_pos) ->
-      if !Game_info.with_anims then anim_move from_pos to_pos
+  | Streak_model.Update -> update_position ()
+  | Streak_model.MoveForward (from_pos, to_pos) ->
+      if !Info.with_anims then anim_move from_pos to_pos
       else (
         play_audio ();
         update_position ())
-  | Gm_streak_model.MoveBackward (from_pos, to_pos) ->
-      if !Game_info.with_anims then anim_move from_pos to_pos
+  | Streak_model.MoveBackward (from_pos, to_pos) ->
+      if !Info.with_anims then anim_move from_pos to_pos
       else update_position ()
   | _ -> ()
 
@@ -343,15 +343,15 @@ let handle_game_event = function
 let init ~renderer =
   view_state.renderer <- Some renderer;
   view_state.pieces_text <- Some (init_pieces_texture ());
-  Sdl.Rect.set_w view_state.drag_rect Game_info.Screen.logical_square_width;
-  Sdl.Rect.set_h view_state.drag_rect Game_info.Screen.logical_square_width;
-  Sdl.Rect.set_w view_state.anim_rect Game_info.Screen.logical_square_width;
-  Sdl.Rect.set_h view_state.anim_rect Game_info.Screen.logical_square_width;
+  Sdl.Rect.set_w view_state.drag_rect Info.Screen.logical_square_width;
+  Sdl.Rect.set_h view_state.drag_rect Info.Screen.logical_square_width;
+  Sdl.Rect.set_w view_state.anim_rect Info.Screen.logical_square_width;
+  Sdl.Rect.set_h view_state.anim_rect Info.Screen.logical_square_width;
   update_board_texture view_state.position.board
 
 let draw ~renderer =
   let ptext = get_pieces_text () in
-  sdl_try (Sdl.render_copy ~dst:Game_info.Screen.board_rect renderer ptext);
+  sdl_try (Sdl.render_copy ~dst:Info.Screen.board_rect renderer ptext);
   (match view_state.anim_piece with
   | None -> ()
   | Some text -> (
@@ -362,7 +362,7 @@ let draw ~renderer =
   | false, _ -> ()
   | true, None -> failwith "drag active but no pieces to draw"
   | true, Some p ->
-      let ps = Game_info.Screen.logical_square_width in
+      let ps = Info.Screen.logical_square_width in
       let half_ps = ps / 2 in
       let x = view_state.cursor_x - half_ps
       and y = view_state.cursor_y - half_ps in

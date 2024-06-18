@@ -69,19 +69,19 @@ let release () =
   score_tex := None
 
 let draw ~renderer =
-  sdl_try (Sdl.render_copy ~dst:Game_info.Screen.score_rect renderer (get_tex ()));
+  sdl_try (Sdl.render_copy ~dst:Info.Screen.score_rect renderer (get_tex ()));
 
-  Sdl.Rect.set_x score_rect (Sdl.Rect.x Game_info.Screen.score_rect + 10);
-  Sdl.Rect.set_y score_rect (Sdl.Rect.y Game_info.Screen.score_rect + 10);
+  Sdl.Rect.set_x score_rect (Sdl.Rect.x Info.Screen.score_rect + 10);
+  Sdl.Rect.set_y score_rect (Sdl.Rect.y Info.Screen.score_rect + 10);
   sdl_try (Sdl.render_copy ~dst:score_rect renderer (get_score_tex ()));
-  Sdl.Rect.set_x rating_rect (Sdl.Rect.x Game_info.Screen.score_rect + 10);
+  Sdl.Rect.set_x rating_rect (Sdl.Rect.x Info.Screen.score_rect + 10);
   Sdl.Rect.set_y rating_rect
-    (Sdl.Rect.y Game_info.Screen.score_rect + 10 + Sdl.Rect.h score_rect);
+    (Sdl.Rect.y Info.Screen.score_rect + 10 + Sdl.Rect.h score_rect);
   sdl_try (Sdl.render_copy ~dst:rating_rect renderer (get_rating_tex ()))
 
 let handle_game_event = function
-  | Gm_streak_model.NewPuzzle ->
-      let rating = Printf.sprintf "rating: %s" (Gm_streak_model.get_rating ())
-      and score = Printf.sprintf "streak: %i" (Gm_streak_model.get_streak ()) in
+  | Streak_model.NewPuzzle ->
+      let rating = Printf.sprintf "rating: %s" (Streak_model.get_rating ())
+      and score = Printf.sprintf "streak: %i" (Streak_model.get_streak ()) in
       generate_msg ~renderer:(get_rdr ()) ~score ~rating
   | _ -> ()

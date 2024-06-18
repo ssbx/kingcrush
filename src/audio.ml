@@ -1,6 +1,8 @@
 open Tsdl_mixer
 open Gamekit
 
+#include "log.cppo"
+
 let audio_dir : string = List.nth Data.Sites.sounds 0
 let get_path f = Filename.concat audio_dir f
 let enabled : bool ref = ref true
@@ -48,14 +50,13 @@ let get_sound t =
       | PuzzleRushEnd -> s.puzzle_rush_end
       | MusicGroove -> s.music_groove
       | MusicCalm -> s.music_calm)
-  | None -> assert false
+  | None -> LOG_CRASH()
 
 let play s =
   if !enabled then (
-    Printf.printf "default freq mix : %i\n%!" Mixer.default_frequency;
     match Mixer.play_channel (-1) (get_sound s) 0 with
     | Ok _ -> ()
-    | Error (`Msg m) -> Printf.eprintf "playing error %s\n%!" m
+    | Error (`Msg m) -> LOG_FAILWITH(m)
   )
 
 let music_play mus =
@@ -65,7 +66,7 @@ let music_play mus =
     | _ -> ();
     match Mixer.play_channel (-1) (get_sound mus) 0 with
     | Ok ch -> music_chan := Some ch
-    | Error (`Msg m) -> Printf.eprintf "playing error %s\n%!" m
+    | Error (`Msg m) -> LOG_FAILWITH(m)
   )
 
 

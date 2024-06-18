@@ -1,0 +1,9 @@
+#define LOG(arg) (\
+	Printf.printf "%s:%i " __FILE__ __LINE__;\
+	Printf.printf arg; print_endline "")
+
+#define LOG_FAILWITH(arg) ( failwith  arg )
+
+#define LOG_CRASH(_a) (\
+	Printf.printf "%s:%i " __FILE__ __LINE__;\
+	Printf.printf "LOG_CRASH"; print_endline ""; assert false)

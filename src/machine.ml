@@ -15,35 +15,35 @@ let curr_state : state_t = {
 let to_play () =
   Audio.music_stop ();
   Audio.play Audio.LevelStart;
-  Gm_streak_controller.new_game 1;
-  curr_state.fun_update <- (fun _ -> Brd_position.update ());
-  curr_state.fun_event <- (fun e -> Brd_position.handle_sdl_event ~event:e);
+  Streak_controller.new_game 1;
+  curr_state.fun_update <- (fun _ -> Board_position.update ());
+  curr_state.fun_event <- (fun e -> Board_position.handle_sdl_event ~event:e);
   curr_state.fun_draw <- (fun rdr ->
-    Scr_map.draw ~renderer:rdr;
-    Brd_squares.draw ~renderer:rdr;
-    Brd_hints.draw ~renderer:rdr;
-    Brd_position.draw ~renderer:rdr)
+    Background.draw ~renderer:rdr;
+    Board_squares.draw ~renderer:rdr;
+    Board_hints.draw ~renderer:rdr;
+    Board_position.draw ~renderer:rdr)
 
 let to_menu () =
-  Scr_fade.alpha := 255;
+  Fade.alpha := 255;
   curr_state.fun_update <- (fun _ -> ());
   curr_state.fun_event <- (fun _ -> ());
   curr_state.fun_draw <- (fun renderer ->
-    Scr_map.draw ~renderer;
-    Gm_streak_list_menu.draw ~renderer;
-    Scr_fade.draw ~renderer);
+    Background.draw ~renderer;
+    Streak_menu.draw ~renderer;
+    Fade.draw ~renderer);
   Audio.music_fade_out 700;
   Timer.fire_in 500 (fun () ->
     Audio.music_play Audio.MusicCalm;
-    Scr_fade.fade_in
+    Fade.fade_in
       (fun () ->
        curr_state.fun_event <- (fun e ->
          if sdl_get_evt_typ e = `Mouse_button_down then (
-           if (Gm_streak_list_menu.handle_sdl_button_down e) = true then (
+           if (Streak_menu.handle_sdl_button_down e) = true then (
              curr_state.fun_event <- (fun _ -> ());
-             Scr_fade.fade_out (fun () -> to_play ()))
+             Fade.fade_out (fun () -> to_play ()))
          ) else (
-           Gm_streak_list_menu.handle_sdl_event e
+           Streak_menu.handle_sdl_event e
          )
        )
       )
@@ -53,19 +53,19 @@ let to_level_details () =
   curr_state.fun_update <- (fun _ -> ());
   curr_state.fun_event <- (fun _ -> ());
   curr_state.fun_draw <- (fun renderer ->
-    Scr_map.draw ~renderer;
-    Brd_squares.draw ~renderer;
-    Brd_position.draw ~renderer;
-    Osd_level_details.draw ~renderer;
-    Scr_fade.draw ~renderer);
-  Scr_fade.alpha := 0;
-  Osd_level_details.start_anim_in (fun () ->
+    Background.draw ~renderer;
+    Board_squares.draw ~renderer;
+    Board_position.draw ~renderer;
+    Osd.Level_details.draw ~renderer;
+    Fade.draw ~renderer);
+  Fade.alpha := 0;
+  Osd.Level_details.start_anim_in (fun () ->
     curr_state.fun_event <- (fun e ->
       if sdl_get_evt_typ e = `Mouse_button_down then (
         curr_state.fun_event <- (fun _ -> ());
-        Osd_level_details.start_anim_out (fun () -> () );
+        Osd.Level_details.start_anim_out (fun () -> () );
         Timer.fire_in 500 (fun () ->
-          Scr_fade.fade_out (fun () ->  Audio.music_fade_out 1000; to_menu ());
+          Fade.fade_out (fun () ->  Audio.music_fade_out 1000; to_menu ());
         )
         )
       )
@@ -75,52 +75,52 @@ let to_level_info () =
   curr_state.fun_update <- (fun _ -> ());
   curr_state.fun_event <- (fun _ -> ());
   curr_state.fun_draw <- (fun renderer ->
-    Scr_map.draw ~renderer;
-    Brd_squares.draw ~renderer;
-    Brd_position.draw ~renderer;
-    Osd_level_info.draw ~renderer);
-  Osd_level_info.start_anim_in (fun () ->
+    Background.draw ~renderer;
+    Board_squares.draw ~renderer;
+    Board_position.draw ~renderer;
+    Osd.Level_info.draw ~renderer);
+  Osd.Level_info.start_anim_in (fun () ->
     Timer.fire_in 1000 (fun () ->
-      Osd_level_info.start_anim_out (fun () -> to_level_details ()))
+      Osd.Level_info.start_anim_out (fun () -> to_level_details ()))
     )
 
 let to_level_over () =
   curr_state.fun_draw <- (fun renderer ->
-    Scr_map.draw ~renderer;
-    Brd_squares.draw ~renderer;
-    Brd_position.draw ~renderer;
-    Osd_level_over.draw ~renderer);
+    Background.draw ~renderer;
+    Board_squares.draw ~renderer;
+    Board_position.draw ~renderer;
+    Osd.Level_over.draw ~renderer);
   curr_state.fun_update <- (fun _ -> ());
   curr_state.fun_event <- (fun _ -> ());
   Timer.fire_in 2300 (fun () -> Audio.music_play Audio.MusicGroove);
-  Osd_level_over.start_anim_in (fun () ->
+  Osd.Level_over.start_anim_in (fun () ->
     Timer.fire_in 1000 (fun () ->
-      Osd_level_over.start_anim_out
+      Osd.Level_over.start_anim_out
         (fun () -> to_level_info ())))
 
 let handle_game_event = function
-  | Gm_streak_model.GameOver ->
-      Game_info.wait_for_events := false;
-    Game_info.needs_redraw := true;
+  | Streak_model.GameOver ->
+      Info.wait_for_events := false;
+    Info.needs_redraw := true;
     to_level_over ();
     Audio.play Audio.GameOver
-  | Gm_streak_model.LevelComplete ->
+  | Streak_model.LevelComplete ->
       to_level_over ();
     Audio.play Audio.LevelComplete
   | e ->
-      Brd_position.handle_game_event e;
-    Gm_streak_score.handle_game_event e
+      Board_position.handle_game_event e;
+    Streak_hud.handle_game_event e
 
 
 let handle_sdl_event ~event =
   match sdl_get_evt_typ event with
   | `Key_down ->
       if (sdl_get_evt_scancode event) = `Escape then
-        Gm_streak_controller.quit ()
+        Streak_controller.quit ()
   | `Quit ->
-      Gm_streak_controller.quit ()
+      Streak_controller.quit ()
   | `Window_event ->
-      Game_info.needs_redraw := true
+      Info.needs_redraw := true
   | _ ->
       curr_state.fun_event event
 

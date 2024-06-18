@@ -3,16 +3,18 @@ open Tsdl_image
 open Gamekit
 open Chess
 
+#include "log.cppo"
+
 let img_texture : Sdl.texture option ref = ref None
 let img_rect : Sdl.rect = Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0
 let texture : Sdl.texture option ref = ref None
 let rdr : Sdl.renderer option ref = ref None
 
 let get_img_tex () =
-  match !img_texture with Some v -> v | None -> assert false
+  match !img_texture with Some v -> v | None -> LOG_CRASH()
 
-let get_tex () = match !texture with Some v -> v | None -> assert false
-let get_rdr () = match !rdr with Some v -> v | None -> assert false
+let get_tex () = match !texture with Some v -> v | None -> LOG_CRASH()
+let get_rdr () = match !rdr with Some v -> v | None -> LOG_CRASH()
 let psize = ref 0
 
 let init ~renderer =
@@ -78,4 +80,4 @@ let clear () =
   sdl_try (Sdl.set_render_target renderer None)
 
 let draw ~renderer =
-  sdl_try (Sdl.render_copy ~dst:Game_info.Screen.board_rect renderer (get_tex ()))
+  sdl_try (Sdl.render_copy ~dst:Info.Screen.board_rect renderer (get_tex ()))

@@ -46,8 +46,8 @@ let update_hl mx my =
   List.exists (fun (x,y, (theme,rank)) ->
     if my > y && my < (y + !hl_h) && mx > x && mx < (x + !list_width) then (
       Sdl.Rect.set_y hl_rect y;
-      Game_info.streak_theme := theme;
-      Game_info.streak_rank := rank;
+      Info.streak_theme := theme;
+      Info.streak_rank := rank;
       true
     ) else (
       false
@@ -56,8 +56,8 @@ let update_hl mx my =
 
 
 let init ~renderer =
-  list_width  := Game_info.Screen.logical_w - (2 * span);
-  list_height := Game_info.Screen.logical_h - (2 * span);
+  list_width  := Info.Screen.logical_w - (2 * span);
+  list_height := Info.Screen.logical_h - (2 * span);
   let t =
     (sdl_get_ok
       (Sdl.create_texture renderer

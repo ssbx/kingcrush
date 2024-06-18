@@ -21,8 +21,6 @@ code organisation
 =================
 
 *_sm.ml: state machine files
-brd_*.ml: board drawing and behaviour code
-gm_(mode)_*.ml: game modes code
 osd_*.ml: on screen display draw and functions
 scr_*.ml: various drawing code
 

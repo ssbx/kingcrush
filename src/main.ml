@@ -1,6 +1,8 @@
 open Tsdl
 open Gamekit
 
+#include "log.cppo"
+
 let usage_msg = "kingcrush [--disable-anims] [--disable-audio] [--verbose]"
 let with_anims = ref true
 let with_audio = ref true
@@ -19,71 +21,62 @@ let speclist =
 
 let () =
 
-  let prefs = sdl_get_ok (Sdl.get_pref_path ~org:"seb" ~app:"kingcrush") in
-  Printf.printf "prefs are %s\n" prefs;
+  let _prefs = sdl_get_ok (Sdl.get_pref_path ~org:"seb" ~app:"kingcrush") in
   Arg.parse speclist (fun _ -> ()) usage_msg;
-  if !with_anims then (
-
-  );
 
   let (window, renderer) = Gamekit.init
     ~w:1200
     ~h:800
-    ~logical_w:Game_info.Screen.logical_w
-    ~logical_h:Game_info.Screen.logical_h
+    ~logical_w:Info.Screen.logical_w
+    ~logical_h:Info.Screen.logical_h
     ~name:"kingcrush" in
 
-  Game_info.with_audio := !with_audio;
-  Game_info.with_anims := !with_anims;
+  Info.with_audio := !with_audio;
+  Info.with_anims := !with_anims;
   Audio.init ();
   Fonts.init ();
   Figures.init ~renderer;
-  Gm_streak_model.listen Game_sm.handle_game_event;
-  Gm_streak_model.init ();
-  Gm_streak_score.init ~renderer;
-  Gm_streak_grid_menu.init ~renderer;
-  Gm_streak_list_menu.init ~renderer;
-  Scr_bg.init ~renderer;
-  Scr_map.init ~renderer;
-  Scr_fade.init ~renderer;
-  Brd_position.init ~renderer;
-  Brd_squares.init ~renderer;
-  Brd_hints.init ~renderer;
-  Osd_level_over.init ~renderer;
-  Osd_level_info.init ~renderer;
-  Osd_level_details.init ~renderer;
-  Osd_level_start.init ~renderer;
-  Osd_map_select.init ~renderer;
-  Game_sm.to_menu ();
+  Streak_model.listen Machine.handle_game_event;
+  Streak_model.init ();
+  Streak_hud.init ~renderer;
+  Streak_menu.init ~renderer;
+  Background.init ~renderer;
+  Fade.init ~renderer;
+  Board_position.init ~renderer;
+  Board_squares.init ~renderer;
+  Board_hints.init ~renderer;
+  Osd.Level_over.init ~renderer;
+  Osd.Level_info.init ~renderer;
+  Osd.Level_details.init ~renderer;
+  Osd.Level_confirm.init ~renderer;
+  Machine.to_menu ();
 
   Gamekit.loop
     ~renderer ~vsync:false ~event:(Sdl.Event.create ())
-    ~wait_for_events:Game_info.wait_for_events
-    ~needs_redraw:Game_info.needs_redraw
-    ~quit_loop:Game_info.quit_loop
-    ~handle_event:Game_sm.handle_sdl_event
-    ~handle_update:Game_sm.update
-    ~handle_draw:Game_sm.draw;
+    ~wait_for_events:Info.wait_for_events
+    ~needs_redraw:Info.needs_redraw
+    ~quit_loop:Info.quit_loop
+    ~handle_event:Machine.handle_sdl_event
+    ~handle_update:Machine.update
+    ~handle_draw:Machine.draw;
 
-  Brd_position.release ();
-  Osd_level_details.release ();
-  Osd_level_info.release ();
-  Osd_level_over.release ();
-  Osd_level_start.release ();
-  Osd_map_select.release ();
-  Scr_fade.release ();
-  Brd_hints.release ();
-  Brd_squares.release ();
-  Gm_streak_model.release ();
-  Gm_streak_score.release ();
-  Gm_streak_grid_menu.release ();
-  Gm_streak_list_menu.release ();
-  Scr_bg.release ();
-  Scr_map.release ();
+  Board_position.release ();
+  Osd.Level_details.release ();
+  Osd.Level_info.release ();
+  Osd.Level_over.release ();
+  Osd.Level_confirm.release ();
+  Fade.release ();
+  Board_hints.release ();
+  Board_squares.release ();
+  Streak_model.release ();
+  Streak_hud.release ();
+  Streak_menu.release ();
+  Background.release ();
   Figures.release ();
   (*Fonts.release ();*)
   Audio.release ();
 
   Gamekit.release (window,renderer);
   exit 0
+
 
