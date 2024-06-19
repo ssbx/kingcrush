@@ -7,8 +7,6 @@ default: run
 
 run: build
 	. $(LOCAL_ENV) && dune exec kingcrush
-	#dune exec -- kingcrush --disable-anims --disable-audio
-	#dune exec -- kingcrush --generate-themes
 
 test: build
 	. $(LOCAL_ENV) && dune exec test_things

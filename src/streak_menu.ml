@@ -56,8 +56,8 @@ let update_hl mx my =
 
 
 let init ~renderer =
-  list_width  := Info.Screen.logical_w - (2 * span);
-  list_height := Info.Screen.logical_h - (2 * span);
+  list_width  := Info.Display.logical_w - (2 * span);
+  list_height := Info.Display.logical_h - (2 * span);
   let t =
     (sdl_get_ok
       (Sdl.create_texture renderer

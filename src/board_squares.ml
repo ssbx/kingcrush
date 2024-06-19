@@ -1,14 +1,14 @@
 open Tsdl
 open Gamekit
 
-(*
-let black_square_color = (114, 74, 140, 255)
-let white_square_color = (150, 142, 178, 255)
-*)
 
-let blend = 255
+let blend = 240
 let black_square_color = (181, 136, 99, blend)
 let white_square_color = (240, 217, 181, blend)
+
+let black_square_color2 = (114, 74, 140, blend)
+let white_square_color2 = (150, 142, 178, blend)
+
 let board_tex : Sdl.texture option ref = ref None
 let get_tex () = match !board_tex with Some v -> v | None -> assert false
 
@@ -47,4 +47,4 @@ let release () =
   board_tex := None
 
 let draw ~renderer =
-  sdl_try (Sdl.render_copy ~dst:Info.Screen.board_rect renderer (get_tex ()))
+  sdl_try (Sdl.render_copy ~dst:Info.Display.board_rect renderer (get_tex ()))

@@ -18,11 +18,13 @@ let to_play () =
   Streak_controller.new_game 1;
   curr_state.fun_update <- (fun _ -> Board_position.update ());
   curr_state.fun_event <- (fun e -> Board_position.handle_sdl_event ~event:e);
-  curr_state.fun_draw <- (fun rdr ->
-    Background.draw ~renderer:rdr;
-    Board_squares.draw ~renderer:rdr;
-    Board_hints.draw ~renderer:rdr;
-    Board_position.draw ~renderer:rdr)
+  curr_state.fun_draw <- (fun renderer ->
+    Background.draw ~renderer;
+    Board_squares.draw ~renderer;
+    Board_hints.draw ~renderer;
+    Board_position.draw ~renderer;
+    Streak_hud.draw ~renderer
+  )
 
 let to_menu () =
   Fade.alpha := 255;

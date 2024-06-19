@@ -27,8 +27,8 @@ let () =
   let (window, renderer) = Gamekit.init
     ~w:1200
     ~h:800
-    ~logical_w:Info.Screen.logical_w
-    ~logical_h:Info.Screen.logical_h
+    ~logical_w:Info.Display.logical_w
+    ~logical_h:Info.Display.logical_h
     ~name:"kingcrush" in
 
   Info.with_audio := !with_audio;
@@ -49,7 +49,7 @@ let () =
   Osd.Level_info.init ~renderer;
   Osd.Level_details.init ~renderer;
   Osd.Level_confirm.init ~renderer;
-  Machine.to_menu ();
+  Machine.to_play ();
 
   Gamekit.loop
     ~renderer ~vsync:false ~event:(Sdl.Event.create ())

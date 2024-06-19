@@ -80,4 +80,4 @@ let clear () =
   sdl_try (Sdl.set_render_target renderer None)
 
 let draw ~renderer =
-  sdl_try (Sdl.render_copy ~dst:Info.Screen.board_rect renderer (get_tex ()))
+  sdl_try (Sdl.render_copy ~dst:Info.Display.board_rect renderer (get_tex ()))

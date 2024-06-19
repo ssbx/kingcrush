@@ -53,8 +53,8 @@ module Level_over = struct
     Sdl.Rect.set_w rect (bg_w * 2);
     Sdl.Rect.set_h rect (bg_h * 2);
 
-    let w = Info.Screen.logical_w
-    and h = Info.Screen.logical_h
+    let w = Info.Display.logical_w
+    and h = Info.Display.logical_h
     and over_w = Sdl.Rect.w rect
     and over_h = Sdl.Rect.h rect in
     orig_x := ((w / 2) - (over_w / 2));
@@ -151,8 +151,8 @@ module Level_info = struct
     Sdl.Rect.set_w rect (bg_w * 2);
     Sdl.Rect.set_h rect (bg_h * 2);
 
-    let w = Info.Screen.logical_w
-    and h = Info.Screen.logical_h
+    let w = Info.Display.logical_w
+    and h = Info.Display.logical_h
     and over_w = Sdl.Rect.w rect
     and over_h = Sdl.Rect.h rect in
     orig_x := ((w / 2) - (over_w / 2));
@@ -249,8 +249,8 @@ module Level_details = struct
     Sdl.Rect.set_w rect (bg_w * 2);
     Sdl.Rect.set_h rect (bg_h * 2);
 
-    let w = Info.Screen.logical_w
-    and h = Info.Screen.logical_h
+    let w = Info.Display.logical_w
+    and h = Info.Display.logical_h
     and over_w = Sdl.Rect.w rect
     and over_h = Sdl.Rect.h rect in
     orig_x := ((w / 2) - (over_w / 2));
@@ -348,8 +348,8 @@ module Level_confirm = struct
     Sdl.Rect.set_w rect (bg_w * 2);
     Sdl.Rect.set_h rect (bg_h * 2);
 
-    let w = Info.Screen.logical_w
-    and h = Info.Screen.logical_h
+    let w = Info.Display.logical_w
+    and h = Info.Display.logical_h
     and over_w = Sdl.Rect.w rect
     and over_h = Sdl.Rect.h rect in
     orig_x := ((w / 2) - (over_w / 2));

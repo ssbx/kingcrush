@@ -123,20 +123,20 @@ let update_position () =
   update_board_texture view_state.position.board
 
 let coords_to_square x y =
-  let bw = Info.Screen.logical_board_width in
+  let bw = Info.Display.logical_board_width in
   let pw = bw / 8
-  and bx = Sdl.Rect.x Info.Screen.board_rect
-  and by = Sdl.Rect.y Info.Screen.board_rect in
+  and bx = Sdl.Rect.x Info.Display.board_rect
+  and by = Sdl.Rect.y Info.Display.board_rect in
   if x < bx || x > bx + bw || y < by || y > by + bw then None
   else
     let x_square = (x - bx) / pw and y_square = (y - by) / pw in
     Some (x_square, y_square)
 
 let square_to_coords x y =
-  let bw = Info.Screen.logical_board_width in
+  let bw = Info.Display.logical_board_width in
   let pw = bw / 8
-  and bx = Sdl.Rect.x Info.Screen.board_rect
-  and by = Sdl.Rect.y Info.Screen.board_rect in
+  and bx = Sdl.Rect.x Info.Display.board_rect
+  and by = Sdl.Rect.y Info.Display.board_rect in
 
   if x > 7 || y > 7 then failwith "should not !!!!"
   else
@@ -343,15 +343,15 @@ let handle_game_event = function
 let init ~renderer =
   view_state.renderer <- Some renderer;
   view_state.pieces_text <- Some (init_pieces_texture ());
-  Sdl.Rect.set_w view_state.drag_rect Info.Screen.logical_square_width;
-  Sdl.Rect.set_h view_state.drag_rect Info.Screen.logical_square_width;
-  Sdl.Rect.set_w view_state.anim_rect Info.Screen.logical_square_width;
-  Sdl.Rect.set_h view_state.anim_rect Info.Screen.logical_square_width;
+  Sdl.Rect.set_w view_state.drag_rect Info.Display.logical_square_width;
+  Sdl.Rect.set_h view_state.drag_rect Info.Display.logical_square_width;
+  Sdl.Rect.set_w view_state.anim_rect Info.Display.logical_square_width;
+  Sdl.Rect.set_h view_state.anim_rect Info.Display.logical_square_width;
   update_board_texture view_state.position.board
 
 let draw ~renderer =
   let ptext = get_pieces_text () in
-  sdl_try (Sdl.render_copy ~dst:Info.Screen.board_rect renderer ptext);
+  sdl_try (Sdl.render_copy ~dst:Info.Display.board_rect renderer ptext);
   (match view_state.anim_piece with
   | None -> ()
   | Some text -> (
@@ -362,7 +362,7 @@ let draw ~renderer =
   | false, _ -> ()
   | true, None -> failwith "drag active but no pieces to draw"
   | true, Some p ->
-      let ps = Info.Screen.logical_square_width in
+      let ps = Info.Display.logical_square_width in
       let half_ps = ps / 2 in
       let x = view_state.cursor_x - half_ps
       and y = view_state.cursor_y - half_ps in
