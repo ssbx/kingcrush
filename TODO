@@ -1,7 +1,6 @@
 todo
 ====
 
-- utiliser base pour voir
 - effets sur le board:
  . piece prise (explosions? + son)
  . check (visuel + son)
@@ -9,6 +8,12 @@ todo
  . particules: feu artifices, confetis
 
 - effets sur le level success concecutifs, bonus resolution temps
+
+- utiliser SDL_GetBasePath (executable), plutot que dune-site
+- voir les dependences de l'executable et la portabilité sur des vm linux
+et windows
+
+- des trucs à débloquer (progres) et une fin
 
 todo 2
 ======
