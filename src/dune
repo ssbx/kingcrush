@@ -4,8 +4,5 @@
   (name main)
   (preprocessor_deps log.cppo)
   (preprocess (action (run %{bin:cppo} %{input-file})))
-  (libraries tsdl tsdl-image tsdl-ttf tsdl-mixer chess gamekit dune-site))
+  (libraries tsdl tsdl-image tsdl-ttf tsdl-mixer chess gamekit))
 
-(generate_sites_module
- (module data)
- (sites kingcrush))

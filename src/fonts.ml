@@ -2,7 +2,8 @@ open Tsdl
 open Tsdl_ttf
 open Gamekit
 
-let fonts_dir : string = List.nth Data.Sites.fonts 0
+let fonts_dir : string ref = ref ""
+
 let f500 : Ttf.font option ref = ref None
 let fg_color = Sdl.Color.create ~r:255 ~g:255 ~b:255 ~a:255
 
@@ -15,7 +16,8 @@ let get_surface v =
   | Ok s -> s
 
 let init () =
+  fonts_dir := Filename.concat !Info.data_dir "fonts";
   sdl_try (Ttf.init ());
-  match Ttf.open_font (Filename.concat fonts_dir "f500.ttf") 32 with
+  match Ttf.open_font (Filename.concat !fonts_dir "f500.ttf") 32 with
   | Ok f -> f500 := Some f
   | Error (`Msg e) -> failwith e

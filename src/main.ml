@@ -21,10 +21,9 @@ let speclist =
 
 let () =
 
-  let pref = sdl_get_ok (Sdl.get_pref_path ~org:"seb" ~app:"kingcrush")
-  and base = sdl_get_ok (Sdl.get_base_path ()) in
-  Printf.printf "pref path is %s\n" pref;
-  Printf.printf "base path is %s\n" base;
+  Info.pref_dir := sdl_get_ok (Sdl.get_pref_path ~org:"seb" ~app:"kingcrush");
+  Info.base_dir := sdl_get_ok (Sdl.get_base_path ());
+  Info.data_dir := Filename.(concat (concat (dirname !Info.base_dir) "share") "data");
   Arg.parse speclist (fun _ -> ()) usage_msg;
 
   let (window, renderer) = Gamekit.init

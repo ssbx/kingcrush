@@ -3,8 +3,8 @@ open Gamekit
 
 #include "log.cppo"
 
-let audio_dir : string = List.nth Data.Sites.sounds 0
-let get_path f = Filename.concat audio_dir f
+let audio_dir : string ref = ref ""
+let get_path f = Filename.concat !audio_dir f
 let enabled : bool ref = ref true
 
 let music_chan : int option ref = ref None
@@ -82,6 +82,7 @@ let music_stop () =
   music_fade_out 500
 
 let init () =
+  audio_dir := Filename.concat !Info.data_dir "sounds";
   if !enabled then (
     Mixer.channel_finished chan_finished_callback;
     sounds :=

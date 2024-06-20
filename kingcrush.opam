@@ -14,7 +14,6 @@ depends: [
   "tsdl-image" {= "0.3.2"}
   "tsdl-mixer" {= "0.3.2"}
   "tsdl-ttf" {= "0.3.2"}
-  "dune-site" {= "3.5.0"}
   "odoc" {with-doc}
 ]
 build: [
@@ -26,10 +25,8 @@ build: [
     name
     "-j"
     jobs
-    "--promote-install-files=false"
     "@install"
     "@runtest" {with-test}
     "@doc" {with-doc}
   ]
-  ["dune" "install" "-p" name "--create-install-files" name]
 ]

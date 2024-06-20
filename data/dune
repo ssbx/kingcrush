@@ -1,103 +1,48 @@
-; puzzles.csv is allready a target in the main makefile. This rule is here
-; for make-release
-
 (install
- (section
-  (site
-   (kingcrush data)))
- (files puzzles.csv))
+  (package kingcrush)
+  (section share_root)
+  (files
+    (puzzles.csv as data/puzzles.csv)
+    (include images.sexp)
+    (include fonts.sexp)
+    (include sounds.sexp)
+    (include pieces_default.sexp)
+    (include pieces_pixel.sexp)
+    (include anims.sexp)))
 
 (rule
- (mode fallback)
- (alias install)
- (target puzzles.csv)
- (deps puzzles.csv.gz)
+ (deps (source_tree images))
  (action
-  (system "gzip -dk puzzles.csv.gz")))
-
-;
-; pieces pieces
-;
-
-(install
- (section
-  (site
-   (kingcrush pieces)))
- (files
-  (include default_theme.sexp)
-  (include pixel_theme.sexp)))
+  (with-stdout-to images.sexp
+   (system "echo '('; for i in images/*.png; do echo \"($i as data/$i)\" ; done; echo ')' "))))
 
 (rule
- (deps
-  (source_tree pieces/default))
+ (deps (source_tree fonts))
  (action
-  (with-stdout-to
-   default_theme.sexp
-   (system
-    "echo '('; \
-    for im in pieces/default/*.png; do \
-      echo '(' $im as default/$(basename $im) ')'; \
-    done; echo ')'"))))
+  (with-stdout-to fonts.sexp
+   (system "echo '('; for i in fonts/*.ttf; do echo \"($i as data/$i)\" ; done; echo ')' "))))
 
 (rule
- (deps
-  (source_tree pieces/pixel))
+ (deps (source_tree sounds))
  (action
-  (with-stdout-to
-   pixel_theme.sexp
-   (system
-    "echo '('; \
-    for im in pieces/pixel/*.png; do \
-      echo '(' $im as pixel/$(basename $im) ')'; \
-    done; echo ')'"))))
-
-; sounds
-
-(install
- (section
-  (site
-   (kingcrush sounds)))
- (files
-  (include sounds.sexp)))
+  (with-stdout-to sounds.sexp
+   (system "echo '('; for i in sounds/*.wav; do echo \"($i as data/$i)\" ; done; echo ')' "))))
 
 (rule
- (deps
-  (source_tree sounds))
+ (deps (source_tree pieces/pixel))
  (action
-  (with-stdout-to
-   sounds.sexp
-   (system "echo '(' sounds/*.wav ')'"))))
-
-; fonts
-
-(install
- (section
-  (site
-   (kingcrush fonts)))
- (files
-  (include fonts.sexp)))
+  (with-stdout-to pieces_pixel.sexp
+   (system "echo '('; for i in pieces/pixel/*.png; do echo \"($i as data/$i)\" ; done; echo ')' "))))
 
 (rule
- (deps
-  (source_tree fonts))
+ (deps (source_tree pieces/default))
  (action
-  (with-stdout-to
-   fonts.sexp
-   (system "echo '(' fonts/*.ttf ')'"))))
-
-; various images
-
-(install
- (section
-  (site
-   (kingcrush images)))
- (files
-  (include images.sexp)))
+  (with-stdout-to pieces_default.sexp
+   (system "echo '('; for i in pieces/default/*.png; do echo \"($i as data/$i)\" ; done; echo ')' "))))
 
 (rule
- (deps
-  (source_tree images))
+ (deps (source_tree anims))
  (action
-  (with-stdout-to
-   images.sexp
-   (system "echo '(' images/*.png ')'"))))
+  (with-stdout-to anims.sexp
+   (system "echo '('; for i in anims/*.png; do echo \"($i as data/$i)\" ; done; echo ')' "))))
+

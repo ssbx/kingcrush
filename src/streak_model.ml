@@ -179,7 +179,7 @@ let start ~rank ~theme n =
   load_next ()
 
 let init () =
-  let csv_file = Filename.concat (List.nth Data.Sites.data 0) "puzzles.csv" in
+  let csv_file = Filename.concat !Info.data_dir "puzzles.csv" in
   Puzzles.init csv_file
 
 let listen f = game_state.views <- game_state.views @ [ f ]

@@ -3,8 +3,9 @@ open Tsdl_image
 open Gamekit
 
 let piece_width = 177
-let images_dir = Filename.concat (List.nth Data.Sites.pieces 0) "default"
-let get_path v = Filename.concat images_dir v
+(*let images_dir = Filename.concat (List.nth Data.Sites.pieces 0) "default"*)
+let images_dir : string ref = ref ""
+let get_path v = Filename.concat !images_dir v
 
 type p_type = {
   bP : Sdl.texture;
@@ -27,6 +28,7 @@ let open_texture renderer filename =
   sdl_get_ok (Image.load_texture renderer filename)
 
 let init ~renderer =
+  images_dir := Filename.(concat (concat !Info.data_dir "pieces") "default");
   let flags = Image.Init.png in
   assert (Image.init flags = flags);
   db :=
