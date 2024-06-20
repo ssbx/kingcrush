@@ -7,9 +7,9 @@ authors: ["seb&seb"]
 homepage: "nohome"
 bug-reports: "nobugs"
 depends: [
-  "dune" {>= "3.5"}
-  "sexplib" {>= "v0.16.0"}
-  "ocaml" {>= "4.08"}
+  "dune" {>= "3.5" & build & = "3.5.0"}
+  "cppo" {build & = "1.6.9"}
+  "ocaml" {= "4.14.2"}
   "tsdl" {= "0.9.9"}
   "tsdl-image" {= "0.3.2"}
   "tsdl-mixer" {= "0.3.2"}

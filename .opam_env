@@ -1,0 +1,5 @@
+OPAM_SWITCH_PREFIX='/home/seb/.opam/4.14.2'; export OPAM_SWITCH_PREFIX;
+CAML_LD_LIBRARY_PATH='/home/seb/.opam/4.14.2/lib/stublibs:/home/seb/.opam/4.14.2/lib/ocaml/stublibs:/home/seb/.opam/4.14.2/lib/ocaml'; export CAML_LD_LIBRARY_PATH;
+OCAML_TOPLEVEL_PATH='/home/seb/.opam/4.14.2/lib/toplevel'; export OCAML_TOPLEVEL_PATH;
+MANPATH=':/home/seb/.opam/4.14.2/man'; export MANPATH;
+PATH='/home/seb/.opam/4.14.2/bin:/home/seb/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/home/seb/bin'; export PATH;

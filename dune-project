@@ -20,9 +20,11 @@
     (share data)
     (share fonts)
     (share images))
+
   (depends
-    (sexplib (>= v0.16.0))
-    (ocaml (>= 4.08))
+    (dune (and :build (= 3.5.0)))
+    (cppo (and :build (= 1.6.9)))
+    (ocaml (= 4.14.2))
     (tsdl  (= 0.9.9))
     (tsdl-image (= 0.3.2))
     (tsdl-mixer (= 0.3.2))
