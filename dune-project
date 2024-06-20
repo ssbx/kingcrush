@@ -7,7 +7,7 @@
 (homepage "nohome")
 (bug_reports "nobugs")
 
-(generate_opam_files true)
+(generate_opam_files false)
 
 (package
   (name kingcrush)
