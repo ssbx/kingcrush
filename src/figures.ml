@@ -28,7 +28,7 @@ let open_texture renderer filename =
   sdl_get_ok (Image.load_texture renderer filename)
 
 let init ~renderer =
-  images_dir := Filename.(concat (concat !Info.data_dir "pieces") "default");
+  images_dir := Filename.(concat (concat !Info.base_dir "pieces") "default");
   let flags = Image.Init.png in
   assert (Image.init flags = flags);
   db :=

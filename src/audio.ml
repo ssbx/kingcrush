@@ -82,7 +82,7 @@ let music_stop () =
   music_fade_out 500
 
 let init () =
-  audio_dir := Filename.concat !Info.data_dir "sounds";
+  audio_dir := Filename.concat !Info.base_dir "sounds";
   if !enabled then (
     Mixer.channel_finished chan_finished_callback;
     sounds :=

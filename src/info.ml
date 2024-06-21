@@ -2,7 +2,6 @@ open Tsdl
 
 let pref_dir : string ref = ref ""
 let base_dir : string ref = ref ""
-let data_dir : string ref = ref ""
 
 let wait_for_events : bool ref = ref false
 let quit_loop : bool ref = ref false

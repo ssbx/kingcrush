@@ -18,7 +18,7 @@ let get_rdr () = match !rdr with Some v -> v | None -> LOG_CRASH()
 let psize = ref 0
 
 let init ~renderer =
-  let img = Filename.(concat (concat !Info.data_dir "images") "hint.png") in
+  let img = Filename.(concat (concat !Info.base_dir "images") "hint.png") in
   rdr := Some renderer;
   img_texture := Some (sdl_get_ok (Image.load_texture renderer img));
   psize := Figures.piece_width;

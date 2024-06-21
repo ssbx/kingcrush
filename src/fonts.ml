@@ -16,8 +16,8 @@ let get_surface v =
   | Ok s -> s
 
 let init () =
-  fonts_dir := Filename.concat !Info.data_dir "fonts";
+  fonts_dir := Filename.concat !Info.base_dir "fonts";
   sdl_try (Ttf.init ());
-  match Ttf.open_font (Filename.concat !fonts_dir "f500.ttf") 32 with
+  match Ttf.open_font (Filename.concat !fonts_dir "OpenSans-Regular.ttf") 32 with
   | Ok f -> f500 := Some f
   | Error (`Msg e) -> failwith e
