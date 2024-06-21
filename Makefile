@@ -1,4 +1,5 @@
-prefix = $(HOME)/.local
+#prefix = $(HOME)/.local
+prefix = /opt/kingcrush
 
 .PHONY: run build clean install uninstall
 

@@ -1,6 +1,16 @@
 todo
 ====
 
+- système de cadenas de 14 Minesweeper Variants,
+(voir: https://www.youtube.com/watch?v=mT0JaKjnMUE&t=23s )
+Comprendre les signes:
++' = 2 règles à la fois
+#' = 1 regle par chiffre, indiqué sur la case
++'#' = 2 règles à la fois, par indice
+
+- système custom color/config de 14 Minesweeper Variants,
+
+
 - effets sur le board:
  . piece prise (explosions? + son)
  . check (visuel + son)
@@ -13,7 +23,7 @@ todo
 - voir les dependences de l'executable et la portabilité sur des vm linux
 et windows
 
-- des trucs à débloquer (progres) et une fin
+
 
 todo 2
 ======
