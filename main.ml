@@ -54,7 +54,7 @@ let () =
   Osd.Level_info.init ~renderer;
   Osd.Level_details.init ~renderer;
   Osd.Level_confirm.init ~renderer;
-  Machine.to_play ();
+  Machine.to_menu ();
 
   Gamekit.loop
     ~renderer ~vsync:false ~event:(Sdl.Event.create ())
