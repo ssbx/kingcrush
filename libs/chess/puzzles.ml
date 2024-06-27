@@ -65,40 +65,45 @@ let reset ~theme ~start_rank =
 let filter ~theme = current_theme := theme
 let release () = Stdlib.close_in !csv_chan
 
-let rec list_count_themes chan themes_acc theme_groups_acc prog =
-  let prog_n = if prog = 1000 then ( Printf.printf ".%!"; 0) else (prog + 1) in
+let rec list_count_themes chan tht ght prog n =
+  let prog_n = if prog = 1000 then (Printf.printf ".%!"; 0) else ( prog + 1 ) in
   match Stdlib.input_line !csv_chan with
-  | exception End_of_file -> (themes_acc, theme_groups_acc)
+  | exception End_of_file -> ()
   | line -> (
-      let new_theme_groups = List.nth (String.split_on_char ',' line) 7 in
-      let new_theme_groups_acc =
-        match List.assoc_opt new_theme_groups theme_groups_acc with
-        | None -> (new_theme_groups, 1) :: theme_groups_acc
-        | Some n -> (new_theme_groups, n + 1) ::
-          (List.remove_assoc new_theme_groups theme_groups_acc)
-      in
-
-      let new_themes = String.split_on_char ' ' new_theme_groups in
-      let new_themes_acc = List.fold_left (fun acc kw ->
-        match List.assoc_opt kw acc with
-        | None -> (kw, 1) :: acc
-        | Some n -> (kw, n + 1) :: (List.remove_assoc kw acc)
-      ) themes_acc new_themes in
-      list_count_themes chan new_themes_acc new_theme_groups_acc prog_n
+      let new_tg = List.nth (String.split_on_char ',' line) 7 in
+      begin match Hashtbl.find_opt ght new_tg with
+        | None -> Hashtbl.add ght new_tg 1
+        | Some n ->
+            Hashtbl.remove ght new_tg;
+            Hashtbl.add ght new_tg (n + 1)
+      end;
+      let new_t = String.split_on_char ' ' new_tg in
+      List.iter (fun kw ->
+        match Hashtbl.find_opt tht kw with
+        | None -> Hashtbl.add tht kw 1
+        | Some n ->
+          Hashtbl.remove tht kw;
+          Hashtbl.add tht kw (n + 1)
+      ) new_t;
+      list_count_themes chan tht ght prog_n (n + 1)
   )
 
 let themes_info () =
   Stdlib.seek_in !csv_chan 0;
-  Printf.printf "themes_info: Collecting themes and theme groups: ";
-  let (t, tg) = list_count_themes !csv_chan [] [] 0 in
+  Printf.printf "themes_info: Collecting themes and theme groups: \n";
+  let t_h = Hashtbl.create 1000
+  and tg_h = Hashtbl.create 1000 in
+  list_count_themes !csv_chan t_h tg_h 0 0;
+  let t_l = List.of_seq (Hashtbl.to_seq t_h)
+  and tg_l = List.of_seq (Hashtbl.to_seq tg_h) in
   Printf.printf "\n";
   Printf.printf "themes_info: Sorting themes...\n%!";
-  let t_sorted = List.sort (fun (_, x) (_, y) -> Int.compare y x) t in
+  let t_l_s = List.sort (fun (_, x) (_, y) -> Int.compare y x) t_l in
   Printf.printf "themes_info: Sorting theme groups...\n%!";
-  let tg_sorted = List.sort (fun (_, x) (_, y) -> Int.compare y x) tg in
+  let tg_l_s = List.sort (fun (_, x) (_, y) -> Int.compare y x) tg_l in
   Stdlib.seek_in !csv_chan 0;
   Printf.printf "themes_info: Done!\n%!";
-  (t_sorted, tg_sorted)
+  (t_l_s, tg_l_s)
 
 
 (* ========================================================================= *)
