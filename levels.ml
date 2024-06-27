@@ -1,18 +1,18 @@
 type level = {
-  complete : bool;
-  rank     : int;
-  themes   : string list;
-  npuzzles : int;
-  unlocks  : level list;
+  completed : bool;
+  rank      : int;
+  themes    : string list;
+  npuzzles  : int;
+  doc       : string;
 }
 
 
-let all = {
-  complete = false;
+let levels = {
+  completed = false;
   rank = 1000;
+  doc = "docdoc";
   themes = ["endgame";"long"];
   npuzzles = 10;
-  unlocks = [];
 }
 
 let init () = ()

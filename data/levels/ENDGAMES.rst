@@ -61,7 +61,7 @@ Part Four / Endgames for Class “C” (1400-1599) 89
         * Bishop and Wrong Colored Rook-Pawn vs. Lone King 112
         * Lone King vs. Knight and Rook-Pawn on the 6th or 7th =116
         * Bishops of Opposite Colors 118
-* Rook Endgames 12]
+* Rook Endgames 120
         * The Lucena Position (The Sacred Key To All Rook Endings) 121
         * The Philidor Position (A Critical Defensive Stand!) 126
                 * Passive Rook 126

@@ -13,7 +13,7 @@ destdir = _build/$(APPNAME)
 
 .PHONY: default run build clean install uninstall gen_themes
 
-default: gen_themes
+default: run
 
 run:
 	dune exec -- $(APPNAME) --with-datadir=$(root)/data
