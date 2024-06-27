@@ -1,60 +1,60 @@
-advancedPawn
-advantage
-anastasiaMate
-arabianMate
-attackingF2F7
-attraction
-backRankMate
-bishopEndgame
-bodenMate
-capturingDefender
-castling
-clearance
-crushing
-defensiveMove
-deflection
-discoveredAttack
-doubleBishopMate
-doubleCheck
-dovetailMate
-enPassant
-endgame
-equality
-exposedKing
-fork
-hangingPiece
-hookMate
-interference
-intermezzo
-kingsideAttack
-knightEndgame
-long
-master
-masterVsMaster
-mate
-mateIn1
-mateIn2
-mateIn3
-mateIn4
-mateIn5
-middlegame
-oneMove
-opening
-pawnEndgame
-pin
-promotion
-queenEndgame
-queenRookEndgame
-queensideAttack
-quietMove
-rookEndgame
-sacrifice
-short
-skewer
-smotheredMate
-superGM
-trappedPiece
-underPromotion
-veryLong
-xRayAttack
-zugzwang
+619583          short
+518976          middlegame
+487769          crushing
+468306          endgame
+310852          advantage
+253567          long
+234489          mate
+157955          fork
+120984          mateIn2
+95347           master
+94556           oneMove
+80451           veryLong
+78087           mateIn1
+77972           kingsideAttack
+74038           sacrifice
+69059           pin
+62337           defensiveMove
+62127           discoveredAttack
+61245           opening
+54324           advancedPawn
+47090           hangingPiece
+45928           rookEndgame
+44140           deflection
+39333           quietMove
+35493           attraction
+32399           backRankMate
+30097           mateIn3
+26868           exposedKing
+25532           pawnEndgame
+23078           skewer
+20095           promotion
+16908           trappedPiece
+15958           intermezzo
+15047           equality
+14742           clearance
+13576           queensideAttack
+10954           bishopEndgame
+9761            capturingDefender
+8799            masterVsMaster
+8514            queenEndgame
+7369            knightEndgame
+7202            zugzwang
+6424            queenRookEndgame
+5045            attackingF2F7
+4982            doubleCheck
+4394            interference
+4382            mateIn4
+3568            xRayAttack
+2442            smotheredMate
+1552            enPassant
+1287            hookMate
+1052            anastasiaMate
+950             arabianMate
+939             mateIn5
+818             superGM
+593             castling
+432             dovetailMate
+402             doubleBishopMate
+312             bodenMate
+166             underPromotion

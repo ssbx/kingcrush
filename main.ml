@@ -6,14 +6,15 @@ open Gamekit
 let usage_msg = "kingcrush [--disable-anims] [--disable-audio] [--verbose]"
 let with_anims = ref true
 let with_audio = ref true
-let generate_themes = ref false
 let verbose = ref false
 
-let with_datadir : string ref = ref ""
+let generate_themes_dir : string ref = ref ""
+let with_datadir        : string ref = ref ""
 
 let speclist =
   [
-    ("--generate-themes", Arg.Set generate_themes, "Generate themes.txt file and quit" );
+    ("--generate-themes-in", Arg.Set_string generate_themes_dir,
+      "Generate themes.txt and theme_groups.txt in directory argument and quit" );
     ("--with-datadir", Arg.Set_string with_datadir, "Overhide default datadir search");
     ("--disable-anims", Arg.Clear with_anims, "Disable animations");
     ("--disable-audio", Arg.Clear Audio.enabled, "Disable audio");
@@ -27,7 +28,15 @@ let () =
   Info.base_dir := sdl_get_ok (Sdl.get_base_path ());
 
   Arg.parse speclist (fun _ -> ()) usage_msg;
+
   if String.length !with_datadir > 0 then Info.base_dir := !with_datadir;
+  if String.length !generate_themes_dir > 0 then (
+    let tfile  = Filename.concat !generate_themes_dir "themes.txt"
+    and tgfile = Filename.concat !generate_themes_dir "theme_groups.txt" in
+    Streak_model.generate_themes ~themes_file:tfile ~theme_groups_file:tgfile;
+    exit 0;
+  );
+
 
   let (window, renderer) = Gamekit.init
     ~w:1200
@@ -54,6 +63,7 @@ let () =
   Osd.Level_info.init ~renderer;
   Osd.Level_details.init ~renderer;
   Osd.Level_confirm.init ~renderer;
+  Levels.init ();
   Machine.to_menu ();
 
   Gamekit.loop

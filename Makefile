@@ -11,10 +11,15 @@ DUNE_ARGS = --prefix=$(prefix) --bindir=$(bindir) \
 
 destdir = _build/$(APPNAME)
 
-.PHONY: run build clean install uninstall
+.PHONY: default run build clean install uninstall gen_themes
+
+default: gen_themes
 
 run:
 	dune exec -- $(APPNAME) --with-datadir=$(root)/data
+
+gen_themes:
+	dune exec -- $(APPNAME) --with-datadir=$(root)/data --generate-themes-in=$(root)/data
 
 build: data/puzzles.csv
 	dune build

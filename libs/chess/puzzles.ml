@@ -65,25 +65,41 @@ let reset ~theme ~start_rank =
 let filter ~theme = current_theme := theme
 let release () = Stdlib.close_in !csv_chan
 
-let list_themes () =
+let rec list_count_themes chan themes_acc theme_groups_acc prog =
+  let prog_n = if prog = 1000 then ( Printf.printf ".%!"; 0) else (prog + 1) in
+  match Stdlib.input_line !csv_chan with
+  | exception End_of_file -> (themes_acc, theme_groups_acc)
+  | line -> (
+      let new_theme_groups = List.nth (String.split_on_char ',' line) 7 in
+      let new_theme_groups_acc =
+        match List.assoc_opt new_theme_groups theme_groups_acc with
+        | None -> (new_theme_groups, 1) :: theme_groups_acc
+        | Some n -> (new_theme_groups, n + 1) ::
+          (List.remove_assoc new_theme_groups theme_groups_acc)
+      in
+
+      let new_themes = String.split_on_char ' ' new_theme_groups in
+      let new_themes_acc = List.fold_left (fun acc kw ->
+        match List.assoc_opt kw acc with
+        | None -> (kw, 1) :: acc
+        | Some n -> (kw, n + 1) :: (List.remove_assoc kw acc)
+      ) themes_acc new_themes in
+      list_count_themes chan new_themes_acc new_theme_groups_acc prog_n
+  )
+
+let themes_info () =
   Stdlib.seek_in !csv_chan 0;
-  let rec search_th l =
-    match Stdlib.input_line !csv_chan with
-    | exception End_of_file -> l
-    | line ->
-        let splited = String.split_on_char ',' line in
-        let themes_str = List.nth splited 7 in
-        let themes = String.split_on_char ' ' themes_str in
-        let add_theses =
-          List.filter
-            (fun in_kw ->
-              List.exists (fun kw -> String.equal in_kw kw) l = false)
-            themes
-        in
-        search_th (l @ add_theses)
-  in
+  Printf.printf "themes_info: Collecting themes and theme groups: ";
+  let (t, tg) = list_count_themes !csv_chan [] [] 0 in
+  Printf.printf "\n";
+  Printf.printf "themes_info: Sorting themes...\n%!";
+  let t_sorted = List.sort (fun (_, x) (_, y) -> Int.compare y x) t in
+  Printf.printf "themes_info: Sorting theme groups...\n%!";
+  let tg_sorted = List.sort (fun (_, x) (_, y) -> Int.compare y x) tg in
   Stdlib.seek_in !csv_chan 0;
-  search_th []
+  Printf.printf "themes_info: Done!\n%!";
+  (t_sorted, tg_sorted)
+
 
 (* ========================================================================= *)
 (* get puzzles ============================================================= *)

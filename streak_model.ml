@@ -182,5 +182,21 @@ let init () =
   let csv_file = Filename.concat !Info.base_dir "puzzles.csv" in
   Puzzles.init csv_file
 
-let listen f = game_state.views <- game_state.views @ [ f ]
 let release () = Puzzles.release ()
+
+let listen f = game_state.views <- game_state.views @ [ f ]
+
+let generate_themes ~themes_file ~theme_groups_file =
+  init ();
+  let themes_chan = open_out themes_file
+  and theme_groups_chan = open_out theme_groups_file
+  and themes, theme_groups = Puzzles.themes_info () in
+  List.iter (fun (t,n) ->
+    Printf.fprintf themes_chan "%-15i %s\n" n t) themes;
+  close_out themes_chan;
+  List.iter (fun (t,n) ->
+    Printf.fprintf theme_groups_chan "%-15i %s\n" n t) theme_groups;
+  close_out theme_groups_chan;
+  release ()
+
+
