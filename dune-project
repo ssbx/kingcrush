@@ -17,8 +17,10 @@
   (depends
     (dune (and :build (= 3.5.0)))
     (cppo (and :build (= 1.6.9)))
+    chesslib
+    gamekit
     (ocaml (= 4.14.2))
-    (tsdl  (= 0.9.9))
+    ;;(tsdl  (= 0.9.9))
+    ;;(tsdl-mixer (= 0.3.2))
     (tsdl-image (= 0.3.2))
-    (tsdl-mixer (= 0.3.2))
     (tsdl-ttf   (= 0.3.2))))

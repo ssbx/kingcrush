@@ -1,18 +1,7 @@
-open Chess
-
-type game_event_t =
-  | NewPuzzle
-  | LevelComplete
-  | GameOver
-  | PuzzleSolved
-  | OponentMove of (int * int)
-  | PlayerMove of (int * int)
-  | MoveForward of (int * int)
-  | MoveBackward of (int * int)
-  | Update
+open Chesslib
 
 type game_state_t = {
-  mutable views : (game_event_t -> unit) list;
+  mutable views : (Events.t -> unit) list;
   mutable puzzle : Puzzles.puzzle_t;
   mutable pos_id_max : int; (* the last move *)
   mutable pos_id_reached : int; (* the move the player must play *)
@@ -47,12 +36,12 @@ let oponent_move () =
   game_state.pos_id_reached <- i + 1;
   game_state.pos_id_visible <- game_state.pos_id_reached;
   game_state.player_turn <- true;
-  emit (OponentMove (i, i + 1))
+  emit (Events.OponentMove (i, i + 1))
 
 let load_next () =
   if game_state.npuzzles = 0 then (
-    emit Update;
-    emit LevelComplete)
+    emit Events.Update;
+    emit Events.LevelComplete)
   else (
     game_state.npuzzles <- game_state.npuzzles - 1;
     match Puzzles.next_puzzle () with
@@ -65,14 +54,14 @@ let load_next () =
         game_state.solved <- false;
         game_state.player_turn <- false;
         game_state.streak <- game_state.streak + 1;
-        emit NewPuzzle;
+        emit Events.NewPuzzle;
         oponent_move ())
 
-let refresh_views () = emit Update
+let refresh_views () = emit Events.Update
 
 let set_streak_ended () =
-  emit Update;
-  emit GameOver
+  emit Events.Update;
+  emit Events.GameOver
 (* ========================================================================= *)
 (* various getters ========================================================= *)
 (* ========================================================================= *)
@@ -98,7 +87,7 @@ let can_pick_piece rank file =
   then
     let pos = current_position () in
     let p = pos.board.(file).(rank) in
-    Chess.Utils.is_a_piece p && Chess.Utils.piece_color p = pos.active_player
+    Chesslib.Utils.is_a_piece p && Chesslib.Utils.piece_color p = pos.active_player
   else false
 
 (* ========================================================================= *)
@@ -111,7 +100,7 @@ let move_bwd () =
       let old_pos = game_state.pos_id_visible
       and new_pos = game_state.pos_id_visible - 1 in
       game_state.pos_id_visible <- new_pos;
-      emit (MoveBackward (old_pos, new_pos))
+      emit (Events.MoveBackward (old_pos, new_pos))
 
 let move_fwd () =
   match game_state.pos_id_visible < game_state.pos_id_reached with
@@ -120,7 +109,7 @@ let move_fwd () =
       let old_pos = game_state.pos_id_visible
       and new_pos = game_state.pos_id_visible + 1 in
       game_state.pos_id_visible <- new_pos;
-      emit (MoveForward (old_pos, new_pos))
+      emit (Events.MoveForward (old_pos, new_pos))
 
 (* ========================================================================= *)
 (* actualy, puzzle logic is pretty small =================================== *)
@@ -132,12 +121,12 @@ let player_move_ok () =
   game_state.pos_id_visible <- game_state.pos_id_reached;
   game_state.player_turn <- false;
 
-  emit (PlayerMove (pos - 1, pos));
+  emit (Events.PlayerMove (pos - 1, pos));
 
   (* maybe an oponent move next *)
   if game_state.pos_id_reached = game_state.pos_id_max then (
     game_state.solved <- true;
-    emit PuzzleSolved;
+    emit Events.PuzzleSolved;
     load_next ())
   else oponent_move ()
 
@@ -156,10 +145,10 @@ let player_move from_r from_f to_r to_f =
           player_move_ok ();
           true)
         else (
-          emit Update;
+          emit Events.Update;
           false)
   else (
-    emit Update;
+    emit Events.Update;
     false)
 
 (* ========================================================================= *)

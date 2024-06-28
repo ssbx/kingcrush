@@ -4,5 +4,5 @@
   (name main)
   (preprocessor_deps log.cppo)
   (preprocess (action (run %{bin:cppo} %{input-file})))
-  (libraries tsdl tsdl-image tsdl-ttf tsdl-mixer chess gamekit))
+  (libraries tsdl tsdl-image tsdl-ttf tsdl-mixer chesslib gamekit))
 

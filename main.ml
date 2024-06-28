@@ -6,6 +6,7 @@ open Gamekit
 let usage_msg = "kingcrush [--disable-anims] [--disable-audio] [--verbose]"
 let with_audio = ref true
 let verbose = ref false
+let test_uci = ref false
 
 let generate_themes_dir : string ref = ref ""
 let with_datadir        : string ref = ref ""
@@ -17,6 +18,7 @@ let speclist =
     ("--with-datadir", Arg.Set_string with_datadir, "Overhide default datadir search");
     ("--disable-audio", Arg.Clear Audio.enabled, "Disable audio");
     ("--verbose", Arg.Set verbose, "For debugging purpose only");
+    ("--test-uci", Arg.Set test_uci, "For debugging purpose only");
   ]
 
 let () =
@@ -25,6 +27,10 @@ let () =
   Info.base_dir := sdl_get_ok (Sdl.get_base_path ());
 
   Arg.parse speclist (fun _ -> ()) usage_msg;
+  if !test_uci then (
+    Chesslib.Uci.test ();
+    exit 0
+  );
 
   if String.length !with_datadir > 0 then Info.base_dir := !with_datadir;
   if String.length !generate_themes_dir > 0 then (

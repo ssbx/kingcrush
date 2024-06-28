@@ -15,7 +15,25 @@ let curr_state : state_t = {
 let to_streak_play () =
   Audio.music_stop ();
   Audio.play Audio.LevelStart;
+  Info.ctrl_set Streak_controller.interface;
+  Info.model_set Streak_model.interface;
   Streak_controller.new_game 1;
+  curr_state.fun_update <- (fun _ -> Board_position.update ());
+  curr_state.fun_event <- (fun e -> Board_position.handle_sdl_event ~event:e);
+  curr_state.fun_draw <- (fun renderer ->
+    Background.draw ~renderer;
+    Board_squares.draw ~renderer;
+    Board_hints.draw ~renderer;
+    Board_position.draw ~renderer;
+    Streak_hud.draw ~renderer
+  )
+
+let to_versus_play () =
+  Audio.music_stop ();
+  Audio.play Audio.LevelStart;
+  Info.ctrl_set Versus_controller.interface;
+  Info.model_set Versus_model.interface;
+  Versus_controller.new_game ();
   curr_state.fun_update <- (fun _ -> Board_position.update ());
   curr_state.fun_event <- (fun e -> Board_position.handle_sdl_event ~event:e);
   curr_state.fun_draw <- (fun renderer ->
@@ -101,21 +119,18 @@ let to_level_over () =
         (fun () -> to_level_info ())))
 
 let handle_streak_event = function
-  | Streak_model.GameOver ->
-      Info.wait_for_events := false;
-    Info.needs_redraw := true;
+  | Events.GameOver ->
     to_level_over ();
     Audio.play Audio.GameOver
-  | Streak_model.LevelComplete ->
-      to_level_over ();
+  | Events.LevelComplete ->
+    to_level_over ();
     Audio.play Audio.LevelComplete
   | e ->
     Board_position.handle_game_event e;
     Streak_hud.handle_game_event e
 
 let handle_versus_event = function
-  | Versus_model.Start -> ()
-  | Versus_model.End -> to_level_over ()
+  | e -> Board_position.handle_game_event e
 
 let handle_sdl_event ~event =
   match sdl_get_evt_typ event with

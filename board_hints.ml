@@ -1,7 +1,7 @@
 open Tsdl
 open Tsdl_image
 open Gamekit
-open Chess
+open Chesslib
 
 #include "log.cppo"
 
@@ -53,7 +53,7 @@ let release () =
 
 let show pos from_x from_y =
   let mat =
-    Chess.Move.get_move_matrix pos.board pos.active_player from_x from_y
+    Chesslib.Move.get_move_matrix pos.board pos.active_player from_x from_y
   in
   let renderer = get_rdr () in
   let img = get_img_tex () in

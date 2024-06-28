@@ -11,12 +11,15 @@ DUNE_ARGS = --prefix=$(prefix) --bindir=$(bindir) \
 
 destdir = _build/$(APPNAME)
 
-.PHONY: default run build clean install uninstall gen_themes
+.PHONY: default run build clean install uninstall gen_themes run_uci_test
 
 default: run
 
 run:
 	dune exec -- $(APPNAME) --with-datadir=$(root)/data
+
+run_uci_test:
+	dune exec -- $(APPNAME) --test-uci
 
 gen_themes:
 	dune exec -- $(APPNAME) --with-datadir=$(root)/data --generate-themes-in=$(root)/data

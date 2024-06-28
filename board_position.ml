@@ -1,14 +1,14 @@
 open Tsdl
 open Gamekit
 open Gamekit.Anims
-open Chess
+open Chesslib
 module I = Info
 
 let anim_time = 100
 let anim_type = Easing.Quintic_out
 
 type drag_t =
-  | BDown of (Chess.piece_t * int * int)
+  | BDown of (Chesslib.piece_t * int * int)
   | BUp of (int * int)
   | BUpCancel
 
@@ -18,7 +18,7 @@ type view_state_t = {
   mutable renderer : Sdl.renderer option;
   mutable pieces_text : Sdl.texture option;
   (* animation things *)
-  mutable position : Chess.position_t;
+  mutable position : Chesslib.position_t;
   mutable anims_queue : Gamekit.Anims.anim_handle_t list;
   mutable anim_piece : Sdl.texture option;
   mutable anim_x : int;
@@ -37,7 +37,7 @@ type view_state_t = {
 
 let view_state =
   {
-    position = Chess.empty_position;
+    position = Chesslib.empty_position;
     renderer = None;
     drag_rect = Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0;
     anim_rect = Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0;
@@ -110,7 +110,7 @@ let play_audio () =
   let curr_id = Info.model.current_position_id () in
   let pos = Info.model.position_at (curr_id - 1) in
   let mv = match pos.mv_next with Some v -> v | None -> assert false in
-  if Chess.Utils.is_a_piece pos.board.(mv.to_x).(mv.to_y) then
+  if Chesslib.Utils.is_a_piece pos.board.(mv.to_x).(mv.to_y) then
     Audio.play Audio.Capture
   else Audio.play Audio.Move
 
@@ -192,7 +192,7 @@ let anim_move from_pos_id to_pos_id =
       and x_src, y_src = square_to_coords mv.from_y mv.from_x
       and x_dst, y_dst = square_to_coords mv.to_y mv.to_x
       and board_end    = to_pos.board
-      and board_start  = Chess.Utils.copy_board from_pos.board in
+      and board_start  = Chesslib.Utils.copy_board from_pos.board in
       board_start.(mv.from_x).(mv.from_y) <- '.';
       (x_src, y_src, x_dst, y_dst, board_start, board_end, piece)
     ) else (
@@ -202,7 +202,7 @@ let anim_move from_pos_id to_pos_id =
       let x_src, y_src = square_to_coords mv.to_y mv.to_x
       and x_dst, y_dst = square_to_coords mv.from_y mv.from_x
       and board_end    = to_pos.board
-      and board_start  = Chess.Utils.copy_board to_pos.board in
+      and board_start  = Chesslib.Utils.copy_board to_pos.board in
       board_start.(mv.from_x).(mv.from_y) <- '.';
       (x_src, y_src, x_dst, y_dst, board_start, board_end, piece)
     )
@@ -218,7 +218,7 @@ let anim_move from_pos_id to_pos_id =
  être utilisé pour plein de basard *)
 let drag_init piece rank file =
   let pos = Info.model.current_position () in
-  let board = Chess.Utils.copy_board pos.board in
+  let board = Chesslib.Utils.copy_board pos.board in
   Board_hints.show pos rank file;
   board.(file).(rank) <- '.';
   view_state.drag_from_rank <- rank;
@@ -313,20 +313,20 @@ let handle_sdl_event ~event =
   | _ -> ()
 
 let handle_game_event = function
-  | Streak_model.NewPuzzle ->
+  | Events.NewPuzzle ->
       update_position ()
-  | Streak_model.PuzzleSolved ->
+  | Events.PuzzleSolved ->
       update_position ();
       Audio.play Audio.PuzzleRushGood
-  | Streak_model.OponentMove (from_pos, to_pos) ->
+  | Events.OponentMove (from_pos, to_pos) ->
       anim_move from_pos to_pos
-  | Streak_model.PlayerMove (_, _) ->
+  | Events.PlayerMove (_, _) ->
       play_audio ();
       update_position ()
-  | Streak_model.Update -> update_position ()
-  | Streak_model.MoveForward (from_pos, to_pos) ->
+  | Events.Update -> update_position ()
+  | Events.MoveForward (from_pos, to_pos) ->
       anim_move from_pos to_pos
-  | Streak_model.MoveBackward (from_pos, to_pos) ->
+  | Events.MoveBackward (from_pos, to_pos) ->
       anim_move from_pos to_pos
   | _ -> ()
 

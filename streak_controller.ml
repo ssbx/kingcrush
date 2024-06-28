@@ -1,4 +1,4 @@
-open Chess
+open Chesslib
 
 let move_forward () = Streak_model.move_fwd ()
 let move_backward () = Streak_model.move_bwd ()
@@ -15,10 +15,9 @@ let player_move from_x from_y to_x to_y =
   else Streak_model.refresh_views ()
 
 
-let interface : Info.controller_if = {
+let interface : Info.ctrl_if = {
   move_forward;
   move_backward;
   can_pick_piece;
-  new_game;
   player_move;
 }
