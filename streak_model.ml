@@ -184,7 +184,8 @@ let init () =
 
 let release () = Puzzles.release ()
 
-let listen f = game_state.views <- game_state.views @ [ f ]
+let register_callback f = game_state.views <- game_state.views @ [ f ]
+let clear_callback () = game_state.views <- []
 
 let generate_themes ~themes_file ~theme_groups_file =
   init ();
@@ -199,4 +200,10 @@ let generate_themes ~themes_file ~theme_groups_file =
   close_out theme_groups_chan;
   release ()
 
+let interface : Info.model_if = {
+  current_position_id;
+  position_at;
+  current_position;
+  player_turn;
+}
 

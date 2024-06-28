@@ -1,5 +1,48 @@
 open Tsdl
 
+type controller_if = {
+  mutable move_forward : (unit -> unit);
+  mutable move_backward : (unit -> unit);
+  mutable can_pick_piece : (int -> int -> bool);
+  mutable new_game : (int -> unit);
+  mutable player_move : (int -> int -> int -> int -> unit);
+}
+
+type model_if = {
+  mutable current_position_id : (unit -> int);
+  mutable position_at : (int -> Chess.position_t);
+  mutable current_position : (unit -> Chess.position_t);
+  mutable player_turn : (unit -> bool);
+}
+
+let model : model_if = {
+  current_position_id = (fun () -> 0);
+  position_at = (fun _ -> Chess.empty_position);
+  current_position = (fun () -> Chess.empty_position);
+  player_turn = (fun () -> false);
+}
+
+let model_set m =
+  model.current_position_id <- m.current_position_id;
+  model.position_at <- m.position_at;
+  model.current_position <- m.current_position;
+  model.player_turn <- m.player_turn
+
+let ctrl = {
+  move_forward = (fun () -> ());
+  move_backward = (fun () -> ());
+  can_pick_piece = (fun _ _ -> false);
+  new_game = (fun _ -> ());
+  player_move = (fun _ _ _ _ -> ());
+}
+
+let ctrl_set i =
+  ctrl.move_forward <- i.move_forward;
+  ctrl.move_backward <- i.move_backward;
+  ctrl.can_pick_piece <- i.can_pick_piece;
+  ctrl.new_game <- i.new_game;
+  ctrl.player_move <- i.player_move
+
 let pref_dir : string ref = ref ""
 let base_dir : string ref = ref ""
 
@@ -8,7 +51,6 @@ let quit_loop : bool ref = ref false
 let pause_redraw : bool ref = ref false
 let needs_redraw : bool ref = ref true
 let with_audio : bool ref = ref true
-let with_anims : bool ref = ref true
 let game_len : int ref = ref 10
 
 let streak_theme : Chess.Puzzles.theme_t ref = ref Chess.Puzzles.AnyTheme

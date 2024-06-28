@@ -12,7 +12,7 @@ let curr_state : state_t = {
   fun_event = (fun _ -> ());
 }
 
-let to_play () =
+let to_streak_play () =
   Audio.music_stop ();
   Audio.play Audio.LevelStart;
   Streak_controller.new_game 1;
@@ -26,7 +26,7 @@ let to_play () =
     Streak_hud.draw ~renderer
   )
 
-let to_menu () =
+let to_streak_menu () =
   Fade.alpha := 255;
   curr_state.fun_update <- (fun _ -> ());
   curr_state.fun_event <- (fun _ -> ());
@@ -43,7 +43,7 @@ let to_menu () =
          if sdl_get_evt_typ e = `Mouse_button_down then (
            if (Menu.handle_sdl_button_down e) = true then (
              curr_state.fun_event <- (fun _ -> ());
-             Fade.fade_out (fun () -> to_play ()))
+             Fade.fade_out (fun () -> to_streak_play ()))
          ) else (
            Menu.handle_sdl_event e
          )
@@ -67,11 +67,11 @@ let to_level_details () =
         curr_state.fun_event <- (fun _ -> ());
         Osd.Level_details.start_anim_out (fun () -> () );
         Timer.fire_in 500 (fun () ->
-          Fade.fade_out (fun () ->  Audio.music_fade_out 1000; to_menu ());
-        )
+          Fade.fade_out (fun () ->  Audio.music_fade_out 1000; to_streak_menu ());
         )
       )
     )
+  )
 
 let to_level_info () =
   curr_state.fun_update <- (fun _ -> ());
@@ -100,7 +100,7 @@ let to_level_over () =
       Osd.Level_over.start_anim_out
         (fun () -> to_level_info ())))
 
-let handle_game_event = function
+let handle_streak_event = function
   | Streak_model.GameOver ->
       Info.wait_for_events := false;
     Info.needs_redraw := true;
@@ -110,9 +110,12 @@ let handle_game_event = function
       to_level_over ();
     Audio.play Audio.LevelComplete
   | e ->
-      Board_position.handle_game_event e;
+    Board_position.handle_game_event e;
     Streak_hud.handle_game_event e
 
+let handle_versus_event = function
+  | Versus_model.Start -> ()
+  | Versus_model.End -> to_level_over ()
 
 let handle_sdl_event ~event =
   match sdl_get_evt_typ event with

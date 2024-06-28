@@ -4,7 +4,6 @@ open Gamekit
 #include "log.cppo"
 
 let usage_msg = "kingcrush [--disable-anims] [--disable-audio] [--verbose]"
-let with_anims = ref true
 let with_audio = ref true
 let verbose = ref false
 
@@ -16,13 +15,11 @@ let speclist =
     ("--generate-themes-in", Arg.Set_string generate_themes_dir,
       "Generate themes.txt and theme_groups.txt in directory argument and quit" );
     ("--with-datadir", Arg.Set_string with_datadir, "Overhide default datadir search");
-    ("--disable-anims", Arg.Clear with_anims, "Disable animations");
     ("--disable-audio", Arg.Clear Audio.enabled, "Disable audio");
     ("--verbose", Arg.Set verbose, "For debugging purpose only");
   ]
 
 let () =
-
 
   Info.pref_dir := sdl_get_ok (Sdl.get_pref_path ~org:"seb" ~app:"kingcrush");
   Info.base_dir := sdl_get_ok (Sdl.get_base_path ());
@@ -46,13 +43,16 @@ let () =
     ~name:"kingcrush" in
 
   Info.with_audio := !with_audio;
-  Info.with_anims := !with_anims;
   Audio.init ();
   Fonts.init ();
   Figures.init ~renderer;
-  Streak_model.listen Machine.handle_game_event;
   Streak_model.init ();
+  Streak_model.register_callback Machine.handle_streak_event;
   Streak_hud.init ~renderer;
+  Info.ctrl_set Streak_controller.interface;
+  Info.model_set Streak_model.interface;
+  Versus_model.init ();
+  Versus_model.register_callback Machine.handle_versus_event;
   Menu.init ~renderer;
   Background.init ~renderer;
   Fade.init ~renderer;
@@ -64,7 +64,7 @@ let () =
   Osd.Level_details.init ~renderer;
   Osd.Level_confirm.init ~renderer;
   Levels.init ();
-  Machine.to_menu ();
+  Machine.to_streak_menu ();
 
   Gamekit.loop
     ~renderer ~vsync:false ~event:(Sdl.Event.create ())

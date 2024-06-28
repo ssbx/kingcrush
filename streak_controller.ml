@@ -13,3 +13,12 @@ let player_move from_x from_y to_x to_y =
     if Streak_model.player_move from_x from_y to_x to_y <> true then
       Streak_model.set_streak_ended ())
   else Streak_model.refresh_views ()
+
+
+let interface : Info.controller_if = {
+  move_forward;
+  move_backward;
+  can_pick_piece;
+  new_game;
+  player_move;
+}

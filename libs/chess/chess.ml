@@ -8,3 +8,4 @@ module Move = Move
 module Uci = Uci
 module Puzzles = Puzzles
 
+let empty_position = Utils.empty_position
