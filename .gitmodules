@@ -1,0 +1,6 @@
+[submodule "libs/gamekit"]
+	path = libs/gamekit
+	url = https://github.com/ssbx/gamekit
+[submodule "libs/chesslib"]
+	path = libs/chesslib
+	url = https://github.com/ssbx/chesslib
