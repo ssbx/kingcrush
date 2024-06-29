@@ -1,0 +1,5 @@
+(library
+ (public_name gamekit)
+ (name gamekit)
+ (libraries tsdl tsdl-mixer))
+
