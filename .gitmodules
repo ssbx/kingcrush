@@ -1,0 +1,6 @@
+[submodule "libs/chesslib"]
+	path = libs/chesslib
+	url = git@github.com:ssbx/chesslib.git
+[submodule "libs/gamekit"]
+	path = libs/gamekit
+	url = git@github.com:ssbx/gamekit.git
