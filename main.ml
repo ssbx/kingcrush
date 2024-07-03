@@ -46,11 +46,12 @@ let () =
     ~h:800
     ~logical_w:Info.Display.logical_w
     ~logical_h:Info.Display.logical_h
-    ~name:"kingcrush" in
+    ~name:"kingcrush"
+    ~font_dir:(Filename.concat !Info.base_dir "fonts")
+  in
 
   Info.with_audio := !with_audio;
   Audio.init ();
-  Fonts.init ();
   Figures.init ~renderer;
   Streak_model.init ();
   Streak_model.register_callback Machine.handle_streak_event;
