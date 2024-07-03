@@ -1,5 +1,44 @@
-todo
-====
+// vim: set filetype=asciidoc
+
+= Documentation
+
+== set up dev env
+
+.Init dev env
+[source, shell]
+----
+git clone git@github.com:ssbx/kingcrush.git
+cd kingcrush
+git submodule update --init --recursive
+make init
+opam switch create 4.14.2
+eval $(opam env)
+opam install --deps-only ./kingcrush.opam
+----
+
+Tester avec ocamlsdl2(ttf-image-mixer) plutot que tsdl.
+*opam list --recursive --required-by=ocamlsdl2* est bien plus light que pour
+tsdl. Inclure tout ce bazard dans gamekit.
+
+==  deployer sur le dépôt Opam principal
+
+Le dernier chapitre principal (le plus haut level présent dans le fichier) du
+fichier CHANGES.md doit contenir la future version de release. C' est utilisé
+par *dune-release tag* pour générer le tag git.
+
+.Release steps
+[source, shell]
+----
+dune-release lint
+dune-release tag
+dune-release check
+dune-release distrib
+dune-release publish
+dune-release opam pkg
+dune-release opam submit
+----
+
+== todo
 
 - système de cadenas de 14 Minesweeper Variants,
 (voir: https://www.youtube.com/watch?v=mT0JaKjnMUE&t=23s )
@@ -240,3 +279,4 @@ ressources opam a voir
 - opam show irrlicht
 - opam show pgsolver (solving parity games: tectonic?)
 - opam show sgf (sauvegarde de parties)
+

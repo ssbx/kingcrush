@@ -11,7 +11,7 @@ DUNE_ARGS = --prefix=$(prefix) --bindir=$(bindir) \
 
 destdir = _build/$(APPNAME)
 
-.PHONY: default run build clean install uninstall gen_themes run_uci_test
+.PHONY: default run build clean install uninstall gen_themes run_uci_test dev_init
 
 default: run
 
@@ -41,6 +41,11 @@ release: install
 clean:
 	rm -f $(APPNAME).$(VERSION).tgz
 	dune clean
+
+kingcrush.opam: dune-project
+	dune build kingcrush.opam
+
+dev_init: data/puzzles.csv kingcrush.opam
 
 # real targets
 data/puzzles.csv: data/puzzles.csv.gz
