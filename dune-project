@@ -1,6 +1,7 @@
 (lang dune 3.5)
 
 (name kingcrush)
+(version 1.0)
 
 (maintainers "seb&seb")
 (authors "seb&seb")
@@ -8,6 +9,8 @@
 (bug_reports "nobugs")
 
 (generate_opam_files true)
+
+(formatting (enabled_for ocaml))
 
 (package
   (name kingcrush)
