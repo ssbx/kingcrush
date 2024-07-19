@@ -1,5 +1,3 @@
-// vim: set filetype=asciidoc
-
 = Documentation
 
 == set up dev env
@@ -20,7 +18,7 @@ Tester avec ocamlsdl2(ttf-image-mixer) plutot que tsdl.
 *opam list --recursive --required-by=ocamlsdl2* est bien plus light que pour
 tsdl. Inclure tout ce bazard dans gamekit.
 
-==  deployer sur le dépôt Opam principal
+== deployer sur le dépôt Opam principal
 
 Le dernier chapitre principal (le plus haut level présent dans le fichier) du
 fichier CHANGES.md doit contenir la future version de release. C' est utilisé
@@ -71,13 +69,6 @@ todo 2
 - voir comment faire des cours sur des thèmes pour que les joueurs s'améliorent
 - voir comment utiliser le système des cartes (anki) pour entrainer le joueur
 
-code organisation
-=================
-
-*_sm.ml: state machine files
-osd_*.ml: on screen display draw and functions
-scr_*.ml: various drawing code
-
 taches gamedev
 ==============
 
@@ -111,9 +102,9 @@ market
 - business admin/accounting taxes
 - platform store admin
 
-## TODO (future)
+== TODO (future)
 
-### modes
+=== modes
 
 - système de points lors de combos (passage de palliers)
 - mini parties de 5-10 puzzles, avec possibilité de gagner 3 étoiles si des
@@ -121,16 +112,16 @@ objectifs tiers sont remplis (vitesse, nombre de points,...?), puis progression
 vers les puzzles suivants
 - proto mode aventure (voir DEV/mode_aventure.md)
 
-### licences
+=== licences
 
 - sounds/musique/pieces
 
-### gui
+=== gui
 
 - dear imgui (req opengl, pas de port ocaml)
 - bogue (ocaml voir code)
 
-### bugs
+=== bugs
 
 - quand plusieurs coups gagnants, seul un fonctionne (multiples mats en un coup)
 - promotion piece: la piece promue est toujours noire
@@ -138,14 +129,14 @@ vers les puzzles suivants
 ne fonctionne pas
 - drag drop: quand le drop est en dehors du board, la piece n'est pas relachée
 
-### amélioration
+=== amélioration
 
-#### choix niveau
+==== choix niveau
 
 choisir un "range" de puzzles: 600-1000, 1000-1200... Plus on va vers des
 problèmes difficile, plus le range est étroit
 
-#### modes de jeux
+==== modes de jeux
 
 - streak (ok)
 - rush (voir lichess), avec effects sur plateau (explosions voir candycrush),
@@ -157,7 +148,7 @@ genre parties simultannées
 ou égale an les "droppant" dans une marmite
 - evaluation rank voir "opam show glicko2"
 
-#### ui
+==== ui
 
 - rendre visible le dernier coup joué (voir comment chesscom ou lichess font)
 - rendre le bazard jouable avec mouse select case-source select case-dest
@@ -167,14 +158,14 @@ mate, mouvement démare lent finit for et déflagration)
 - animer le réseau de couverture de pièces pour un mat, pièces une par une
 couvre les cases, pour finir avec celle qui produit le mat et explosion du roi
 
-#### audio
+==== audio
 
 - trouver son flipper qui claque (psylvariar), voir psygame pour chaque "check"
 et pour "checkmate"
 - (mode points, puzzle rush) une game de note au fur et à mesure que le chain
 grossis
 
-#### visuel
+==== visuel
 
 - lors du passage à un autre puzzle, défilement de plateau vers le bas (on
 grimpe, et/ou animation des pièces qui se positionnent sur leurs cases)
@@ -182,7 +173,7 @@ grimpe, et/ou animation des pièces qui se positionnent sur leurs cases)
 termine par une secouse de l écran
 - des particules par-ci par la
 
-### refacto
+=== refacto
 
 - needs_redraw doit être un compteur
 - revoir fonctionnement position.ml et faire un truc clean avec une queue
@@ -192,7 +183,7 @@ d'evenements.
 janestreet)
 - utiliser une un fichier sexp de conf
 
-### recherche
+=== recherche
 
 - les chess ui / jeux dispo sous linux
 - les chess ui / jeux dispo sur steam
@@ -201,7 +192,7 @@ janestreet)
 
 et faire de celui-ci le plus fun/interactif (animations, secousses, sons)
 
-#### DANS LE FUTUR
+==== DANS LE FUTUR
 
 - score a droite, avec minuteur, et vies si l'on enchaine des combos
 - piece qui doit bouger qui vibre en fin de timer pour aider
@@ -213,7 +204,7 @@ et faire de celui-ci le plus fun/interactif (animations, secousses, sons)
 - sdl3
 - android
 
-#### UCI SERAIT COOL
+==== UCI SERAIT COOL
 
 Pour travailler des fin de parties random, un petit moteur de jeux, sans
 ouvertures, suffit.
@@ -280,3 +271,5 @@ ressources opam a voir
 - opam show pgsolver (solving parity games: tectonic?)
 - opam show sgf (sauvegarde de parties)
 
+
+// vim: set filetype=asciidoc
