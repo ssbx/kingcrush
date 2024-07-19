@@ -37,6 +37,8 @@ uninstall:
 release: install
 	tar -C _build -cz -f $(APPNAME).$(VERSION).tgz $(APPNAME)
 
+dev_install:
+	opam install -v --working-dir ./kingcrush.opam
 
 clean:
 	rm -f $(APPNAME).$(VERSION).tgz

@@ -15,9 +15,8 @@
   (description "some")
 
   (depends
-    (dune (and :build (= 3.5.0)))
-    (cppo (and :build (= 1.6.9)))
-    (ocaml (= 4.14.2))
+    dune
+    ocaml
     (caml-sdl2  (= 1.0))
     (caml-sdl2-mixer (= 1.0))
     (caml-sdl2-image (= 1.0))
