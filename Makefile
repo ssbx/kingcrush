@@ -15,8 +15,8 @@ destdir = _build/$(APPNAME)
 
 default: run
 
-run:
-	dune exec -- $(APPNAME) --with-datadir=$(root)/data
+run: build
+	dune exec -- $(APPNAME) --with-datadir=$(root)/_build/default/data
 
 run_uci_test:
 	dune exec -- $(APPNAME) --test-uci
@@ -24,11 +24,10 @@ run_uci_test:
 gen_themes:
 	dune exec -- $(APPNAME) --with-datadir=$(root)/data --generate-themes-in=$(root)/data
 
-build: data/puzzles.csv
+build:
 	dune build
 
-install: build
-	rm -rf $(destdir)
+install: clean build
 	dune install $(DUNE_ARGS)
 
 uninstall:
@@ -37,20 +36,18 @@ uninstall:
 release: install
 	tar -C _build -cz -f $(APPNAME).$(VERSION).tgz $(APPNAME)
 
-dev_install:
-	opam install -v --working-dir ./kingcrush.opam
-
 clean:
 	rm -f $(APPNAME).$(VERSION).tgz
 	dune clean
 
 fmt:
 	dune build @fmt
+
 kingcrush.opam: dune-project
 	dune build kingcrush.opam
 
-dev_init: data/puzzles.csv kingcrush.opam
+dev_install:
+	opam install -v --working-dir ./kingcrush.opam
 
-# real targets
-data/puzzles.csv: data/puzzles.csv.gz
-	cd data && gzip -dk puzzles.csv.gz
+dev_init: kingcrush.opam
+

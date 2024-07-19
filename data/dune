@@ -11,6 +11,12 @@
   (include anims.sexp)))
 
 (rule
+ (target puzzles.csv)
+ (deps puzzles.csv.gz)
+ (action
+   (system "gzip -dk puzzles.csv.gz")))
+
+(rule
  (deps
   (source_tree images))
  (action
