@@ -15,7 +15,6 @@ let speclist =
     ("--generate-themes-in", Arg.Set_string generate_themes_dir,
       "Generate themes.txt and theme_groups.txt in directory argument and quit" );
     ("--with-datadir", Arg.Set_string with_datadir, "Overhide default datadir search");
-    ("--disable-audio", Arg.Clear Audio.enabled, "Disable audio");
     ("--verbose", Arg.Set verbose, "For debugging purpose only");
     ("--test-uci", Arg.Set test_uci, "For debugging purpose only");
   ]

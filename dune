@@ -1,14 +1,16 @@
 (executable
-  (public_name kingcrush)
-  (modes (native exe))
-  (name main)
-  (preprocessor_deps log.cppo)
-  (preprocess (action (run %{bin:cppo} %{input-file})))
-  (libraries
-    caml-sdl2
-    caml-sdl2-image
-    caml-sdl2-ttf
-    caml-sdl2-mixer
-    chesslib
-    gamekit))
-
+ (public_name kingcrush)
+ (modes
+  (native exe))
+ (name main)
+ (preprocessor_deps log.cppo)
+ (preprocess
+  (action
+   (run %{bin:cppo} %{input-file})))
+ (libraries
+  caml-sdl2
+  caml-sdl2-image
+  caml-sdl2-ttf
+  caml-sdl2-mixer
+  chesslib
+  gamekit))

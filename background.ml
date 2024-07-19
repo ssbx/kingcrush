@@ -34,8 +34,6 @@ let release () =
   bg_tex := None
 
 let draw ~renderer =
-  (*Sdl.Rect.set_h bg_rect rh;
-    Sdl.Rect.set_w bg_rect (Int.of_float ((Float.of_int rh) *. !bg_ratio));*)
   Sdl.render_copy renderer
     ~texture:(get_tex ())
     ~srcrect:None
