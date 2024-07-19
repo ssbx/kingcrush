@@ -1,5 +1,4 @@
-open Tsdl
-open Gamekit
+open CamlSDL2
 
 #include "log.cppo"
 
@@ -23,8 +22,8 @@ let speclist =
 
 let () =
 
-  Info.pref_dir := sdl_get_ok (Sdl.get_pref_path ~org:"seb" ~app:"kingcrush");
-  Info.base_dir := sdl_get_ok (Sdl.get_base_path ());
+  Info.pref_dir := Sdl.get_pref_path ~org:"seb" ~app:"kingcrush";
+  Info.base_dir := Sdl.get_base_path ();
 
   Arg.parse speclist (fun _ -> ()) usage_msg;
   if !test_uci then (
@@ -73,6 +72,7 @@ let () =
   Levels.init ();
   Machine.to_streak_menu ();
 
+  (*
   Gamekit.loop
     ~renderer ~vsync:false ~event:(Sdl.Event.create ())
     ~wait_for_events:Info.wait_for_events
@@ -81,6 +81,14 @@ let () =
     ~handle_event:Machine.handle_sdl_event
     ~handle_update:Machine.update
     ~handle_draw:Machine.draw;
+    *)
+  Gamekit.loop
+    ~renderer ~vsync:false
+    ~quit_loop:Info.quit_loop
+    ~handle_event:Machine.handle_sdl_event
+    ~handle_update:Machine.update
+    ~handle_draw:Machine.draw;
+
 
   Board_position.release ();
   Osd.Level_details.release ();

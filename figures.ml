@@ -1,6 +1,5 @@
-open Tsdl
-open Tsdl_image
-open Gamekit
+open CamlSDL2
+open CamlSDL2_image
 
 let piece_width = 177
 (*let images_dir = Filename.concat (List.nth Data.Sites.pieces 0) "default"*)
@@ -8,44 +7,40 @@ let images_dir : string ref = ref ""
 let get_path v = Filename.concat !images_dir v
 
 type p_type = {
-  bP : Sdl.texture;
-  wP : Sdl.texture;
-  bN : Sdl.texture;
-  wN : Sdl.texture;
-  bB : Sdl.texture;
-  wB : Sdl.texture;
-  bR : Sdl.texture;
-  wR : Sdl.texture;
-  bQ : Sdl.texture;
-  wQ : Sdl.texture;
-  bK : Sdl.texture;
-  wK : Sdl.texture;
+  bP : Sdl.Texture.t;
+  wP : Sdl.Texture.t;
+  bN : Sdl.Texture.t;
+  wN : Sdl.Texture.t;
+  bB : Sdl.Texture.t;
+  wB : Sdl.Texture.t;
+  bR : Sdl.Texture.t;
+  wR : Sdl.Texture.t;
+  bQ : Sdl.Texture.t;
+  wQ : Sdl.Texture.t;
+  bK : Sdl.Texture.t;
+  wK : Sdl.Texture.t;
 }
 
 let db : p_type option ref = ref None
 
-let open_texture renderer filename =
-  sdl_get_ok (Image.load_texture renderer filename)
-
 let init ~renderer =
   images_dir := Filename.(concat (concat !Info.base_dir "pieces") "default");
-  let flags = Image.Init.png in
-  assert (Image.init flags = flags);
+  Img.init [`PNG];
   db :=
     Some
       {
-        bP = open_texture renderer (get_path "bP.png");
-        bN = open_texture renderer (get_path "bN.png");
-        bB = open_texture renderer (get_path "bB.png");
-        bR = open_texture renderer (get_path "bR.png");
-        bQ = open_texture renderer (get_path "bQ.png");
-        bK = open_texture renderer (get_path "bK.png");
-        wP = open_texture renderer (get_path "wP.png");
-        wN = open_texture renderer (get_path "wN.png");
-        wB = open_texture renderer (get_path "wB.png");
-        wR = open_texture renderer (get_path "wR.png");
-        wQ = open_texture renderer (get_path "wQ.png");
-        wK = open_texture renderer (get_path "wK.png");
+        bP = Img.load_texture renderer ~filename:(get_path "bP.png");
+        bN = Img.load_texture renderer ~filename:(get_path "bN.png");
+        bB = Img.load_texture renderer ~filename:(get_path "bB.png");
+        bR = Img.load_texture renderer ~filename:(get_path "bR.png");
+        bQ = Img.load_texture renderer ~filename:(get_path "bQ.png");
+        bK = Img.load_texture renderer ~filename:(get_path "bK.png");
+        wP = Img.load_texture renderer ~filename:(get_path "wP.png");
+        wN = Img.load_texture renderer ~filename:(get_path "wN.png");
+        wB = Img.load_texture renderer ~filename:(get_path "wB.png");
+        wR = Img.load_texture renderer ~filename:(get_path "wR.png");
+        wQ = Img.load_texture renderer ~filename:(get_path "wQ.png");
+        wK = Img.load_texture renderer ~filename:(get_path "wK.png");
       }
 
 let release () =

@@ -1,8 +1,6 @@
-open Tsdl
-open Gamekit
+open CamlSDL2
 open Gamekit.Anims
 open Chesslib
-module I = Info
 
 let anim_time = 100
 let anim_type = Easing.Quintic_out
@@ -15,23 +13,23 @@ type drag_t =
 (* could divide theses states in submodules *)
 type view_state_t = {
   (* renderer things *)
-  mutable renderer : Sdl.renderer option;
-  mutable pieces_text : Sdl.texture option;
+  mutable renderer : Sdl.Renderer.t option;
+  mutable pieces_text : Sdl.Texture.t option;
   (* animation things *)
   mutable position : Chesslib.position_t;
   mutable anims_queue : Gamekit.Anims.anim_handle_t list;
-  mutable anim_piece : Sdl.texture option;
+  mutable anim_piece : Sdl.Texture.t option;
   mutable anim_x : int;
   mutable anim_y : int;
-  anim_rect : Sdl.rect;
+  mutable anim_rect : Sdl.Rect.t;
   (* drag/drap things *)
-  drag_rect : Sdl.rect;
+  mutable drag_rect : Sdl.Rect.t;
   mutable cursor_x : int;
   mutable cursor_y : int;
   mutable drag_queue : drag_t list;
   mutable drag_from_rank : int;
   mutable drag_from_file : int;
-  mutable drag_piece : Sdl.texture option;
+  mutable drag_piece : Sdl.Texture.t option;
   mutable drag_active : bool;
 }
 
@@ -39,8 +37,8 @@ let view_state =
   {
     position = Chesslib.empty_position;
     renderer = None;
-    drag_rect = Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0;
-    anim_rect = Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0;
+    drag_rect = Sdl.Rect.make ~x:0 ~y:0 ~w:0 ~h:0;
+    anim_rect = Sdl.Rect.make ~x:0 ~y:0 ~w:0 ~h:0;
     pieces_text = None;
     cursor_x = 0;
     cursor_y = 0;
@@ -76,31 +74,32 @@ let update_board_texture board_pos =
   let rdr = get_renderer ()
   and tex = get_pieces_text ()
   and pw = Figures.piece_width in
-  sdl_try (Sdl.set_render_target rdr (Some tex));
-  sdl_try (Sdl.set_render_draw_color rdr 0 0 0 0);
-  sdl_try (Sdl.render_clear rdr);
+  Sdl.set_render_target rdr (Some tex);
+  Sdl.set_render_draw_color rdr ~r:0 ~g:0 ~b:0 ~a:0;
+  Sdl.render_clear rdr;
   board_iter_xy
     (fun x y ch ->
       match Figures.piece ch with
       | Some t ->
-          let rect = Sdl.Rect.create ~x:(pw * x) ~y:(pw * y) ~w:pw ~h:pw in
-          sdl_try (Sdl.render_copy ~dst:rect rdr t)
+          let rect = Sdl.Rect.make ~x:(pw * x) ~y:(pw * y) ~w:pw ~h:pw in
+          Sdl.render_copy rdr ~texture:t ~srcrect:None ~dstrect:(Some rect)
       | None -> ())
     board_pos;
-  sdl_try (Sdl.set_render_target rdr None)
+  Sdl.set_render_target rdr None
 
 let init_pieces_texture () =
   let rdr = get_renderer () and bwidth = Figures.piece_width * 8 in
   let tex =
-    sdl_get_ok
-      (Sdl.create_texture rdr Sdl.Pixel.format_rgba8888 ~w:bwidth ~h:bwidth
-         Sdl.Texture.access_target)
+      Sdl.create_texture rdr
+        ~fmt:Sdl.PixelFormat.RGBA8888
+        ~access:Sdl.TextureAccess.Target
+        ~width:bwidth ~height:bwidth
   in
-  sdl_try (Sdl.set_texture_blend_mode tex Sdl.Blend.mode_blend);
-  sdl_try (Sdl.set_render_target rdr (Some tex));
-  sdl_try (Sdl.set_render_draw_color rdr 0 0 0 0);
-  sdl_try (Sdl.render_clear rdr);
-  sdl_try (Sdl.set_render_target rdr None);
+  Sdl.set_texture_blend_mode tex Sdl.BlendMode.SDL_BLENDMODE_BLEND;
+  Sdl.set_render_target rdr (Some tex);
+  Sdl.set_render_draw_color rdr ~r:0 ~g:0 ~b:0 ~a:0;
+  Sdl.render_clear rdr;
+  Sdl.set_render_target rdr None;
   tex
 
 (* ========================================================================= *)
@@ -126,8 +125,8 @@ let update_position () =
 let coords_to_square x y =
   let bw = Info.Display.logical_board_width in
   let pw = bw / 8
-  and bx = Sdl.Rect.x Info.Display.board_rect
-  and by = Sdl.Rect.y Info.Display.board_rect in
+  and bx = Info.Display.board_rect.x
+  and by = Info.Display.board_rect.y in
   if x < bx || x > bx + bw || y < by || y > by + bw then None
   else
     let x_square = (x - bx) / pw and y_square = (y - by) / pw in
@@ -136,8 +135,8 @@ let coords_to_square x y =
 let square_to_coords x y =
   let bw = Info.Display.logical_board_width in
   let pw = bw / 8
-  and bx = Sdl.Rect.x Info.Display.board_rect
-  and by = Sdl.Rect.y Info.Display.board_rect in
+  and bx = Info.Display.board_rect.x
+  and by = Info.Display.board_rect.y in
 
   if x > 7 || y > 7 then failwith "should not !!!!"
   else
@@ -264,20 +263,9 @@ let handle_button1_down x y =
   | Some (rank, file) ->
       if Info.model.player_turn () then
         let piece = view_state.position.board.(file).(rank) in
-        if I.ctrl.can_pick_piece rank file then
+        if Info.ctrl.can_pick_piece rank file then
           if Option.is_none view_state.anim_piece then drag_init piece rank file
           else queue_drag_event (BDown (piece, rank, file))
-
-let handle_mouse_motion event =
-  view_state.cursor_x <- Sdl.Event.(get event mouse_motion_x);
-  view_state.cursor_y <- Sdl.Event.(get event mouse_motion_y)
-
-let handle_mouse_wheel event =
-  if Option.is_none view_state.anim_piece then
-    match Sdl.Event.(get event mouse_wheel_y) with
-    | 1 -> I.ctrl.move_backward ()
-    | -1 -> I.ctrl.move_forward ()
-    | _ -> ()
 
 let handle_button1_up x y =
   Board_hints.clear ();
@@ -292,24 +280,23 @@ let handle_button1_up x y =
         if Option.is_none view_state.anim_piece then (
           view_state.drag_active <- false;
           view_state.drag_piece <- None;
-          I.ctrl.player_move view_state.drag_from_rank
+          Info.ctrl.player_move view_state.drag_from_rank
             view_state.drag_from_file to_rank to_file)
         else queue_drag_event (BUp (to_rank, to_file))
 
-let handle_sdl_event ~event =
-  match Sdl.Event.enum (Sdl.Event.get event Sdl.Event.typ) with
-  | `Mouse_motion -> handle_mouse_motion event
-  | `Mouse_wheel -> handle_mouse_wheel event
-  | `Mouse_button_up ->
-      if Sdl.Event.(get event mouse_button_button) = 1 then
-        let x = Sdl.Event.(get event mouse_button_x)
-        and y = Sdl.Event.(get event mouse_button_y) in
-        handle_button1_up x y
-  | `Mouse_button_down ->
-      if Sdl.Event.(get event mouse_button_button) = 1 then
-        let x = Sdl.Event.(get event mouse_button_x)
-        and y = Sdl.Event.(get event mouse_button_y) in
-        handle_button1_down x y
+
+let handle_sdl_event = function
+  | Sdl.Event.SDL_MOUSEMOTION mm ->
+      view_state.cursor_x <- mm.mm_x;
+      view_state.cursor_y <- mm.mm_y
+  | Sdl.Event.SDL_MOUSEWHEEL mw when mw.mw_y = 1  ->
+      Info.ctrl.move_backward ()
+  | Sdl.Event.SDL_MOUSEWHEEL mw when mw.mw_y = -1 ->
+      Info.ctrl.move_forward ()
+  | Sdl.Event.SDL_MOUSEBUTTONUP mb when mb.mb_button = 1 ->
+      handle_button1_up mb.mb_x mb.mb_y
+  | Sdl.Event.SDL_MOUSEBUTTONDOWN mb when mb.mb_button = 1 ->
+      handle_button1_down mb.mb_x mb.mb_y
   | _ -> ()
 
 let handle_game_event = function
@@ -337,21 +324,28 @@ let handle_game_event = function
 let init ~renderer =
   view_state.renderer <- Some renderer;
   view_state.pieces_text <- Some (init_pieces_texture ());
-  Sdl.Rect.set_w view_state.drag_rect Info.Display.logical_square_width;
-  Sdl.Rect.set_h view_state.drag_rect Info.Display.logical_square_width;
-  Sdl.Rect.set_w view_state.anim_rect Info.Display.logical_square_width;
-  Sdl.Rect.set_h view_state.anim_rect Info.Display.logical_square_width;
+  view_state.drag_rect <- {view_state.drag_rect with
+    w = Info.Display.logical_square_width;
+    h = Info.Display.logical_square_width};
+
+  view_state.anim_rect <- {view_state.anim_rect with
+    w = Info.Display.logical_square_width;
+    h = Info.Display.logical_square_width};
   update_board_texture view_state.position.board
 
 let draw ~renderer =
   let ptext = get_pieces_text () in
-  sdl_try (Sdl.render_copy ~dst:Info.Display.board_rect renderer ptext);
+  Sdl.render_copy renderer ~texture:ptext ~srcrect:None ~dstrect:(Some Info.Display.board_rect);
   (match view_state.anim_piece with
   | None -> ()
   | Some text -> (
-    Sdl.Rect.set_x view_state.anim_rect view_state.anim_x;
-    Sdl.Rect.set_y view_state.anim_rect view_state.anim_y;
-    sdl_try (Sdl.render_copy ~dst:view_state.anim_rect renderer text)));
+    view_state.anim_rect <- {view_state.anim_rect with
+      x = view_state.anim_x;
+      y = view_state.anim_y};
+    Sdl.render_copy renderer
+      ~texture:text
+      ~srcrect:None
+      ~dstrect:(Some view_state.anim_rect)));
   (match (view_state.drag_active, view_state.drag_piece) with
   | false, _ -> ()
   | true, None -> failwith "drag active but no pieces to draw"
@@ -360,9 +354,13 @@ let draw ~renderer =
       let half_ps = ps / 2 in
       let x = view_state.cursor_x - half_ps
       and y = view_state.cursor_y - half_ps in
-      Sdl.Rect.set_x view_state.drag_rect x;
-      Sdl.Rect.set_y view_state.drag_rect y;
-      sdl_try (Sdl.render_copy ~dst:view_state.drag_rect renderer p))
+      view_state.drag_rect <- {view_state.drag_rect with
+        x = x;
+        y = y};
+      Sdl.render_copy renderer
+        ~texture:p
+        ~srcrect:None
+        ~dstrect:(Some view_state.drag_rect))
 
 let update () = ()
 

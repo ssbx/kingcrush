@@ -1,9 +1,10 @@
+open CamlSDL2
 open Gamekit
 
 type state_t = {
   mutable fun_update : int -> unit;
-  mutable fun_draw : Tsdl.Sdl.renderer -> unit;
-  mutable fun_event : Tsdl.Sdl.event -> unit;
+  mutable fun_draw : Sdl.Renderer.t -> unit;
+  mutable fun_event : Sdl.Event.t -> unit;
 }
 
 let curr_state : state_t = {
@@ -19,7 +20,7 @@ let to_streak_play () =
   Info.model_set Streak_model.interface;
   Streak_controller.new_game 1;
   curr_state.fun_update <- (fun _ -> Board_position.update ());
-  curr_state.fun_event <- (fun e -> Board_position.handle_sdl_event ~event:e);
+  curr_state.fun_event <- (fun e -> Board_position.handle_sdl_event e);
   curr_state.fun_draw <- (fun renderer ->
     Background.draw ~renderer;
     Board_squares.draw ~renderer;
@@ -35,7 +36,7 @@ let to_versus_play () =
   Info.model_set Versus_model.interface;
   Versus_controller.new_game ();
   curr_state.fun_update <- (fun _ -> Board_position.update ());
-  curr_state.fun_event <- (fun e -> Board_position.handle_sdl_event ~event:e);
+  curr_state.fun_event <- (fun e -> Board_position.handle_sdl_event e);
   curr_state.fun_draw <- (fun renderer ->
     Background.draw ~renderer;
     Board_squares.draw ~renderer;
@@ -57,14 +58,16 @@ let to_streak_menu () =
     Audio.music_play Audio.MusicCalm;
     Fade.fade_in
       (fun () ->
-       curr_state.fun_event <- (fun e ->
-         if sdl_get_evt_typ e = `Mouse_button_down then (
-           if (Menu.handle_sdl_button_down e) = true then (
+       curr_state.fun_event <- (fun event ->
+         match event with
+         | Sdl.Event.SDL_MOUSEBUTTONDOWN mb_evt ->
+           if (Menu.handle_sdl_button_down mb_evt) = true then (
              curr_state.fun_event <- (fun _ -> ());
-             Fade.fade_out (fun () -> to_streak_play ()))
-         ) else (
-           Menu.handle_sdl_event e
-         )
+             Fade.fade_out (fun () -> to_streak_play ())
+           )
+         | other ->
+           Menu.handle_sdl_event other
+
        )
       )
     )
@@ -80,14 +83,15 @@ let to_level_details () =
     Fade.draw ~renderer);
   Fade.alpha := 0;
   Osd.Level_details.start_anim_in (fun () ->
-    curr_state.fun_event <- (fun e ->
-      if sdl_get_evt_typ e = `Mouse_button_down then (
+    curr_state.fun_event <- (fun event ->
+      match event with
+      | SDL_MOUSEBUTTONDOWN _ ->
         curr_state.fun_event <- (fun _ -> ());
-        Osd.Level_details.start_anim_out (fun () -> () );
+        Osd.Level_details.start_anim_out (fun () -> ());
         Timer.fire_in 500 (fun () ->
           Fade.fade_out (fun () ->  Audio.music_fade_out 1000; to_streak_menu ());
         )
-      )
+      | _ -> ()
     )
   )
 
@@ -132,17 +136,14 @@ let handle_streak_event = function
 let handle_versus_event = function
   | e -> Board_position.handle_game_event e
 
-let handle_sdl_event ~event =
-  match sdl_get_evt_typ event with
-  | `Key_down ->
-      if (sdl_get_evt_scancode event) = `Escape then
+let handle_sdl_event = function
+  | Sdl.Event.SDL_QUIT _ -> Streak_controller.quit ()
+  | Sdl.Event.SDL_WINDOWEVENT _ -> Info.needs_redraw := true
+  | Sdl.Event.SDL_KEYDOWN e ->
+      if (e.scancode = Sdl.Scancode.ESCAPE) then
         Streak_controller.quit ()
-  | `Quit ->
-      Streak_controller.quit ()
-  | `Window_event ->
-      Info.needs_redraw := true
-  | _ ->
-      curr_state.fun_event event
+  | e ->
+      curr_state.fun_event e
 
 let update ~ticks =
   curr_state.fun_update ticks

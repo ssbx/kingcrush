@@ -1,14 +1,13 @@
-open Tsdl
-open Tsdl_image
-open Gamekit
+open CamlSDL2
+open CamlSDL2_image
 open Chesslib
 
 #include "log.cppo"
 
-let img_texture : Sdl.texture option ref = ref None
-let img_rect : Sdl.rect = Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0
-let texture : Sdl.texture option ref = ref None
-let rdr : Sdl.renderer option ref = ref None
+let img_texture : Sdl.Texture.t option ref = ref None
+let img_rect : Sdl.Rect.t ref = ref (Sdl.Rect.make ~x:0 ~y:0 ~w:0 ~h:0)
+let texture : Sdl.Texture.t option ref = ref None
+let rdr : Sdl.Renderer.t option ref = ref None
 
 let get_img_tex () =
   match !img_texture with Some v -> v | None -> LOG_CRASH()
@@ -20,24 +19,23 @@ let psize = ref 0
 let init ~renderer =
   let img = Filename.(concat (concat !Info.base_dir "images") "hint.png") in
   rdr := Some renderer;
-  img_texture := Some (sdl_get_ok (Image.load_texture renderer img));
+  img_texture := Some (Img.load_texture renderer ~filename:img);
   psize := Figures.piece_width;
 
   let bsize = !psize * 8 in
   texture :=
     Some
-      (sdl_get_ok
-         (Sdl.create_texture renderer Sdl.Pixel.format_rgba8888 ~w:bsize
-            ~h:bsize Sdl.Texture.access_target));
-
-  sdl_try (Sdl.set_texture_blend_mode (get_tex ()) Sdl.Blend.mode_blend);
-  Sdl.Rect.set_w img_rect !psize;
-  Sdl.Rect.set_h img_rect !psize;
-  Sdl.Rect.set_x img_rect !psize;
-  sdl_try (Sdl.set_render_target renderer !texture);
-  sdl_try (Sdl.set_render_draw_color renderer 0 0 0 0);
-  sdl_try (Sdl.render_clear renderer);
-  sdl_try (Sdl.set_render_target renderer None)
+         (Sdl.create_texture renderer
+            ~fmt:Sdl.PixelFormat.RGBA8888
+            ~access:Sdl.TextureAccess.Target
+            ~width:bsize
+            ~height:bsize);
+  Sdl.set_texture_blend_mode (get_tex ()) Sdl.BlendMode.SDL_BLENDMODE_BLEND;
+  img_rect := {!img_rect with w = !psize; h = !psize; x = !psize};
+  Sdl.set_render_target renderer !texture;
+  Sdl.set_render_draw_color renderer ~r:0 ~g:0 ~b:0 ~a:0;
+  Sdl.render_clear renderer;
+  Sdl.set_render_target renderer None
 
 let release () =
   match !img_texture with
@@ -57,27 +55,36 @@ let show pos from_x from_y =
   in
   let renderer = get_rdr () in
   let img = get_img_tex () in
-  sdl_try (Sdl.set_render_target renderer !texture);
-  sdl_try (Sdl.set_render_draw_color renderer 0 0 0 0);
-  sdl_try (Sdl.render_clear renderer);
+  Sdl.set_render_target renderer !texture;
+  Sdl.set_render_draw_color renderer ~r:0 ~g:0 ~b:0 ~a:0;
+  Sdl.render_clear renderer;
   Array.iteri
     (fun y l ->
       Array.iteri
         (fun x v ->
-          if v then (
-            Sdl.Rect.set_x img_rect (!psize * x);
-            Sdl.Rect.set_y img_rect (!psize * y);
-            sdl_try (Sdl.render_copy ~dst:img_rect renderer img)))
+            if v then (
+             img_rect := {!img_rect with
+             x = (!psize * x);
+             y = (!psize * y)};
+             Sdl.render_copy renderer
+             ~texture:img
+             ~srcrect:None
+             ~dstrect:(Some !img_rect)
+            )
+          )
         l)
     mat;
-  sdl_try (Sdl.set_render_target renderer None)
+  Sdl.set_render_target renderer None
 
 let clear () =
   let renderer = get_rdr () in
-  sdl_try (Sdl.set_render_target renderer !texture);
-  sdl_try (Sdl.set_render_draw_color renderer 0 0 0 0);
-  sdl_try (Sdl.render_clear renderer);
-  sdl_try (Sdl.set_render_target renderer None)
+  Sdl.set_render_target renderer !texture;
+  Sdl.set_render_draw_color renderer ~r:0 ~g:0 ~b:0 ~a:0;
+  Sdl.render_clear renderer;
+  Sdl.set_render_target renderer None
 
 let draw ~renderer =
-  sdl_try (Sdl.render_copy ~dst:Info.Display.board_rect renderer (get_tex ()))
+  Sdl.render_copy renderer
+    ~texture:(get_tex ())
+    ~srcrect:None
+    ~dstrect:(Some Info.Display.board_rect)
