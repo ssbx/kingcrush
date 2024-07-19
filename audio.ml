@@ -1,7 +1,9 @@
 open CamlSDL2_mixer
 
 let audio_dir : string ref = ref ""
+let music_dir : string ref = ref ""
 let get_path f = Filename.concat !audio_dir f
+let get_mus_path f = Filename.concat !music_dir f
 
 module Sample = struct
   type t =
@@ -90,8 +92,10 @@ module Music = struct
 
   let play mt =
     if Mix.playing_music () then Mix.halt_music ();
-    Mix.play_music (get_music mt) ~loop:0
+    let mus = get_music mt in
+    Mix.fade_in_music mus ~ms:100 ~loops:0
 
+  ;;
   (*
      let music_play mus =
      if !enabled then (
@@ -116,16 +120,22 @@ module Music = struct
     )
     *)
 
+  ;;
+
   let stop () =
     print_endline "mus stop";
     fade_out ~ms:100
 
+  ;;
+
   let init () =
+    Printf.printf "path %s\n" (get_mus_path "Groove.wav");
     musics
     := Some
-         { groove = Mix.load_mus (get_path "MusicGroove.wav")
-         ; calm = Mix.load_mus (get_path "MusicCalm2.wav")
+         { groove = Mix.load_mus (get_mus_path "Groove.ogg")
+         ; calm = Mix.load_mus (get_mus_path "Calm2.ogg")
          }
+
   ;;
 
   let release () =
@@ -136,6 +146,7 @@ end
 
 let init () =
   audio_dir := Filename.concat !Info.base_dir "sounds";
+  music_dir := Filename.concat !Info.base_dir "musics";
   Sample.init ();
   Music.init ()
 ;;

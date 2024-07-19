@@ -43,7 +43,7 @@
   (source_tree musics))
  (action
   (with-stdout-to
-   sounds.sexp
+   musics.sexp
    (system
     "echo '('; for i in musics*.ogg; do echo \"($i as $i)\" ; done; echo ')' "))))
 
