@@ -3,4 +3,6 @@
 /_build
 /data/puzzles.csv
 /kingcrush.opam
+/kingcrush/
+/kingcrush*tgz
 
