@@ -1,7 +1,5 @@
 open CamlSDL2
 
-#include "log.cppo"
-
 let usage_msg = "kingcrush [--disable-anims] [--disable-audio] [--verbose]"
 let with_audio = ref true
 let verbose = ref false

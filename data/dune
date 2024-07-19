@@ -6,7 +6,6 @@
   (include images.sexp)
   (include fonts.sexp)
   (include sounds.sexp)
-  (include musics.sexp)
   (include pieces_default.sexp)
   (include pieces_pixel.sexp)
   (include anims.sexp)))
@@ -37,15 +36,6 @@
    sounds.sexp
    (system
     "echo '('; for i in sounds/*.wav; do echo \"($i as $i)\" ; done; echo ')' "))))
-
-(rule
- (deps
-  (source_tree musics))
- (action
-  (with-stdout-to
-   musics.sexp
-   (system
-    "echo '('; for i in musics*.ogg; do echo \"($i as $i)\" ; done; echo ')' "))))
 
 (rule
  (deps

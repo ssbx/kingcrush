@@ -1,9 +1,7 @@
 open CamlSDL2_mixer
 
 let audio_dir : string ref = ref ""
-let music_dir : string ref = ref ""
 let get_path f = Filename.concat !audio_dir f
-let get_mus_path f = Filename.concat !music_dir f
 
 module Sample = struct
   type t =
@@ -74,9 +72,11 @@ module Music = struct
     | Calm
 
   type musics_t =
-    { groove : Mix.Music.t
-    ; calm : Mix.Music.t
+    { groove : Mix.Chunk.t
+    ; calm : Mix.Chunk.t
     }
+
+  let music_chan : int option ref = ref None
 
   let musics : musics_t option ref = ref None
 
@@ -90,63 +90,46 @@ module Music = struct
 
   ;;
 
-  let play mt =
-    if Mix.playing_music () then Mix.halt_music ();
-    let mus = get_music mt in
-    Mix.fade_in_music mus ~ms:100 ~loops:0
-
-  ;;
-  (*
-     let music_play mus =
-     if !enabled then (
-     match !music_chan with
-     | Some v ->  let _ = Mix.fade_out_channel v 100 in music_chan := None
-     | _ -> ();
-     match Mix.play_channel (-1) (get_sound mus) 0 with
-     | Ok ch -> music_chan := Some ch
-     | Error (`Msg m) -> LOG_FAILWITH(m)
-     )
-  *)
-
-
   let fade_out ~ms =
-    if Mix.playing_music () then (
-      Mix.fade_out_music ~ms
-    )
-    (*
-    if Mix.playing_music () then (
-      if (Mix.fading_music () <> Mix.FadingMusic.FADING_OUT) then (
-      )
-    )
-    *)
+    match !music_chan with
+    | Some chan ->
+      Mix.fade_out_channel ~channel:chan ~ms;
+      music_chan := None
+    | None -> ()
 
   ;;
 
-  let stop () =
-    print_endline "mus stop";
-    fade_out ~ms:100
+  let stop () = fade_out ~ms:100
+
+  ;;
+
+  let play mus =
+    stop ();
+    music_chan := Some (
+      Mix.play_channel_
+        ~channel:(-1)
+        ~chunk:(get_music mus)
+        ~loops:0);
 
   ;;
 
   let init () =
-    Printf.printf "path %s\n" (get_mus_path "Groove.wav");
     musics
     := Some
-         { groove = Mix.load_mus (get_mus_path "Groove.ogg")
-         ; calm = Mix.load_mus (get_mus_path "Calm2.ogg")
+         { groove = Mix.load_wav (get_path "MusicGroove.wav")
+         ; calm = Mix.load_wav (get_path "MusicCalm2.wav")
          }
 
   ;;
 
   let release () =
-    Mix.free_music (get_music Groove);
-    Mix.free_music (get_music Calm)
+    Mix.free_chunk (get_music Groove);
+    Mix.free_chunk (get_music Calm)
   ;;
 end
 
 let init () =
   audio_dir := Filename.concat !Info.base_dir "sounds";
-  music_dir := Filename.concat !Info.base_dir "musics";
   Sample.init ();
   Music.init ()
 ;;

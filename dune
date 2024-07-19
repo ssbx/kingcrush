@@ -3,10 +3,6 @@
  (modes
   (native exe))
  (name main)
- (preprocessor_deps log.cppo)
- (preprocess
-  (action
-   (run %{bin:cppo} %{input-file})))
  (libraries
   caml-sdl2
   caml-sdl2-image

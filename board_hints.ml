@@ -2,7 +2,6 @@ open CamlSDL2
 open CamlSDL2_image
 open Chesslib
 
-#include "log.cppo"
 
 let img_texture : Sdl.Texture.t option ref = ref None
 let img_rect : Sdl.Rect.t ref = ref (Sdl.Rect.make ~x:0 ~y:0 ~w:0 ~h:0)
@@ -10,10 +9,10 @@ let texture : Sdl.Texture.t option ref = ref None
 let rdr : Sdl.Renderer.t option ref = ref None
 
 let get_img_tex () =
-  match !img_texture with Some v -> v | None -> LOG_CRASH()
+  match !img_texture with Some v -> v | None -> failwith "get_img_text"
 
-let get_tex () = match !texture with Some v -> v | None -> LOG_CRASH()
-let get_rdr () = match !rdr with Some v -> v | None -> LOG_CRASH()
+let get_tex () = match !texture with Some v -> v | None -> failwith "get_tex"
+let get_rdr () = match !rdr with Some v -> v | None -> failwith "get_rdr"
 let psize = ref 0
 
 let init ~renderer =

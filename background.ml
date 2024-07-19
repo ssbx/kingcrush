@@ -1,12 +1,11 @@
 open CamlSDL2
 open CamlSDL2_image
 
-#include "log.cppo"
 
 let bg_tex  : Sdl.Texture.t option ref = ref None
 let bg_rect : Sdl.Rect.t ref = ref (Sdl.Rect.make ~x:0 ~y:0 ~w:0 ~h:0)
 
-let get_tex () = match !bg_tex with Some v -> v | None -> LOG_CRASH()
+let get_tex () = match !bg_tex with Some v -> v | None -> failwith "get_tex"
 
 let init ~renderer =
   let filename =
