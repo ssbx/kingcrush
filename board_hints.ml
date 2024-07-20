@@ -29,7 +29,7 @@ let init ~renderer =
             ~access:Sdl.TextureAccess.Target
             ~width:bsize
             ~height:bsize);
-  Sdl.set_texture_blend_mode (get_tex ()) Sdl.BlendMode.SDL_BLENDMODE_BLEND;
+  Sdl.set_texture_blend_mode (get_tex ()) Sdl.BlendMode.BLEND;
   img_rect := {!img_rect with w = !psize; h = !psize; x = !psize};
   Sdl.set_render_target renderer !texture;
   Sdl.set_render_draw_color renderer ~r:0 ~g:0 ~b:0 ~a:0;

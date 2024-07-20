@@ -79,7 +79,7 @@ let init ~renderer =
       ~width:!list_width
       ~height:!list_height
   in
-  Sdl.set_texture_blend_mode t Sdl.BlendMode.SDL_BLENDMODE_BLEND;
+  Sdl.set_texture_blend_mode t Sdl.BlendMode.BLEND;
   rect := Sdl.Rect.make ~x:span ~y:span ~w:!list_width ~h:!list_height;
   Sdl.set_render_target renderer (Some t);
   Sdl.set_render_draw_color renderer ~r:0 ~g:0 ~b:0 ~a:50;
@@ -96,7 +96,7 @@ let init ~renderer =
       ~height:th
   in
   hl_rect := Sdl.Rect.make ~x:span ~y:(span + span2) ~w:!list_width ~h:th;
-  Sdl.set_texture_blend_mode hl Sdl.BlendMode.SDL_BLENDMODE_BLEND;
+  Sdl.set_texture_blend_mode hl Sdl.BlendMode.BLEND;
   Sdl.set_render_target renderer (Some hl);
   Sdl.set_render_draw_color renderer ~r:255 ~g:0 ~b:0 ~a:50;
   Sdl.render_clear renderer;

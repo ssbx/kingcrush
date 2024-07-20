@@ -104,7 +104,7 @@ let init_pieces_texture () =
       ~width:bwidth
       ~height:bwidth
   in
-  Sdl.set_texture_blend_mode tex Sdl.BlendMode.SDL_BLENDMODE_BLEND;
+  Sdl.set_texture_blend_mode tex Sdl.BlendMode.BLEND;
   Sdl.set_render_target rdr (Some tex);
   Sdl.set_render_draw_color rdr ~r:0 ~g:0 ~b:0 ~a:0;
   Sdl.render_clear rdr;

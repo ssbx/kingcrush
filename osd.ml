@@ -40,15 +40,10 @@ module Level_over = struct
        };
     let bg_w = !rect.w
     and bg_h = !rect.h in
-    bg_tex
-    := Some
-         (Sdl.create_texture
-            renderer
-            ~fmt:Sdl.PixelFormat.RGBA8888
-            ~access:Sdl.TextureAccess.Target
-            ~width:bg_w
-            ~height:bg_h);
-    Sdl.set_texture_blend_mode (get_bg_tex ()) Sdl.BlendMode.SDL_BLENDMODE_BLEND;
+    let t = Texture2D.create ~width:bg_w ~height:bg_h () in
+    (*Texture2D.clear t {r=0;g=0;b=0;a=255};*)
+    bg_tex := Some t;
+    Sdl.set_texture_blend_mode (get_bg_tex ()) Sdl.BlendMode.BLEND;
     Sdl.set_render_target renderer (Some (get_bg_tex ()));
     Sdl.set_render_draw_color renderer ~r:0 ~g:0 ~b:0 ~a:100;
     Sdl.render_clear renderer;
@@ -158,7 +153,7 @@ module Level_info = struct
             ~access:Sdl.TextureAccess.Target
             ~width:bg_w
             ~height:bg_h);
-    Sdl.set_texture_blend_mode (get_bg_tex ()) Sdl.BlendMode.SDL_BLENDMODE_BLEND;
+    Sdl.set_texture_blend_mode (get_bg_tex ()) Sdl.BlendMode.BLEND;
     Sdl.set_render_target renderer (Some (get_bg_tex ()));
     Sdl.set_render_draw_color renderer ~r:0 ~g:0 ~b:0 ~a:100;
     Sdl.render_clear renderer;
@@ -268,7 +263,7 @@ module Level_details = struct
             ~access:Sdl.TextureAccess.Target
             ~width:bg_w
             ~height:bg_h);
-    Sdl.set_texture_blend_mode (get_bg_tex ()) Sdl.BlendMode.SDL_BLENDMODE_BLEND;
+    Sdl.set_texture_blend_mode (get_bg_tex ()) Sdl.BlendMode.BLEND;
     Sdl.set_render_target renderer (Some (get_bg_tex ()));
     Sdl.set_render_draw_color renderer ~r:0 ~g:0 ~b:0 ~a:100;
     Sdl.render_clear renderer;
@@ -379,7 +374,7 @@ module Level_confirm = struct
             ~access:Sdl.TextureAccess.Target
             ~width:bg_w
             ~height:bg_h);
-    Sdl.set_texture_blend_mode (get_bg_tex ()) Sdl.BlendMode.SDL_BLENDMODE_BLEND;
+    Sdl.set_texture_blend_mode (get_bg_tex ()) Sdl.BlendMode.BLEND;
     Sdl.set_render_target renderer (Some (get_bg_tex ()));
     Sdl.set_render_draw_color renderer ~r:0 ~g:0 ~b:0 ~a:100;
     Sdl.render_clear renderer;

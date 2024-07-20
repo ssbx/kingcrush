@@ -16,7 +16,7 @@ let to_streak_play () =
   Audio.Sample.play Audio.Sample.LevelStart;
   Info.ctrl_set Streak_controller.interface;
   Info.model_set Streak_model.interface;
-  Streak_controller.new_game 1;
+  Streak_controller.new_game 100;
   curr_state.fun_update <- (fun _ -> Board_position.update ());
   curr_state.fun_event <- (fun e -> Board_position.handle_sdl_event e);
   curr_state.fun_draw

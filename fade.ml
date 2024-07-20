@@ -24,7 +24,7 @@ let init ~renderer =
       ~width:Info.Display.logical_w
       ~height:Info.Display.logical_h
   in
-  Sdl.set_texture_blend_mode texture Sdl.BlendMode.SDL_BLENDMODE_BLEND;
+  Sdl.set_texture_blend_mode texture Sdl.BlendMode.BLEND;
   Sdl.set_render_target renderer (Some texture);
   Sdl.set_render_draw_color renderer ~r:0 ~g:0 ~b:0 ~a:255;
   Sdl.render_clear renderer;

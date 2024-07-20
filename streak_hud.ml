@@ -73,7 +73,7 @@ let init ~renderer =
       ~width:100
       ~height:100
   in
-  Sdl.set_texture_blend_mode texture Sdl.BlendMode.SDL_BLENDMODE_BLEND;
+  Sdl.set_texture_blend_mode texture Sdl.BlendMode.BLEND;
   Sdl.set_render_target renderer (Some texture);
   Sdl.set_render_draw_color renderer ~r:100 ~g:100 ~b:100 ~a:155;
   Sdl.render_clear renderer;

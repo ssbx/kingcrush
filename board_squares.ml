@@ -26,7 +26,7 @@ let init ~renderer =
   and rectangle = ref (Sdl.Rect.make ~x:0 ~y:0 ~w:psize ~h:psize)
   and br, bg, bb, ba = black_square_color
   and wr, wg, wb, wa = white_square_color in
-  Sdl.set_texture_blend_mode texture Sdl.BlendMode.SDL_BLENDMODE_BLEND;
+  Sdl.set_texture_blend_mode texture Sdl.BlendMode.BLEND;
   Sdl.set_render_target renderer (Some texture);
   Sdl.set_render_draw_color renderer ~r:br ~g:bg ~b:bb ~a:ba;
   Sdl.render_clear renderer;
