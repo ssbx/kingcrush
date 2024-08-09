@@ -28,23 +28,6 @@ let to_streak_play () =
        Streak_hud.draw ~renderer)
 ;;
 
-let to_versus_play () =
-  Audio.Music.stop ();
-  Audio.Sample.play Audio.Sample.LevelStart;
-  Info.ctrl_set Versus_controller.interface;
-  Info.model_set Versus_model.interface;
-  Versus_controller.new_game ();
-  curr_state.fun_update <- (fun _ -> Board_position.update ());
-  curr_state.fun_event <- (fun e -> Board_position.handle_sdl_event e);
-  curr_state.fun_draw
-  <- (fun renderer ->
-       Background.draw ~renderer;
-       Board_squares.draw ~renderer;
-       Board_hints.draw ~renderer;
-       Board_position.draw ~renderer;
-       Streak_hud.draw ~renderer)
-;;
-
 let to_streak_menu () =
   Fade.alpha := 255;
   curr_state.fun_update <- (fun _ -> ());
@@ -133,10 +116,6 @@ let handle_streak_event = function
   | e ->
     Board_position.handle_game_event e;
     Streak_hud.handle_game_event e
-;;
-
-let handle_versus_event = function
-  | e -> Board_position.handle_game_event e
 ;;
 
 let handle_sdl_event = function

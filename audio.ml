@@ -66,7 +66,6 @@ module Sample = struct
 end
 
 module Music = struct
-
   type t =
     | Groove
     | Calm
@@ -77,7 +76,6 @@ module Music = struct
     }
 
   let music_chan : int option ref = ref None
-
   let musics : musics_t option ref = ref None
 
   let get_music (mt : t) =
@@ -86,8 +84,7 @@ module Music = struct
     | Some mus ->
       (match mt with
        | Groove -> mus.groove
-       | Calm   -> mus.calm)
-
+       | Calm -> mus.calm)
   ;;
 
   let fade_out ~ms =
@@ -96,21 +93,13 @@ module Music = struct
       Mix.fade_out_channel ~channel:chan ~ms;
       music_chan := None
     | None -> ()
-
   ;;
 
   let stop () = fade_out ~ms:100
 
-  ;;
-
   let play mus =
     stop ();
-    music_chan := Some (
-      Mix.play_channel_
-        ~channel:(-1)
-        ~chunk:(get_music mus)
-        ~loops:0);
-
+    music_chan := Some (Mix.play_channel_ ~channel:(-1) ~chunk:(get_music mus) ~loops:0)
   ;;
 
   let init () =
@@ -119,7 +108,6 @@ module Music = struct
          { groove = Mix.load_wav (get_path "MusicGroove.wav")
          ; calm = Mix.load_wav (get_path "MusicCalm2.wav")
          }
-
   ;;
 
   let release () =

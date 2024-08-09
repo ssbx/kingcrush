@@ -182,6 +182,7 @@ d'evenements.
 - utiliser une lib ou un module pour le log (voir dolog, ou ce qu'utilise
 janestreet)
 - utiliser une un fichier sexp de conf
+- les structs osd qui bougent pourraient être un "component type"
 
 === recherche
 
