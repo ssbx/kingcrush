@@ -1,0 +1,8 @@
+(executable
+  (public_name kingcrush)
+  (modes (native exe))
+  (name main)
+  (preprocessor_deps log.cppo)
+  (preprocess (action (run %{bin:cppo} %{input-file})))
+  (libraries tsdl tsdl-image tsdl-ttf tsdl-mixer chess gamekit))
+

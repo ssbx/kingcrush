@@ -1,0 +1,242 @@
+todo
+====
+
+- système de cadenas de 14 Minesweeper Variants,
+(voir: https://www.youtube.com/watch?v=mT0JaKjnMUE&t=23s )
+Comprendre les signes:
++' = 2 règles à la fois
+#' = 1 regle par chiffre, indiqué sur la case
++'#' = 2 règles à la fois, par indice
+
+- système custom color/config de 14 Minesweeper Variants,
+
+
+- effets sur le board:
+ . piece prise (explosions? + son)
+ . check (visuel + son)
+ . shake screen ...
+ . particules: feu artifices, confetis
+
+- effets sur le level success concecutifs, bonus resolution temps
+
+- utiliser SDL_GetBasePath (executable), plutot que dune-site
+- voir les dependences de l'executable et la portabilité sur des vm linux
+et windows
+
+
+
+todo 2
+======
+
+- voir comment fonctionne le mouvement de pièces à l'avance chez chess.com
+- voir comment faire des cours sur des thèmes pour que les joueurs s'améliorent
+- voir comment utiliser le système des cartes (anki) pour entrainer le joueur
+
+code organisation
+=================
+
+*_sm.ml: state machine files
+osd_*.ml: on screen display draw and functions
+scr_*.ml: various drawing code
+
+taches gamedev
+==============
+
+(depuis: https://www.youtube.com/watch?v=sGo-gDAN8S8 )
+
+programming
+-----------
+- system design
+- system programming
+- level design/mapping
+- content programming
+- bugfix
+- optimisation
+- porting
+
+arts
+----
+- technical artist
+- content design
+- 2d/3d artist
+- writting
+- audio
+
+market
+------
+- recherche marketing
+- contenu marketing
+- community/social media
+- playtesting
+- screenshos/trailers
+- business admin/accounting taxes
+- platform store admin
+
+## TODO (future)
+
+### modes
+
+- système de points lors de combos (passage de palliers)
+- mini parties de 5-10 puzzles, avec possibilité de gagner 3 étoiles si des
+objectifs tiers sont remplis (vitesse, nombre de points,...?), puis progression
+vers les puzzles suivants
+- proto mode aventure (voir DEV/mode_aventure.md)
+
+### licences
+
+- sounds/musique/pieces
+
+### gui
+
+- dear imgui (req opengl, pas de port ocaml)
+- bogue (ocaml voir code)
+
+### bugs
+
+- quand plusieurs coups gagnants, seul un fonctionne (multiples mats en un coup)
+- promotion piece: la piece promue est toujours noire
+- selectionner une piece en même temps que le focus est acquis par la fenêtre
+ne fonctionne pas
+- drag drop: quand le drop est en dehors du board, la piece n'est pas relachée
+
+### amélioration
+
+#### choix niveau
+
+choisir un "range" de puzzles: 600-1000, 1000-1200... Plus on va vers des
+problèmes difficile, plus le range est étroit
+
+#### modes de jeux
+
+- streak (ok)
+- rush (voir lichess), avec effects sur plateau (explosions voir candycrush),
+effets sur score et remplissage barre de temps (voir bullet hell shmups), et
+effects barre de temps inspiré psychess
+- un autre avec une grille contenant plusieurs (10-20) positions, à résoudre
+genre parties simultannées
+- evaluation de positions, déterminer si la position est gagnante, perdante
+ou égale an les "droppant" dans une marmite
+- evaluation rank voir "opam show glicko2"
+
+#### ui
+
+- rendre visible le dernier coup joué (voir comment chesscom ou lichess font)
+- rendre le bazard jouable avec mouse select case-source select case-dest
+- animer le mouvement du joueur aussi, avec des variations (quand dernier coup
+mate, mouvement démare lent finit for et déflagration)
+- animer les cases de possibles d'une pièce (enflamées)
+- animer le réseau de couverture de pièces pour un mat, pièces une par une
+couvre les cases, pour finir avec celle qui produit le mat et explosion du roi
+
+#### audio
+
+- trouver son flipper qui claque (psylvariar), voir psygame pour chaque "check"
+et pour "checkmate"
+- (mode points, puzzle rush) une game de note au fur et à mesure que le chain
+grossis
+
+#### visuel
+
+- lors du passage à un autre puzzle, défilement de plateau vers le bas (on
+grimpe, et/ou animation des pièces qui se positionnent sur leurs cases)
+- lors d'un passage de niveau "chain", une barre démare (easInCubic) et se
+termine par une secouse de l écran
+- des particules par-ci par la
+
+### refacto
+
+- needs_redraw doit être un compteur
+- revoir fonctionnement position.ml et faire un truc clean avec une queue
+d'evenements.
+- changer l'axe board de y à x pour etre cohérent avec opengl:
+- utiliser une lib ou un module pour le log (voir dolog, ou ce qu'utilise
+janestreet)
+- utiliser une un fichier sexp de conf
+
+### recherche
+
+- les chess ui / jeux dispo sous linux
+- les chess ui / jeux dispo sur steam
+- les chess ui chess.com (voir ce qu'ils font pour les kids)
+- voir anims sur jeux "casuals" (fishdom,...)
+
+et faire de celui-ci le plus fun/interactif (animations, secousses, sons)
+
+#### DANS LE FUTUR
+
+- score a droite, avec minuteur, et vies si l'on enchaine des combos
+- piece qui doit bouger qui vibre en fin de timer pour aider
+- sons victoire/perdu/problème reussit/bon coup/mauvais coup/
+- bouton quiter/interrompre/recommencer
+- affichage victoire! / perdu!
+- problèmes par thèmes
+- splash screen
+- sdl3
+- android
+
+#### UCI SERAIT COOL
+
+Pour travailler des fin de parties random, un petit moteur de jeux, sans
+ouvertures, suffit.
+
+- interface uci
+- voir embedables engines:
+    - stockfish (https://github.com/peterosterlund2/droidfish),
+    - fruit,
+    - glaurung,
+    - toga2,
+    - gaviotatb,
+    - crafty
+
+
+marketing
+=========
+
+Présentation gameplay + discours honête de moi même pour présenter le jeux
+et souhaiter que les joueurs façonnent les future releases
+
+mode aventure
+=============
+
+Progresser aux echecs doit être le but ici
+
+aventure
+========
+
+carte
+-----
+
+Le progres est représenté par des noeuds representant des étapes. Chaque étape
+correspond à un thème de problème. Le joueur a parfois deux chemins pour
+progresser, ou à l'inverse, doit acomplir plusieurs étapes pour débloquer la
+suivante. Visuellement, comme ça:
+
+     ---B----            F
+A ---        ----D---E---G  --I-- ...
+     ---C----            H
+
+Les puzzles dans chaque étape, sont de difficulté croissante, mais encadrés
+(par exemple 1200-1400). Les thèmes sont donnés la plupars du temps, sauf étapes
+spéciales. Voir si il s'agit de puzzle streak, ou puzzle storm (voir lichess).
+
+voir mode_aventure.odg
+
+
+badges
+------
+
+Un classique, trois badges par étapes si l'on veut finir à 100% le jeux.
+
+jeux
+====
+
+- simple puzzle (puzzle streak)
+- puzzle vs (voir ./design/mode_versus.png)
+- vs game (fin de parties, faire nul ou gagner la fin de partie)
+
+ressources opam a voir
+======================
+
+- opam show irrlicht
+- opam show pgsolver (solving parity games: tectonic?)
+- opam show sgf (sauvegarde de parties)
