@@ -27,8 +27,8 @@ let to_streak_play () =
   curr_state.fun_event <- (fun e -> Board_position.handle_sdl_event ~event:e);
   curr_state.fun_draw <- (fun renderer ->
     Background.draw ~renderer;
-    Board_squares.draw ~renderer;
-    Board_hints.draw ~renderer;
+    Board.Squares.draw ~renderer;
+    Board.Hints.draw ~renderer;
     Board_position.draw ~renderer;
     Streak_hud.draw ~renderer
   )
@@ -63,7 +63,7 @@ let to_level_details () =
   curr_state.fun_event <- (fun _ -> ());
   curr_state.fun_draw <- (fun renderer ->
     Background.draw ~renderer;
-    Board_squares.draw ~renderer;
+    Board.Squares.draw ~renderer;
     Board_position.draw ~renderer;
     Osd.Level_details.draw ~renderer;
     Fade.draw ~renderer);
@@ -85,7 +85,7 @@ let to_level_info () =
   curr_state.fun_event <- (fun _ -> ());
   curr_state.fun_draw <- (fun renderer ->
     Background.draw ~renderer;
-    Board_squares.draw ~renderer;
+    Board.Squares.draw ~renderer;
     Board_position.draw ~renderer;
     Osd.Level_info.draw ~renderer);
   Osd.Level_info.start_anim_in (fun () ->
@@ -96,7 +96,7 @@ let to_level_info () =
 let to_level_over () =
   curr_state.fun_draw <- (fun renderer ->
     Background.draw ~renderer;
-    Board_squares.draw ~renderer;
+    Board.Squares.draw ~renderer;
     Board_position.draw ~renderer;
     Osd.Level_over.draw ~renderer);
   curr_state.fun_update <- (fun _ -> ());

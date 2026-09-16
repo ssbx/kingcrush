@@ -62,8 +62,8 @@ let () =
   Background.init ~renderer;
   Fade.init ~renderer;
   Board_position.init ~renderer;
-  Board_squares.init ~renderer;
-  Board_hints.init ~renderer;
+  Board.Squares.init ~renderer;
+  Board.Hints.init ~renderer;
   Osd.Level_over.init ~renderer;
   Osd.Level_info.init ~renderer;
   Osd.Level_details.init ~renderer;
@@ -87,8 +87,8 @@ let () =
   Osd.Level_over.release ();
   Osd.Level_confirm.release ();
   Fade.release ();
-  Board_hints.release ();
-  Board_squares.release ();
+  Board.Hints.release ();
+  Board.Squares.release ();
   Streak_model.release ();
   Streak_hud.release ();
   Menu.release ();

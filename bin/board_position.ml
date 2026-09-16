@@ -3,6 +3,7 @@ open Gamekit
 open Gamekit.Anims
 open Chess
 open Ressources
+
 module I = Info
 
 let anim_time = 100
@@ -220,7 +221,7 @@ let anim_move from_pos_id to_pos_id =
 let drag_init piece rank file =
   let pos = Info.model.current_position () in
   let board = Chess.Utils.copy_board pos.board in
-  Board_hints.show pos rank file;
+  Board.Hints.show pos rank file;
   board.(file).(rank) <- '.';
   view_state.drag_from_rank <- rank;
   view_state.drag_from_file <- file;
@@ -240,7 +241,7 @@ let rec update_pick () =
         view_state.drag_active <- false;
         view_state.drag_piece <- None;
         view_state.drag_queue <- t;
-        Board_hints.clear ();
+        Board.Hints.clear ();
         Info.ctrl.player_move view_state.drag_from_rank
           view_state.drag_from_file to_r to_f);
       update_pick ()
@@ -248,7 +249,7 @@ let rec update_pick () =
       view_state.drag_active <- false;
       view_state.drag_piece <- None;
       view_state.drag_queue <- t;
-      Board_hints.clear ();
+      Board.Hints.clear ();
       update_board_texture (Info.model.current_position ()).board;
       update_pick ()
 
@@ -281,7 +282,7 @@ let handle_mouse_wheel event =
     | _ -> ()
 
 let handle_button1_up x y =
-  Board_hints.clear ();
+  Board.Hints.clear ();
   match coords_to_square x y with
   | None ->
       view_state.drag_active <- false;
