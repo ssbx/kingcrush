@@ -1,5 +1,5 @@
 open Tsdl
-open Gamekit
+open Utils
 open Ressources
 open Chess
 

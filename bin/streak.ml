@@ -1,6 +1,6 @@
-open Chess
 open Tsdl
-open Gamekit
+open Utils
+open Chess
 open Ressources
 
 module Model = struct
@@ -85,7 +85,7 @@ module Model = struct
   let position_at n =
     if n >= 0 && n <= game_state.pos_id_max then
       List.nth game_state.puzzle.positions n
-    else failwith "bad index arg for position_at"
+    else assert false
 
   let current_position () = position_at game_state.pos_id_visible
   let current_position_id () = game_state.pos_id_visible
@@ -103,7 +103,7 @@ module Model = struct
     then
       let pos = current_position () in
       let p = pos.board.(file).(rank) in
-      Chess.Utils.is_a_piece p && Chess.Utils.piece_color p = pos.active_player
+      Chess.is_a_piece p && Chess.piece_color p = pos.active_player
     else false
 
   (* ========================================================================= *)
@@ -244,7 +244,7 @@ module Hud = struct
       Sdl.Rect.set_w score_rect w;
       Sdl.Rect.set_h score_rect h;
       match Sdl.create_texture_from_surface renderer surf with
-      | Error (`Msg e) -> failwith e
+      | Error (`Msg _) -> assert false
       | Ok t ->
           Sdl.free_surface surf;
           t
@@ -255,7 +255,7 @@ module Hud = struct
       Sdl.Rect.set_w rating_rect w;
       Sdl.Rect.set_h rating_rect h;
       match Sdl.create_texture_from_surface renderer surf with
-      | Error (`Msg e) -> failwith e
+      | Error (`Msg _) -> assert false
       | Ok t ->
           Sdl.free_surface surf;
           t

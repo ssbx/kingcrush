@@ -1,7 +1,7 @@
 
 open Tsdl
-open Gamekit
 open Ressources
+open Utils
 
 module Machine = struct
 
@@ -38,23 +38,23 @@ module Machine = struct
     )
 
   let to_streak_menu () =
-    Utils.Fade.alpha := 255;
+    Fade.alpha := 255;
     curr_state.fun_update <- (fun _ -> ());
     curr_state.fun_event <- (fun _ -> ());
     curr_state.fun_draw <- (fun renderer ->
       Utils.Background.draw ~renderer;
       Ui.Menu.draw ~renderer;
-      Utils.Fade.draw ~renderer);
+      Fade.draw ~renderer);
     Audio.music_fade_out 700;
     Timer.fire_in 500 (fun () ->
       Audio.music_play Audio.MusicCalm;
-      Utils.Fade.fade_in
+      Fade.fade_in
         (fun () ->
          curr_state.fun_event <- (fun e ->
            if sdl_get_evt_typ e = `Mouse_button_down then (
              if (Ui.Menu.handle_sdl_button_down e) = true then (
                curr_state.fun_event <- (fun _ -> ());
-               Utils.Fade.fade_out (fun () -> to_streak_play ()))
+               Fade.fade_out (fun () -> to_streak_play ()))
            ) else (
              Ui.Menu.handle_sdl_event e
            )
@@ -70,15 +70,15 @@ module Machine = struct
       Board.Squares.draw ~renderer;
       Board.Position.draw ~renderer;
       Ui.Level_details.draw ~renderer;
-      Utils.Fade.draw ~renderer);
-    Utils.Fade.alpha := 0;
+      Fade.draw ~renderer);
+    Fade.alpha := 0;
     Ui.Level_details.start_anim_in (fun () ->
       curr_state.fun_event <- (fun e ->
         if sdl_get_evt_typ e = `Mouse_button_down then (
           curr_state.fun_event <- (fun _ -> ());
           Ui.Level_details.start_anim_out (fun () -> () );
           Timer.fire_in 500 (fun () ->
-            Utils.Fade.fade_out (fun () ->  Audio.music_fade_out 1000; to_streak_menu ());
+            Fade.fade_out (fun () ->  Audio.music_fade_out 1000; to_streak_menu ());
           )
         )
       )
@@ -182,7 +182,7 @@ let () =
   );
 
 
-  let (window, renderer) = Gamekit.init
+  let (window, renderer) = Loop.init
     ~w:1200
     ~h:800
     ~logical_w:Conf.Display.logical_w
@@ -200,7 +200,7 @@ let () =
   Conf.model_set Streak.Model.interface;
   Ui.Menu.init ~renderer;
   Utils.Background.init ~renderer;
-  Utils.Fade.init ~renderer;
+  Fade.init ~renderer;
   Board.Position.init ~renderer;
   Board.Squares.init ~renderer;
   Board.Hints.init ~renderer;
@@ -212,7 +212,7 @@ let () =
   Machine.set_num_puzzles 5;
   Machine.to_streak_menu ();
 
-  Gamekit.loop
+  Loop.loop
     ~renderer ~vsync:false ~event:(Sdl.Event.create ())
     ~wait_for_events:Conf.wait_for_events
     ~needs_redraw:Conf.needs_redraw
@@ -226,7 +226,7 @@ let () =
   Ui.Level_info.release ();
   Ui.Level_over.release ();
   Ui.Level_confirm.release ();
-  Utils.Fade.release ();
+  Fade.release ();
   Board.Hints.release ();
   Board.Squares.release ();
   Streak.Model.release ();
@@ -237,7 +237,7 @@ let () =
   (*Fonts.release ();*)
   Audio.release ();
 
-  Gamekit.release (window,renderer);
+  Loop.release (window,renderer);
   exit 0
 
 

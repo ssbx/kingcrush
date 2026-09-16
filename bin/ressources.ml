@@ -2,7 +2,7 @@ open Tsdl
 open Tsdl_mixer
 open Tsdl_image
 open Tsdl_ttf
-open Gamekit
+open Utils
 
 
 module Audio = struct
@@ -54,14 +54,14 @@ module Audio = struct
         | MusicGroove -> s.music_groove
         | MusicCalm -> s.music_calm)
     | None ->
-            failwith "error: audio.ml get_sound None"
+            assert false
 
   let play s =
     if !enabled then (
       match Mixer.play_channel (-1) (get_sound s) 0 with
       | Ok _ -> ()
-      | Error (`Msg m) ->
-              failwith ("audio.ml play error:" ^ m)
+      | Error (`Msg _) ->
+              assert false
     )
 
   let music_play mus =
@@ -71,7 +71,7 @@ module Audio = struct
       | _ -> ();
       match Mixer.play_channel (-1) (get_sound mus) 0 with
       | Ok ch -> music_chan := Some ch
-      | Error (`Msg m) -> failwith ("audio music_play " ^ m)
+      | Error (`Msg _) -> assert false
     )
 
 
@@ -207,7 +207,7 @@ module Figures = struct
         | 'Q' -> Some v.wQ
         | 'K' -> Some v.wK
         | _ -> None)
-    | _ -> failwith "textures not loaded"
+    | _ -> assert false
 end
 
 module Fonts = struct
@@ -218,11 +218,11 @@ module Fonts = struct
   let fg_color = Sdl.Color.create ~r:255 ~g:255 ~b:255 ~a:255
 
   let get_f500 () =
-    match !f500 with Some v -> v | None -> failwith "f500 not loaded"
+    match !f500 with Some v -> v | None -> assert false
 
   let get_surface v =
     match Ttf.render_text_solid (get_f500 ()) v fg_color with
-    | Error (`Msg e) -> failwith e
+    | Error (`Msg _) -> assert false
     | Ok s -> s
 
   let init () =
@@ -230,5 +230,5 @@ module Fonts = struct
     sdl_try (Ttf.init ());
     match Ttf.open_font (Filename.concat !fonts_dir "OpenSans-Regular.ttf") 32 with
     | Ok f -> f500 := Some f
-    | Error (`Msg e) -> failwith e
+    | Error (`Msg _) -> assert false
 end

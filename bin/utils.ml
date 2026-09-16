@@ -1,11 +1,21 @@
 open Tsdl
 open Tsdl_image
-open Gamekit
+
+let sdl_try = function | Ok _ -> () | Error (`Msg e) -> failwith e
+let sdl_get_ok = function | Ok v -> v | Error (`Msg e) -> failwith e
+let sdl_get_unit = function | Ok () -> () | Error (`Msg e) -> failwith e
+let sdl_ignore _ = ()
+let log msg = Printf.printf msg
+
+let sdl_get_ticks () = Int32.to_int (Tsdl.Sdl.get_ticks ())
+let sdl_get_evt_typ e = Sdl.Event.enum Sdl.Event.(get e typ)
+let sdl_get_evt_scancode e = Sdl.Scancode.enum Sdl.Event.(get e keyboard_scancode)
+let some_or_fail = function | Some v -> v | None -> failwith "error some or fail"
 
 module Background = struct
 
   let bg_tex : Sdl.texture option ref = ref None
-  let get_tex () = match !bg_tex with Some v -> v | None -> failwith "background get_tex"
+  let get_tex () = match !bg_tex with Some v -> v | None -> assert false
   let bg_rect : Sdl.rect = Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0
 
   let init ~renderer =
@@ -37,57 +47,4 @@ module Background = struct
     sdl_try (Sdl.render_copy ~dst:bg_rect renderer (get_tex ()))
 
   let set_image _ = ()
-end
-
-module Fade = struct
-  let tex : Sdl.texture option ref = ref None
-  let get_tex () = match !tex with Some v -> v | None -> assert false
-  let rect : Sdl.rect = Sdl.Rect.create ~x:0 ~y:0
-    ~w:Conf.Display.logical_w ~h:Conf.Display.logical_w
-
-  let alpha : int ref = ref 0
-
-  let init ~renderer =
-    let texture = sdl_get_ok (Sdl.create_texture renderer
-      Sdl.Pixel.format_rgba8888
-      ~w:Conf.Display.logical_w ~h:Conf.Display.logical_h
-           Sdl.Texture.access_target) in
-
-    sdl_try (Sdl.set_texture_blend_mode texture Sdl.Blend.mode_blend);
-    sdl_try (Sdl.set_render_target renderer (Some texture));
-    sdl_try (Sdl.set_render_draw_color renderer 0 0 0 255);
-    sdl_try (Sdl.render_clear renderer);
-    sdl_try (Sdl.set_render_target renderer None);
-    tex := Some texture
-
-  let release () =
-    Sdl.destroy_texture (get_tex ());
-    tex := None
-
-  let fade_in f =
-    alpha := 255;
-    let anim = Anims.create
-      ~pt_start:(255)
-      ~pt_end:(0)
-      ~span:1000
-      ~at_update:(fun v -> alpha := v)
-      ~at_end:(fun () -> f ())
-      Anims.Easing.Quadratic_in in
-    Anims.start anim
-
-  let fade_out f =
-    alpha := 0;
-    let anim = Anims.create
-      ~pt_start:(0)
-      ~pt_end:(255)
-      ~span:1000
-      ~at_update:(fun v -> alpha := v)
-      ~at_end:(fun () -> f ())
-      Anims.Easing.Quadratic_in in
-    Anims.start anim
-
-  let draw ~renderer =
-    let t = get_tex () in
-    sdl_try (Sdl.set_texture_alpha_mod t !alpha);
-    sdl_try (Sdl.render_copy ~dst:rect renderer t)
 end

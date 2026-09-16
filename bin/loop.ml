@@ -1,12 +1,6 @@
 open Tsdl
 open Tsdl_mixer
-
-module Anims = Anims
-module Timer = Timer
-module Spring = Spring
-module Easing = Easing
-
-include Utils
+open Utils
 
 let ms_wait_60fps = Int32.div 1000l 60l
 let ticks : int ref = ref 0

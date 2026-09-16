@@ -1,11 +1,11 @@
 open Tsdl
 open Ressources
-open Gamekit
+open Utils
 
 open Tsdl_image
 open Chess
 
-open Gamekit.Anims
+open Anims
 
 module Squares = struct
 
@@ -64,10 +64,10 @@ module Hints = struct
   let rdr : Sdl.renderer option ref = ref None
 
   let get_img_tex () =
-    match !img_texture with Some v -> v | None -> failwith "error: board_hints get_img_tex"
+    match !img_texture with Some v -> v | None -> assert false
 
-  let get_tex () = match !texture with Some v -> v | None -> failwith "board_hints get_tex"
-  let get_rdr () = match !rdr with Some v -> v | None -> failwith "board_hints get_rdr"
+  let get_tex () = match !texture with Some v -> v | None -> assert false
+  let get_rdr () = match !rdr with Some v -> v | None -> assert false
   let psize = ref 0
 
   let init ~renderer =
@@ -154,7 +154,7 @@ module Position = struct
     mutable pieces_text : Sdl.texture option;
     (* animation things *)
     mutable position : Chess.position_t;
-    mutable anims_queue : Gamekit.Anims.anim_handle_t list;
+    mutable anims_queue : Anims.anim_handle_t list;
     mutable anim_piece : Sdl.texture option;
     mutable anim_x : int;
     mutable anim_y : int;
@@ -194,11 +194,11 @@ module Position = struct
   (* utilities =============================================================== *)
   (* ========================================================================= *)
   let get_renderer () =
-    match view_state.renderer with None -> failwith "norenderer" | Some r -> r
+    match view_state.renderer with None -> assert false | Some r -> r
 
   let get_pieces_text () =
     match view_state.pieces_text with
-    | None -> failwith "no texture"
+    | None -> assert false
     | Some t -> t
 
   let board_iter_xy func b =
@@ -245,7 +245,7 @@ module Position = struct
     let curr_id = Conf.model.current_position_id () in
     let pos = Conf.model.position_at (curr_id - 1) in
     let mv = match pos.mv_next with Some v -> v | None -> assert false in
-    if Chess.Utils.is_a_piece pos.board.(mv.to_x).(mv.to_y) then
+    if Chess.is_a_piece pos.board.(mv.to_x).(mv.to_y) then
       Audio.play Audio.Capture
     else Audio.play Audio.Move
 
@@ -274,7 +274,7 @@ module Position = struct
     and bx = Sdl.Rect.x Conf.Display.board_rect
     and by = Sdl.Rect.y Conf.Display.board_rect in
 
-    if x > 7 || y > 7 then failwith "should not !!!!"
+    if x > 7 || y > 7 then assert false
     else
       let xc = bx + (x * pw) and yc = by + (y * pw) in
       (xc, yc)
@@ -289,11 +289,11 @@ module Position = struct
       | [] -> update_position ()
       | anim :: tail ->
           view_state.anims_queue <- tail;
-          Gamekit.Anims.start anim
+          Anims.start anim
     )
 
   let create_anim ~x_src ~x_dst ~y_src ~y_dst ~board_start ~board_end ~piece ~fwd =
-    let anim = Gamekit.Anims.create_v2
+    let anim = Anims.create_v2
       ~pt1_start:x_src ~pt1_end:x_dst ~at1_update:(fun v -> view_state.anim_x <- v)
       ~pt2_start:y_src ~pt2_end:y_dst ~at2_update:(fun v -> view_state.anim_y <- v)
       ~span:anim_time
@@ -311,7 +311,7 @@ module Position = struct
 
 
   let anim_move from_pos_id to_pos_id =
-    let get_mv m = match m with | Some v -> v | None -> failwith "nomove here!"
+    let get_mv m = match m with | Some v -> v | None -> assert false
     and fwd      = from_pos_id < to_pos_id
     and from_pos = Conf.model.position_at from_pos_id
     and to_pos   = Conf.model.position_at to_pos_id in
@@ -327,7 +327,7 @@ module Position = struct
         and x_src, y_src = square_to_coords mv.from_y mv.from_x
         and x_dst, y_dst = square_to_coords mv.to_y mv.to_x
         and board_end    = to_pos.board
-        and board_start  = Chess.Utils.copy_board from_pos.board in
+        and board_start  = Chess.copy_board from_pos.board in
         board_start.(mv.from_x).(mv.from_y) <- '.';
         (x_src, y_src, x_dst, y_dst, board_start, board_end, piece)
       ) else (
@@ -337,7 +337,7 @@ module Position = struct
         let x_src, y_src = square_to_coords mv.to_y mv.to_x
         and x_dst, y_dst = square_to_coords mv.from_y mv.from_x
         and board_end    = to_pos.board
-        and board_start  = Chess.Utils.copy_board to_pos.board in
+        and board_start  = Chess.copy_board to_pos.board in
         board_start.(mv.from_x).(mv.from_y) <- '.';
         (x_src, y_src, x_dst, y_dst, board_start, board_end, piece)
       )
@@ -353,7 +353,7 @@ module Position = struct
    être utilisé pour plein de basard *)
   let drag_init piece rank file =
     let pos = Conf.model.current_position () in
-    let board = Chess.Utils.copy_board pos.board in
+    let board = Chess.copy_board pos.board in
     Hints.show pos rank file;
     board.(file).(rank) <- '.';
     view_state.drag_from_rank <- rank;
@@ -489,7 +489,7 @@ module Position = struct
       sdl_try (Sdl.render_copy ~dst:view_state.anim_rect renderer text)));
     (match (view_state.drag_active, view_state.drag_piece) with
     | false, _ -> ()
-    | true, None -> failwith "drag active but no pieces to draw"
+    | true, None -> assert false
     | true, Some p ->
         let ps = Conf.Display.logical_square_width in
         let half_ps = ps / 2 in
