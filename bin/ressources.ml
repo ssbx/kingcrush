@@ -87,7 +87,7 @@ module Audio = struct
     music_fade_out 500
 
   let init () =
-    audio_dir := Filename.concat !Info.base_dir "sounds";
+    audio_dir := Filename.concat !Conf.base_dir "sounds";
     if !enabled then (
       Mixer.channel_finished chan_finished_callback;
       sounds :=
@@ -152,7 +152,7 @@ module Figures = struct
     sdl_get_ok (Image.load_texture renderer filename)
 
   let init ~renderer =
-    images_dir := Filename.(concat (concat !Info.base_dir "pieces") "default");
+    images_dir := Filename.(concat (concat !Conf.base_dir "pieces") "default");
     let flags = Image.Init.png in
     assert (Image.init flags = flags);
     db :=
@@ -226,7 +226,7 @@ module Fonts = struct
     | Ok s -> s
 
   let init () =
-    fonts_dir := Filename.concat !Info.base_dir "fonts";
+    fonts_dir := Filename.concat !Conf.base_dir "fonts";
     sdl_try (Ttf.init ());
     match Ttf.open_font (Filename.concat !fonts_dir "OpenSans-Regular.ttf") 32 with
     | Ok f -> f500 := Some f

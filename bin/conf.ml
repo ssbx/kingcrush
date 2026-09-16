@@ -85,3 +85,27 @@ module Display = struct
   let logical_square_width : int = logical_board_width / 8
 
 end
+
+module Levels = struct
+  type level = {
+    completed : bool;
+    rank      : int;
+    themes    : string list;
+    npuzzles  : int;
+    doc       : string;
+  }
+
+
+  (* =================================================================== *)
+  (* VERSION 1 ========================================================= *)
+  (* =================================================================== *)
+  let levels = {
+    completed = false;
+    rank = 1000;
+    doc = "docdoc";
+    themes = ["endgame";"long"];
+    npuzzles = 10;
+  }
+
+  let init () = ()
+end
