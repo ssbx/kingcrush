@@ -1,7 +1,7 @@
 open Tsdl
 open Gamekit
+open Ressources
 
-#include "log.cppo"
 
 let usage_msg = "kingcrush [--disable-anims] [--disable-audio] [--verbose]"
 let with_audio = ref true
@@ -22,9 +22,9 @@ let speclist =
 let () =
 
   Info.pref_dir := sdl_get_ok (Sdl.get_pref_path ~org:"seb" ~app:"kingcrush");
-  Info.base_dir := 
+  Info.base_dir :=
     Filename.concat (
-      Filename.concat 
+      Filename.concat
         (sdl_get_ok (Sdl.get_base_path ()) |> Filename.dirname )
         "share" )
     "kingcrush";
@@ -69,6 +69,7 @@ let () =
   Osd.Level_details.init ~renderer;
   Osd.Level_confirm.init ~renderer;
   Levels.init ();
+  Machine.set_num_puzzles 5;
   Machine.to_streak_menu ();
 
   Gamekit.loop

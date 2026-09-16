@@ -1,9 +1,8 @@
 open Tsdl
 open Tsdl_image
 open Gamekit
+open Ressources
 open Chess
-
-#include "log.cppo"
 
 let img_texture : Sdl.texture option ref = ref None
 let img_rect : Sdl.rect = Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0
@@ -11,10 +10,10 @@ let texture : Sdl.texture option ref = ref None
 let rdr : Sdl.renderer option ref = ref None
 
 let get_img_tex () =
-  match !img_texture with Some v -> v | None -> LOG_CRASH()
+  match !img_texture with Some v -> v | None -> failwith "error: board_hints get_img_tex"
 
-let get_tex () = match !texture with Some v -> v | None -> LOG_CRASH()
-let get_rdr () = match !rdr with Some v -> v | None -> LOG_CRASH()
+let get_tex () = match !texture with Some v -> v | None -> failwith "board_hints get_tex"
+let get_rdr () = match !rdr with Some v -> v | None -> failwith "board_hints get_rdr"
 let psize = ref 0
 
 let init ~renderer =

@@ -1,4 +1,11 @@
 open Gamekit
+open Ressources
+
+let num_puzzles = ref 5
+
+let set_num_puzzles n =
+     num_puzzles := n
+
 
 type state_t = {
   mutable fun_update : int -> unit;
@@ -15,7 +22,7 @@ let curr_state : state_t = {
 let to_streak_play () =
   Audio.music_stop ();
   Audio.play Audio.LevelStart;
-  Streak_controller.new_game 1;
+  Streak_controller.new_game !num_puzzles;
   curr_state.fun_update <- (fun _ -> Board_position.update ());
   curr_state.fun_event <- (fun e -> Board_position.handle_sdl_event ~event:e);
   curr_state.fun_draw <- (fun renderer ->

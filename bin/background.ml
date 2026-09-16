@@ -2,10 +2,9 @@ open Tsdl
 open Tsdl_image
 open Gamekit
 
-#include "log.cppo"
 
 let bg_tex : Sdl.texture option ref = ref None
-let get_tex () = match !bg_tex with Some v -> v | None -> LOG_CRASH()
+let get_tex () = match !bg_tex with Some v -> v | None -> failwith "background get_tex"
 let bg_rect : Sdl.rect = Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0
 
 let init ~renderer =

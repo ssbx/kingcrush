@@ -2,6 +2,7 @@ open Tsdl
 open Gamekit
 open Gamekit.Anims
 open Chess
+open Ressources
 module I = Info
 
 let anim_time = 100

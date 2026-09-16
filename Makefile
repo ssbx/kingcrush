@@ -13,6 +13,8 @@ destdir = _build/$(APPNAME)
 
 .PHONY: default run build clean install uninstall gen_themes install-deps
 
+default: run
+
 all: install-deps build data/puzzles.csv
 
 install-deps:
@@ -27,7 +29,7 @@ gen_themes:
 build: data/puzzles.csv
 	dune build
 
-install: uninstall build
+install: build
 	opam install ./kingcrush.opam
 
 uninstall:
