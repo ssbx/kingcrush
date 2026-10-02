@@ -15,8 +15,8 @@
   (description "some")
 
   (depends
-    (dune (and :build (= 3.24)))
-    (ocaml (= 4.14))
+    dune
+    (ocaml (>= 4))
     tsdl
     tsdl-image
     tsdl-mixer
