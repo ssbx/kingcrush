@@ -1,4 +1,22 @@
 
+(*
+TODO:
+
+- pièces "lourdes", quand on les prend il y a de l'inertie. Sentiment
+de "jetter", d'"amener" les pièces ou l'on veut. Lors de coup enchainés
+"a l'aveugle", on peut commencer à déplacer une pièce alors que l'autre
+n'a pas fini d'effectuer son trajet. (peut être un "fantome" de pièce
+, ou viseurs que l'on déplace avec la souris, et la pièce qui suit
+derrière (utiliser "elastic" physique)
+- le mouvement des pièces, quand prises, produit un son agréable
+et fin de frotement. frotement qui varie en volume et note celon
+la vitesse à laquelle va la pièce.
+- des effets sonores satisfaisant lorsque:
+    . le coup est bon,
+    . la pièces arrive a destination
+
+*)
+
 open Tsdl
 open Ressources
 open Utils

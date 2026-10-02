@@ -11,33 +11,39 @@ DUNE_ARGS = --prefix=$(prefix) --bindir=$(bindir) \
 
 destdir = _build/$(APPNAME)
 
-.PHONY: default run build clean install uninstall gen_themes install-deps
+.PHONY: all
+all: run
 
-default: run
-
-all: install-deps build data/puzzles.csv
-
-install-deps:
-	opam install --deps-only ./kingcrush.opam
-
+.PHONY: run
 run:
 	dune exec -- $(APPNAME) --with-datadir=$(root)/data
 
+.PHONY: gen_themes
 gen_themes:
 	dune exec -- $(APPNAME) --with-datadir=$(root)/data --generate-themes-in=$(root)/data
 
-build: data/puzzles.csv
-	dune build
-
+.PHONY: install
 install: build
 	opam install ./kingcrush.opam
 
+.PHONY: uninstall
 uninstall:
 	opam uninstall kingcrush
 
+.PHONY: clean
 clean:
 	dune clean
 
-# real targets
+.PHONY: dist-clean
+dist-clean: clean
+	rm -rf _build _opam
+
+.PHONY: init
+init: _opam data data/puzzles.csv
+
+_opam:
+	opam switch create --deps-only ./ 4.14.4
+
 data/puzzles.csv: data/puzzles.csv.gz
 	cd data && gzip -dk puzzles.csv.gz
+

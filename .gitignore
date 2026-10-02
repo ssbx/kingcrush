@@ -1,4 +1,5 @@
 *.swp
 /_build
+/_opam
 /data/puzzles.csv
 
