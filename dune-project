@@ -1,4 +1,4 @@
-(lang dune 3.5)
+(lang dune 3.24)
 
 (name kingcrush)
 
@@ -15,8 +15,8 @@
   (description "some")
 
   (depends
-    (dune (and :build (= 3.5.0)))
-    (ocaml (= 4.14.4))
+    (dune (and :build (= 3.24)))
+    (ocaml (= 4.14))
     tsdl
     tsdl-image
     tsdl-mixer

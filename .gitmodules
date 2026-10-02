@@ -1,0 +1,6 @@
+[submodule "lib/caml-sdl2-image"]
+	path = lib/caml-sdl2-image
+	url = https://github.com/ssbx/caml-sdl2-image.git
+[submodule "lib/caml-sdl2"]
+	path = lib/caml-sdl2
+	url = https://github.com/ssbx/caml-sdl2.git
