@@ -38,9 +38,10 @@ clean:
 dist-clean: clean
 	rm -rf _build _opam
 
-.PHONY: init
-init: _opam data data/puzzles.csv
+.PHONY: init init_sub
+init_sub:
 	git submodule update --init
+init: _opam init_sub data data/puzzles.csv
 
 _opam:
 	opam switch create --deps-only ./ 4.14.4
