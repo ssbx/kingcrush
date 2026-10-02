@@ -7,8 +7,8 @@ authors: ["seb&seb"]
 homepage: "nohome"
 bug-reports: "nobugs"
 depends: [
-  "dune" {>= "3.5" & build & = "3.5.0"}
-  "ocaml" {= "4.14.4"}
+  "dune" {>= "3.24" & build & = "3.24"}
+  "ocaml" {= "4.14"}
   "tsdl"
   "tsdl-image"
   "tsdl-mixer"
@@ -29,3 +29,4 @@ build: [
     "@doc" {with-doc}
   ]
 ]
+x-maintenance-intent: ["(latest)"]
