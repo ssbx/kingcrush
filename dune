@@ -3,6 +3,5 @@
   (public_name kingcrush)
   (modes (native exe))
   (name main)
-  ;(libraries tsdl tsdl-image tsdl-ttf tsdl-mixer)
   (libraries caml-sdl2 caml-sdl2-image))
 
