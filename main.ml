@@ -15,6 +15,7 @@ type figs_t = {
     bK : Sdl.Texture.t;
     wK : Sdl.Texture.t;
 }
+
 let figs_empty = {
     bP = Sdl.Texture.null ();
     wP = Sdl.Texture.null ();
@@ -30,6 +31,36 @@ let figs_empty = {
     wK = Sdl.Texture.null ();
 }
 
+type input_t = {
+    mutable changed               : bool;
+    mutable left_button_pressed   : bool;
+    mutable middle_button_pressed : bool;
+    mutable right_button_pressed  : bool;
+    mutable wheel : int;
+    mutable pos_x : int;
+    mutable pos_y : int;
+}
+
+let input_empty = {
+    changed                 = false;
+    left_button_pressed     = false;
+    middle_button_pressed   = false;
+    right_button_pressed    = false;
+    wheel                   = 0;
+    pos_x                   = 0;
+    pos_y                   = 0;
+}
+
+let _print_input (m : input_t) =
+    print_endline (
+        "input=" ^
+        " left:"    ^ (Bool.to_int m.left_button_pressed |> Int.to_string)   ^
+        " middle:"  ^ (Bool.to_int m.middle_button_pressed |> Int.to_string) ^
+        " right:"   ^ (Bool.to_int m.right_button_pressed |> Int.to_string)  ^
+        " pos_x:"   ^ (Int.to_string m.pos_x) ^
+        " pos_y:"   ^ (Int.to_string m.pos_y) ^
+        " wheel:"   ^ (Int.to_string m.wheel))
+
 type app_t = {
     mutable rdr     : Sdl.Renderer.t;
     mutable win     : Sdl.Window.t;
@@ -37,27 +68,29 @@ type app_t = {
     mutable ticks   : int;
     mutable delta   : int;
     mutable exit    : bool;
-    mutable refresh : bool;
-    exit_keys       : Sdl.Scancode.t list;
+    exit_keys       : Sdl.Keycode.t list;
     figs_w          : int;
     data_path       : string;
     scr_w           : int;
     scr_h           : int;
+    clear_color     : Sdl.Color.t;
+    input           : input_t;
 }
-let app : app_t = {
-    rdr = Sdl.Renderer.null ();
-    win = Sdl.Window.null ();
-    figs = figs_empty;
-    figs_w = 177;
-    ticks = 0;
-    delta = 0;
-    exit    = false;
-    exit_keys = [Sdl.Scancode.ESCAPE; Sdl.Scancode.Q ];
-    refresh = true;
-    data_path = "/home/seb/src/kingcrush/data";
-    scr_w = 1240;
-    scr_h = 780;
 
+let app : app_t = {
+    rdr         = Sdl.Renderer.null ();
+    win         = Sdl.Window.null ();
+    figs        = figs_empty;
+    figs_w      = 177;
+    ticks       = 0;
+    delta       = 0;
+    exit        = false;
+    exit_keys   = [Sdl.Keycode.Escape; Sdl.Keycode.Q];
+    data_path   = "/home/seb/src/kingcrush/data";
+    scr_w       = 1240;
+    scr_h       = 780;
+    clear_color = Sdl.Color.make ~r:100 ~g:100 ~b:100 ~a:255;
+    input       = input_empty;
 }
 
 let load_figs () =
@@ -117,28 +150,55 @@ let () =
                  Sdl.RendererFlags.PresentVSync ];
     app.figs <- load_figs ();
 
-    Sdl.set_render_draw_color app.rdr ~r:0 ~g:0 ~b:0 ~a:255;
 
-    while app.exit != true do
-        match Sdl.poll_event () with
+    let rec consume_events = fun () ->
+        (match Sdl.poll_event () with
+        | None -> ()
         | Some Sdl.Event.SDL_QUIT _ ->
             app.exit <- true;
         | Some Sdl.Event.SDL_KEYDOWN e ->
-            if (List.mem e.scancode exit_keys) then
+            if (List.mem e.keycode app.exit_keys) then
                 app.exit <- true;
-        | _ -> ();
-        if app.refresh then (
-            Sdl.render_clear app.rdr;
-            Sdl.render_present app.rdr;
-            app.refresh <- false;
-        )
+        | Some Sdl.Event.SDL_MOUSEBUTTONDOWN mb ->
+            (match mb.mb_button with
+            | 1 -> app.input.left_button_pressed <- true; app.input.changed <- true;
+            | 2 -> app.input.middle_button_pressed <- true; app.input.changed <- true;
+            | 3 -> app.input.right_button_pressed <- true; app.input.changed <- true;
+            | _ -> ());
+            consume_events ()
+        | Some Sdl.Event.SDL_MOUSEBUTTONUP mb ->
+            (match mb.mb_button with
+            | 1 -> app.input.left_button_pressed <- false; app.input.changed <- true;
+            | 2 -> app.input.middle_button_pressed <- false; app.input.changed <- true;
+            | 3 -> app.input.right_button_pressed <- false; app.input.changed <- true;
+            | _ -> ());
+            consume_events ()
+        | Some Sdl.Event.SDL_MOUSEWHEEL mw ->
+            app.input.wheel <- mw.mw_y;
+            app.input.changed <- true;
+            consume_events ()
+        | Some Sdl.Event.SDL_MOUSEMOTION mm ->
+            app.input.pos_x <- mm.mm_x;
+            app.input.pos_y <- mm.mm_y;
+            app.input.changed <- true;
+            consume_events ()
+        | Some _ ->
+            consume_events ());
+    in
+
+    while app.exit != true do
+        consume_events ();
+        if app.input.changed then (
+            _print_input app.input;
+            app.input.changed <- false;
+            app.input.wheel <- 0;
+        );
+        Sdl.set_render_draw_color2 app.rdr app.clear_color;
+        Sdl.render_clear app.rdr;
+        Sdl.render_present app.rdr;
     done;
 
     release_figs ();
     Sdl.destroy_renderer app.rdr;
-    Sdl.destroy_window app.win;
+    Sdl.destroy_window app.win
 
-    app.rdr  <- Sdl.Renderer.null ();
-    app.win  <- Sdl.Window.null ();
-    app.figs <- figs_empty;
-    print_endline "hello"
