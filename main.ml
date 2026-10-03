@@ -15,6 +15,8 @@ let texs_dst_rect  = Sdl.Rect.make
 let color_clear = Sdl.Color.make ~r:60 ~g:60 ~b:60 ~a:255
 let color_black_square = Sdl.Color.make ~r:181 ~g:136 ~b:99 ~a:255
 let color_white_square = Sdl.Color.make ~r:240 ~g:217 ~b:181 ~a:255
+let data_path = "/home/seb/src/kingcrush/data"
+let exit_keys = [Sdl.Keycode.Escape; Sdl.Keycode.Q]
 
 type texs_t = {
     board  : Sdl.Texture.t;
@@ -22,14 +24,6 @@ type texs_t = {
     hints  : Sdl.Texture.t;
     map    : Sdl.Texture.t;
     menu   : Sdl.Texture.t;
-}
-
-let texs_empty = {
-    board  = Sdl.Texture.null ();
-    pieces = Sdl.Texture.null ();
-    hints  = Sdl.Texture.null ();
-    map    = Sdl.Texture.null ();
-    menu   = Sdl.Texture.null ();
 }
 
 type figs_t = {
@@ -47,39 +41,14 @@ type figs_t = {
     wK : Sdl.Texture.t;
 }
 
-let figs_empty = {
-    bP = Sdl.Texture.null ();
-    wP = Sdl.Texture.null ();
-    bN = Sdl.Texture.null ();
-    wN = Sdl.Texture.null ();
-    bB = Sdl.Texture.null ();
-    wB = Sdl.Texture.null ();
-    bR = Sdl.Texture.null ();
-    wR = Sdl.Texture.null ();
-    bQ = Sdl.Texture.null ();
-    wQ = Sdl.Texture.null ();
-    bK = Sdl.Texture.null ();
-    wK = Sdl.Texture.null ();
-}
-
 type input_t = {
     mutable changed               : bool;
     mutable left_button_pressed   : bool;
     mutable middle_button_pressed : bool;
     mutable right_button_pressed  : bool;
-    mutable wheel : int;
-    mutable pos_x : int;
-    mutable pos_y : int;
-}
-
-let input_empty = {
-    changed                 = false;
-    left_button_pressed     = false;
-    middle_button_pressed   = false;
-    right_button_pressed    = false;
-    wheel                   = 0;
-    pos_x                   = 0;
-    pos_y                   = 0;
+    mutable wheel                 : int;
+    mutable pos_x                 : int;
+    mutable pos_y                  : int;
 }
 
 let _print_input (m : input_t) =
@@ -97,71 +66,37 @@ let _print_input (m : input_t) =
         " pos_y:"  ^ (Int.to_string m.pos_y) ^
         " wheel:"  ^ (Int.to_string m.wheel))
 
-type app_t = {
-    mutable rdr     : Sdl.Renderer.t;
-    mutable win     : Sdl.Window.t;
-    mutable figs    : figs_t;
-    mutable texs    : texs_t;
-    mutable ticks   : int;
-    mutable delta   : int;
-    mutable exit    : bool;
-    exit_keys       : Sdl.Keycode.t list;
-    figs_w          : int;
-    data_path       : string;
-    scr_w           : int;
-    scr_h           : int;
-    clear_color     : Sdl.Color.t;
-    input           : input_t;
-}
-
-let app : app_t = {
-    rdr         = Sdl.Renderer.null ();
-    win         = Sdl.Window.null ();
-    figs        = figs_empty;
-    texs        = texs_empty;
-    figs_w      = figs_width;
-    ticks       = 0;
-    delta       = 0;
-    exit        = false;
-    exit_keys   = [Sdl.Keycode.Escape; Sdl.Keycode.Q];
-    data_path   = "/home/seb/src/kingcrush/data";
-    scr_w       = screen_width;
-    scr_h       = screen_height;
-    clear_color = color_clear;
-    input       = input_empty;
-}
-
-
 let () =
 
     Sdl.init [ `VIDEO; `EVENTS; `TIMER ];
     Sdl.set_hint "SDL_RENDER_SCALE_QUALITY" "2";
     Sdl.set_hint "SDL_RENDER_VSYNC" "1";
 
-    app.win <- Sdl.create_window
+    let win = Sdl.create_window
         ~title:"KingCrush"
         ~x:`centered
         ~y:`centered
-        ~width:app.scr_w
-        ~height:app.scr_h
-        ~flags:[ Sdl.WindowFlags.OpenGL ];
+        ~width:screen_width
+        ~height:screen_height
+        ~flags:[ Sdl.WindowFlags.OpenGL ]
+    in
 
-    app.rdr <- Sdl.create_renderer
-        ~win:app.win
+    let rdr = Sdl.create_renderer
+        ~win:win
         ~index:(-1)
         ~flags:[
             Sdl.RendererFlags.Accelerated;
             Sdl.RendererFlags.TargetTexture;
-            Sdl.RendererFlags.PresentVSync ];
-
+            Sdl.RendererFlags.PresentVSync ]
+    in
 
     let load_fig = function fig ->
         let cat = Filename.concat in
-        let fname = cat (cat (cat app.data_path "pieces") "default") fig in
-        Img.load_texture app.rdr ~filename:fname
+        let fname = cat (cat (cat data_path "pieces") "default") fig in
+        Img.load_texture rdr ~filename:fname
     in
 
-    app.figs <- {
+    let figs = {
         bP = load_fig "bP.png";
         wP = load_fig "wP.png";
         bN = load_fig "bN.png";
@@ -174,21 +109,21 @@ let () =
         wQ = load_fig "wQ.png";
         bK = load_fig "bK.png";
         wK = load_fig "wK.png";
-    };
-
+    }
+    in
 
     let board_tex =
-        Sdl.create_texture app.rdr
+        Sdl.create_texture rdr
         ~fmt:Sdl.PixelFormat.RGBA8888
         ~access:Sdl.TextureAccess.Target
         ~width:texs_width
         ~height:texs_width
     in
 
-    Sdl.set_render_target app.rdr (Some board_tex);
-    Sdl.set_render_draw_color2 app.rdr color_white_square;
-    Sdl.render_clear app.rdr;
-    Sdl.set_render_draw_color2 app.rdr color_black_square;
+    Sdl.set_render_target rdr (Some board_tex);
+    Sdl.set_render_draw_color2 rdr color_white_square;
+    Sdl.render_clear rdr;
+    Sdl.set_render_draw_color2 rdr color_black_square;
 
     let make_rect = fun ix iy ->
         Sdl.Rect.make
@@ -201,86 +136,118 @@ let () =
     for i = 0 to 7 do
         for j = 0 to 7 do
             if Int.rem (i + j + 1) 2 = 0 then
-                Sdl.render_fill_rect app.rdr (make_rect i j)
+                Sdl.render_fill_rect rdr (make_rect i j)
         done
     done;
 
-    Sdl.set_render_target app.rdr None;
+    Sdl.set_render_target rdr None;
 
-    app.texs <- {texs_empty with board = board_tex};
+    let texs = {
+        board  = board_tex;
+        pieces = Sdl.Texture.null ();
+        hints  = Sdl.Texture.null ();
+        map    = Sdl.Texture.null ();
+        menu   = Sdl.Texture.null ();
+    } in
 
+    let input = {
+        changed               = false;
+        left_button_pressed   = false;
+        middle_button_pressed = false;
+        right_button_pressed  = false;
+        wheel                 = 0;
+        pos_x                 = 0;
+        pos_y                 = 0;
+    } in
 
-    while app.exit != true do
+    let exit   = ref false in
+    let _ticks = ref 0 in
+    let _delta = ref 0 in
 
-        let rec consume_events = function () ->
+    while !exit != true do
+
+        let rec process_events = function () ->
             match Sdl.poll_event () with
-            | Some Sdl.Event.SDL_QUIT _ ->
-                app.exit <- true;
+            | Some Sdl.Event.SDL_QUIT _ -> (
+                exit := true
+            )
 
-            | Some Sdl.Event.SDL_KEYDOWN e ->
-                if (List.mem e.keycode app.exit_keys) then
-                    app.exit <- true;
+            | Some Sdl.Event.SDL_KEYDOWN e -> (
+                if (List.mem e.keycode exit_keys) then
+                    exit := true
+            )
 
-            | Some Sdl.Event.SDL_MOUSEBUTTONDOWN mb ->
-                (match mb.mb_button with
-                | 1 ->
-                    app.input.left_button_pressed <- true;
-                    app.input.changed <- true;
-                | 2 ->
-                    app.input.middle_button_pressed <- true;
-                    app.input.changed <- true;
-                | 3 ->
-                    app.input.right_button_pressed  <- true;
-                    app.input.changed <- true;
-                | _ -> ());
-                consume_events ()
+            | Some Sdl.Event.SDL_MOUSEBUTTONDOWN mb -> (
+                match mb.mb_button with
+                | 1 -> (
+                    input.left_button_pressed <- true;
+                    input.changed <- true
+                )
+                | 2 -> (
+                    input.middle_button_pressed <- true;
+                    input.changed <- true
+                )
+                | 3 -> (
+                    input.right_button_pressed  <- true;
+                    input.changed <- true
+                )
+                | _ -> ();
+                process_events ()
+            )
 
-            | Some Sdl.Event.SDL_MOUSEBUTTONUP mb ->
-                (match mb.mb_button with
-                | 1 ->
-                    app.input.left_button_pressed <- false;
-                    app.input.changed <- true;
-                | 2 ->
-                    app.input.middle_button_pressed <- false;
-                    app.input.changed <- true;
-                | 3 ->
-                    app.input.right_button_pressed <- false;
-                    app.input.changed <- true;
-                | _ -> ());
-                consume_events ()
+            | Some Sdl.Event.SDL_MOUSEBUTTONUP mb -> (
+                match mb.mb_button with
+                | 1 -> (
+                    input.left_button_pressed <- false;
+                    input.changed <- true
+                )
+                | 2 -> (
+                    input.middle_button_pressed <- false;
+                    input.changed <- true
+                )
+                | 3 -> (
+                    input.right_button_pressed <- false;
+                    input.changed <- true
+                )
+                | _ -> ();
+                process_events ()
+            )
 
-            | Some Sdl.Event.SDL_MOUSEWHEEL mw ->
-                app.input.wheel <- mw.mw_y;
-                app.input.changed <- true;
-                consume_events ()
+            | Some Sdl.Event.SDL_MOUSEWHEEL mw -> (
+                input.wheel <- mw.mw_y;
+                input.changed <- true;
+                process_events ()
+            )
 
-            | Some Sdl.Event.SDL_MOUSEMOTION mm ->
-                app.input.pos_x <- mm.mm_x;
-                app.input.pos_y <- mm.mm_y;
-                app.input.changed <- true;
-                consume_events ()
+            | Some Sdl.Event.SDL_MOUSEMOTION mm -> (
+                input.pos_x <- mm.mm_x;
+                input.pos_y <- mm.mm_y;
+                input.changed <- true;
+                process_events ()
+            )
 
-            | Some _ ->
-                consume_events ()
+            | Some _ -> (
+                process_events ()
+            )
 
             | None -> ()
         in
 
-        consume_events ();
+        process_events ();
 
-        if app.input.changed then (
-            app.input.changed <- false;
-            app.input.wheel <- 0;
+        if input.changed then (
+            input.changed <- false;
+            input.wheel <- 0;
         );
 
-        Sdl.set_render_draw_color2 app.rdr app.clear_color;
-        Sdl.render_clear app.rdr;
-        Sdl.render_copy app.rdr
-            ~texture:app.texs.board
+        Sdl.set_render_draw_color2 rdr color_clear;
+        Sdl.render_clear rdr;
+        Sdl.render_copy rdr
+            ~texture:texs.board
             ~srcrect:None
             ~dstrect:(Some texs_dst_rect);
 
-        Sdl.render_present app.rdr;
+        Sdl.render_present rdr;
 
     done;
 
@@ -289,22 +256,22 @@ let () =
         Sdl.destroy_texture tx
     in
 
-    destroy_tex app.figs.bP;
-    destroy_tex app.figs.bN;
-    destroy_tex app.figs.bB;
-    destroy_tex app.figs.bR;
-    destroy_tex app.figs.bQ;
-    destroy_tex app.figs.bK;
-    destroy_tex app.figs.wP;
-    destroy_tex app.figs.wN;
-    destroy_tex app.figs.wB;
-    destroy_tex app.figs.wR;
-    destroy_tex app.figs.wQ;
-    destroy_tex app.figs.wK;
+    destroy_tex figs.bP;
+    destroy_tex figs.bN;
+    destroy_tex figs.bB;
+    destroy_tex figs.bR;
+    destroy_tex figs.bQ;
+    destroy_tex figs.bK;
+    destroy_tex figs.wP;
+    destroy_tex figs.wN;
+    destroy_tex figs.wB;
+    destroy_tex figs.wR;
+    destroy_tex figs.wQ;
+    destroy_tex figs.wK;
 
-    destroy_tex app.texs.board;
+    destroy_tex texs.board;
 
-    Sdl.destroy_renderer app.rdr;
-    Sdl.destroy_window app.win;
+    Sdl.destroy_renderer rdr;
+    Sdl.destroy_window win;
     Sdl.quit ()
 
