@@ -313,13 +313,9 @@ let () =
 
     if app.exit = true then () else (
 
-      Option.iter print_endline (Uci.read uci_session);
+      Uci.update uci_session;
 
       let app2 = process_events app in
-
-      (*
-      if app2.in_changed = true then _print_input app2;
-         *)
 
       Sdl.set_render_target rdr None;
       Sdl.set_render_draw_color2 rdr C.Col.clear;

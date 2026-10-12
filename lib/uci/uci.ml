@@ -1,66 +1,101 @@
+module Unix = UnixLabels
 
-type state_t = Init | Ready
-
-type t = {
-  pid           : int;
-  stdout_fd     : Unix.file_descr;
-  stdout_ch     : in_channel;
-  stderr_ch     : in_channel;
-  stderr_fd     : Unix.file_descr;
-  stdin_ch      : out_channel;
-  mutable state : state_t;
-}
-
-let send ch str =
-  Out_channel.output_string ch str;
-  Out_channel.flush ch
-
-
-let start () =
-  let (out_ch, in_ch, err_ch) =
-    Unix.open_process_args_full "stockfish" [||] [||]
-  in
-  let out_fd = Unix.descr_of_in_channel out_ch in
-  let err_fd = Unix.descr_of_in_channel err_ch in
-  Unix.set_nonblock out_fd;
-  Unix.set_nonblock err_fd;
-  let pid = Unix.process_full_pid (out_ch, in_ch, err_ch) in
-  send in_ch "uci\n";
-  {
-    pid       = pid;
-    stdout_fd = out_fd;
-    stdout_ch = out_ch;
-    stdin_ch  = in_ch;
-    stderr_ch = err_ch;
-    stderr_fd = err_fd;
-    state     = Init;
+module Exec = struct
+  type t = {
+    pid         : int;
+    to_prog     : Unix.file_descr;
+    from_prog   : Unix.file_descr;
+    mutable buf : bytes;
+    mutable pos : int;
+    len         : int;
   }
 
-let close s =
-  send s.stdin_ch "quit\n";
-  try
-    ignore (Unix.waitpid [] s.pid)
-  with
-  | _ -> ();
-    ignore (Unix.close_process_full
-              (s.stdout_ch, s.stdin_ch, s.stderr_ch))
+  let buf_len = 300
 
-let read_line ch fd =
-  let buff = Bytes.create 100 in
-  try
-    let n = Unix.read fd buff 0 100 in
-    if (n > 0) then
-      Some (Bytes.sub buff 0 n |> Bytes.to_string)
-    else
+  let send fd str =
+    Unix.write
+      ~buf:(Bytes.of_string str)
+      ~pos:0
+      ~len:(String.length str) fd |> ignore;
+    Unix.out_channel_of_descr fd |> flush
+
+
+  let start () =
+    let (read_out, write_out),
+        (read_in,  write_in)  =
+      Unix.pipe ~cloexec:true (),
+      Unix.pipe ~cloexec:true ()
+    in
+    Unix.set_nonblock write_in;
+    Unix.set_nonblock read_out;
+    Unix.set_close_on_exec read_out;
+    Unix.set_close_on_exec read_in;
+    send write_in "uci\n\n";
+    let pid = Unix.create_process
+        ~prog:"stockfish"
+        ~args:[||]
+        ~stdin:read_in
+        ~stdout:write_out
+        ~stderr:Unix.stderr
+    in
+    {
+      pid       = pid;
+      to_prog   = write_in;
+      from_prog = read_out;
+      buf       = Bytes.make buf_len '\x00';
+      pos       = 0;
+      len       = buf_len;
+    }
+
+  let close s =
+    send s.to_prog "quit\n";
+    try Unix.waitpid ~mode:[] s.pid |> ignore with _ -> ();
+    Unix.kill ~pid:s.pid ~signal:Sys.sigterm
+
+  let match_line s =
+    if (Bytes.contains s.buf '\n') then (
+      let index = Bytes.index s.buf '\n' in
+      let line  = Bytes.sub s.buf 0 index |> Bytes.to_string in
+      let new_buf = Bytes.make buf_len '.' in
+      Bytes.blit s.buf (index + 1) new_buf 0 (s.len - index - 1);
+      s.buf <- new_buf;
+      s.pos <- s.pos - index - 1;
+      Some line
+    ) else (
+      if (s.pos = s.len) then failwith "bad input";
       None
-  with
-  | Unix.Unix_error (EAGAIN,_,_)
-  | Unix.Unix_error (EWOULDBLOCK,_,_) -> None
+    )
 
-let read s =
-  Option.iter print_endline (read_line s.stderr_ch s.stderr_fd);
-  read_line s.stdout_ch s.stdout_fd
+  let read_line s =
+    try
+      let n = Unix.read
+          ~buf:s.buf
+          ~pos:s.pos
+          ~len:(s.len - s.pos)
+          s.from_prog in
+      s.pos <- s.pos + n;
+      match_line s;
+    with
+    | Unix.Unix_error (EAGAIN,_,_)
+    | Unix.Unix_error (EWOULDBLOCK,_,_) ->
+      match_line s
 
-let print s =
-  Printf.eprintf "pid:%i\n" s.pid
+
+
+  let print s =
+    Printf.eprintf "pid:%i\n" s.pid
+
+end
+
+
+let start () = Exec.start ()
+let close s = Exec.close s
+
+let update s =
+  let more = ref true in
+  while !more do
+    match (Exec.read_line s) with
+    | None -> more := false
+    | Some v -> print_endline v
+  done
 
