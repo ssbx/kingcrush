@@ -1,26 +1,19 @@
-prefix  = /
-bindir  = $(prefix)
-datadir = $(prefix)
-root    = $(shell pwd)
-
-APPNAME	  = kingcrush
-VERSION   = 0.1
-DUNE_ARGS = --prefix=$(prefix) --bindir=$(bindir) \
-	    --datadir=$(datadir) --destdir=$(destdir) \
-	    --profile=release
-
-destdir = _build/$(APPNAME)
+datadir = $(shell pwd)/data
 
 .PHONY: all
 all: run
 
 .PHONY: run
 run:
-	dune exec -- $(APPNAME) --with-datadir=$(root)/data
+	dune exec -- kingcrush --with-datadir=$(datadir)
+
+.PHONY: run2
+run2:
+	dune exec ucitest
 
 .PHONY: gen_themes
 gen_themes:
-	dune exec -- $(APPNAME) --with-datadir=$(root)/data --generate-themes-in=$(root)/data
+	dune exec -- kingcrush --with-datadir=$(datadir) --generate-themes-in=$(datadir)
 
 .PHONY: install
 install: build
@@ -44,7 +37,8 @@ init_sub:
 init: _opam init_sub data data/puzzles.csv
 
 _opam:
-	opam switch create --deps-only ./ 4.14.4
+	dune build --auto-promote @opam
+	opam switch create --deps-only ./ 5.5.1
 
 data/puzzles.csv: data/puzzles.csv.gz
 	cd data && gzip -dk puzzles.csv.gz

@@ -1,5 +1,4 @@
 (lang dune 3.24)
-(using menhir 3.0)
 
 (name kingcrush)
 
@@ -17,8 +16,6 @@
 
   (depends
     dune
-    (ocaml (>= 4))
-    tsdl
-    tsdl-image
-    tsdl-mixer
-    tsdl-ttf  ))
+    (ocaml (>= 5))
+  )
+)

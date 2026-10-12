@@ -3,5 +3,5 @@
   (public_name kingcrush)
   (modes (native exe))
   (name main)
-  (libraries caml-sdl2 caml-sdl2-image))
+  (libraries caml-sdl2 caml-sdl2-image uci))
 

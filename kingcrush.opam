@@ -8,11 +8,7 @@ homepage: "nohome"
 bug-reports: "nobugs"
 depends: [
   "dune" {>= "3.24"}
-  "ocaml" {>= "4"}
-  "tsdl"
-  "tsdl-image"
-  "tsdl-mixer"
-  "tsdl-ttf"
+  "ocaml" {>= "5"}
   "odoc" {with-doc}
 ]
 build: [
