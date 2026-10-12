@@ -32,6 +32,7 @@ type app_t = {
   in_wheel                 : int;
   in_pos_x                 : int;
   in_pos_y                 : int;
+  stop_button_pressed      : bool;
   exit                     : bool;
   ticks                    : int;
   delta                    : int;
@@ -86,8 +87,12 @@ let rec process_events (app : app_t) =
   | Some Sdl.Event.SDL_KEYDOWN e -> (
       if (List.mem e.keycode Consts.exit_keys) then
         {app with exit = true}
-      else
+      else if (e.keycode = Sdl.Keycode.S) then (
+        print_endline "qlqqqqqqqqqqqqqqqqqqqqqq";
+        process_events {app with stop_button_pressed = true}
+      ) else (
         process_events app
+      )
     )
 
   | Some Sdl.Event.SDL_MOUSEBUTTONDOWN mb -> (
@@ -302,6 +307,7 @@ let () =
     in_wheel                 = 0;
     in_pos_x                 = 0;
     in_pos_y                 = 0;
+    stop_button_pressed      = false;
     exit                     = false;
     ticks                    = 0;
     delta                    = 0;
@@ -313,9 +319,16 @@ let () =
 
     if app.exit = true then () else (
 
-      Uci.update uci_session;
-
       let app2 = process_events app in
+
+      if (app2.stop_button_pressed = true) then (
+        Uci.stop uci_session
+      );
+
+      Uci.update uci_session;
+      let app2 = {app2 with stop_button_pressed = false} in
+
+
 
       Sdl.set_render_target rdr None;
       Sdl.set_render_draw_color2 rdr C.Col.clear;

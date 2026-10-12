@@ -1,6 +1,6 @@
 module Unix = UnixLabels
 
-module Exec = struct
+module Proc = struct
   type t = {
     pid         : int;
     to_prog     : Unix.file_descr;
@@ -12,12 +12,14 @@ module Exec = struct
 
   let buf_len = 300
 
-  let send fd str =
+
+  let send s str =
+    print_endline ("-- send: " ^ str);
     Unix.write
-      ~buf:(Bytes.of_string str)
+      ~buf:(Bytes.of_string (str ^ "\n"))
       ~pos:0
-      ~len:(String.length str) fd |> ignore;
-    Unix.out_channel_of_descr fd |> flush
+      ~len:((String.length str) + 1) s.to_prog |> ignore;
+    Unix.out_channel_of_descr s.to_prog |> flush
 
 
   let start () =
@@ -30,7 +32,6 @@ module Exec = struct
     Unix.set_nonblock read_out;
     Unix.set_close_on_exec read_out;
     Unix.set_close_on_exec read_in;
-    send write_in "uci\n\n";
     let pid = Unix.create_process
         ~prog:"stockfish"
         ~args:[||]
@@ -48,8 +49,6 @@ module Exec = struct
     }
 
   let close s =
-    send s.to_prog "quit\n";
-    try Unix.waitpid ~mode:[] s.pid |> ignore with _ -> ();
     Unix.kill ~pid:s.pid ~signal:Sys.sigterm
 
   let match_line s =
@@ -87,15 +86,92 @@ module Exec = struct
 
 end
 
+type t = {
+  proc              : Proc.t;
+  mutable id_name   : string;
+  mutable id_author : string;
+  mutable options   : string list;
+  mutable uciok     : bool;
+  mutable isready   : bool;
+  mutable running   : bool;
+  mutable ingame    : bool;
+}
 
-let start () = Exec.start ()
-let close s = Exec.close s
+let debug s =
+  print_endline ("-- uciok: " ^ (Bool.to_string s.uciok));
+  print_endline ("-- id:     " ^ s.id_name);
+  print_endline ("-- author: " ^ s.id_author);
+  print_endline ("-- isready: " ^ (Bool.to_string s.isready));
+  print_endline ("-- running: " ^ (Bool.to_string s.running));
+  print_endline ("-- ingame: " ^ (Bool.to_string s.ingame));
+  List.iter (fun v -> print_endline ("-- opt: " ^ v)) s.options
+
+
+let start () =
+  let proc = Proc.start() in
+  Proc.send proc "uci";
+  {
+    proc      = proc;
+    id_name   = "";
+    id_author = "";
+    options   = [];
+    uciok     = false;
+    isready   = false;
+    running   = false;
+    ingame    = false;
+  }
+
+let close s =
+  debug s;
+  Proc.send s.proc "stop";
+  Proc.send s.proc "quit";
+  Unix.sleepf 0.1;
+  Proc.close s.proc
+
+type msg_type = UciOpt | UciInfo of string | UciOk | UciReadyOk |
+                UciNone | UciBestMove of string
+
+let handle_line s v =
+  let drop s1 s2 = String.drop_first (String.length s2) s1 |> String.trim in
+  if (String.starts_with ~prefix:"id name" v) then (
+    s.id_name <- drop v "id name"; UciOpt
+  ) else if (String.starts_with ~prefix:"id author" v) then (
+    s.id_author <- drop v "id author"; UciOpt
+  ) else if (String.starts_with ~prefix:"option name" v) then (
+    s.options <- (drop v "option name") :: s.options; UciOpt
+  ) else if (String.equal v "uciok") then (
+    s.uciok <- true; UciOk
+  ) else if (String.equal v "readyok") then (
+    s.isready <- true; UciReadyOk
+  ) else if (String.starts_with ~prefix:"info " v) then (
+    UciInfo v
+  ) else if (String.starts_with ~prefix:"bestmove " v) then (
+
+    UciBestMove v
+  ) else (
+    print_endline ("ERR handle_line unknown: " ^ v);
+    UciNone
+  )
+
 
 let update s =
   let more = ref true in
   while !more do
-    match (Exec.read_line s) with
+    match (Proc.read_line s.proc) with
     | None -> more := false
-    | Some v -> print_endline v
+    | Some v ->
+      (match (handle_line s v) with
+      | UciOk -> Proc.send s.proc "isready"
+      | UciReadyOk -> (
+        Proc.send s.proc "ucinewgame";
+        Proc.send s.proc "go";
+        s.running <- true
+      )
+      | UciInfo v -> print_endline (" -- infffff: " ^ v)
+      | _ -> ()
+      );
+      print_endline v
   done
 
+let stop s =
+  Proc.send s.proc "stop"
